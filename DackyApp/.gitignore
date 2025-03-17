@@ -1,0 +1,67 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+debug.log
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+hs_err_pid*.log
+
+# Archivos de compilación
+*.o
+*.so
+*.exe
+*.dll
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment
+venv/
+.env
+.envrc
+*.venv
+
+# Archivos de dependencias
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Archivos de bases de datos y migraciones
+*.sqlite3
+*.db
+*.sql
+migrations/
+
+# Archivos generados
+build/
+.flutter/
+.dart_tool/
+.pub-cache/
+.packages
+*.iml
+
+# Dependencias
+pubspec.lock
+
+# Configuración de VS Code
+.vscode/
+
+# Archivos de compilación
+/build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.pdb
+*.ilk
+*.obj
+*.tlog
+*.recipe
+*.lastbuildstate

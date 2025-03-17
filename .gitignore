@@ -1,0 +1,16 @@
+# Ignorar archivos y carpetas de versiones anteriores
+.vscode/
+Copias de codigo de versiones anteriores/
+Web/
+CRUD.py
+App/
+
+# Ignorar archivos específicos dentro de App/
+App/inicioscreen2.dart
+App/inicioscreen3.dart
+App/inicio_screen2.dart
+App/login_ant.dart
+App/main1.dart
+
+# Ignorar archivos comprimidos
+*.zip

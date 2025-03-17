@@ -1,0 +1,9 @@
+Listado de rutas de carpetas
+El n£mero de serie del volumen es 0095-C51D
+C:.
+    Dacky.mwb
+    dacky.sql
+    estructura.txt
+    
+No existe ninguna subcarpeta 
+

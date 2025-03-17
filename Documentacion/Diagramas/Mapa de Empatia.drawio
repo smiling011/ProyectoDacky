@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" version="24.7.6">
+  <diagram name="Página-1" id="EP0Kh6Wl1sCgcIuS-UJ0">
+    <mxGraphModel dx="2037" dy="1616" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-1" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;¿Qué ve?&lt;br&gt;&lt;/h1&gt;&lt;li&gt;Interfaz clara y amigable con colores que transmiten confianza y seguridad.&lt;/li&gt;&lt;li&gt;Ubicación en tiempo real de la mascota en un mapa interactivo.&lt;/li&gt;&lt;li&gt;Información de la mascota (identidad, vacunas, historial de salud).&lt;/li&gt;&lt;li&gt;Opción de escanear el código QR del collar del perro.&lt;/li&gt;&lt;li&gt;Publicidad relevante de tiendas o servicios para mascotas.&lt;/li&gt;&lt;p&gt;&amp;nbsp;&lt;br&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="-180" y="-230" width="270" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-2" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;¿Qué dice y hace?&lt;/h1&gt;&lt;li&gt;Recomienda la app a otros dueños de mascotas si está satisfecho con el servicio.&lt;/li&gt;&lt;li&gt;Utiliza la app de manera activa para hacer seguimiento de la mascota.&lt;/li&gt;&lt;li&gt;Busca constantemente información sobre la salud de su mascota y opciones de cuidado.&lt;/li&gt;&lt;li&gt;Publica en redes sociales sobre su experiencia con la app.&lt;/li&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="740" y="-230" width="253" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-3" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;p&gt;&lt;strong&gt;¿Qué le duele?&lt;/strong&gt;&lt;/p&gt;&lt;/h1&gt;&lt;li&gt;Pérdida o robo de la mascota.&lt;/li&gt;&lt;li&gt;Dificultades para usar tecnologías o interfaces complicadas.&lt;/li&gt;&lt;li&gt;Preocupación por costos adicionales si la app tiene funciones premium.&lt;/li&gt;&lt;li&gt;Incertidumbre sobre la exactitud del GPS o posibles fallos técnicos.&lt;/li&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="728" y="260" width="277" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-4" target="UPJGnOS-f1IVYOP2Ux9r-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-4" target="UPJGnOS-f1IVYOP2Ux9r-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-4" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;¿Que oye?&lt;/span&gt;&lt;span style=&quot;background-color: initial; font-size: 12px; font-weight: normal;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/h1&gt;&lt;li&gt;Opiniones de otros dueños de mascotas que han tenido experiencias positivas con la app.&lt;/li&gt;&lt;li&gt;Recomendaciones de veterinarios o grupos de dueños de mascotas.&lt;/li&gt;&lt;li&gt;Promociones o alertas sobre servicios para mascotas (guarderías, veterinarios).&lt;/li&gt;&lt;li&gt;Notificaciones sobre la ubicación del perro o recordatorios de vacunas.&lt;/li&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="222.75" y="60" width="360" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-5" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;&lt;p&gt;&lt;strong&gt;¿Qué piensa y siente?&lt;/strong&gt;&lt;/p&gt;&lt;/h1&gt;&lt;li&gt;&lt;strong&gt;Preocupaciones&lt;/strong&gt;: Seguridad del perro, miedo a que se pierda o le pase algo.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Frustraciones&lt;/strong&gt;: Que la tecnología no funcione bien o que sea complicada de usar.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Deseos&lt;/strong&gt;: Tener tranquilidad al saber siempre dónde está su mascota y poder acceder a toda la información desde un solo lugar.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Aspiraciones&lt;/strong&gt;: Que la app sea rápida y confiable en cualquier situación, incluso sin mucha cobertura de red.&lt;/li&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="247.75" y="-530" width="310" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-7" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;¿Qué le motiva?&lt;/h1&gt;&lt;li&gt;Seguridad y tranquilidad al tener siempre el control sobre el bienestar de su perro.&lt;/li&gt;&lt;li&gt;La capacidad de conectar con servicios de valor agregado como clínicas veterinarias o entrenadores.&lt;/li&gt;&lt;li&gt;Facilidad de uso de la app en momentos críticos (como pérdida o emergencia).&lt;/li&gt;&lt;li&gt;La opción de personalizar la información y tener un control directo sobre el historial médico de su mascota.&lt;/li&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="-180" y="260" width="270" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-8" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeColor=#FF3399;" vertex="1" parent="1">
+          <mxGeometry x="370" y="-185" width="65.5" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="UPJGnOS-f1IVYOP2Ux9r-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.995;entryY=0.554;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="UPJGnOS-f1IVYOP2Ux9r-8" target="UPJGnOS-f1IVYOP2Ux9r-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
