@@ -1,16 +1,17 @@
+// register.js
+
 document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.querySelector('.form-register');
     const alertaError = document.querySelector('.alerta-error');
     const alertaExito = document.querySelector('.alerta-exito');
 
-    registerForm.addEventListener('submit', (event) => {
-        event.preventDefault(); 
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
         const userName = registerForm.userName.value.trim();
         const userEmail = registerForm.userEmail.value.trim();
         const userPassword = registerForm.userPassword.value.trim();
 
-    
         clearErrorStyles(registerForm);
 
         // Validaciones
@@ -26,14 +27,29 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        
-        showAlert(alertaExito, "Te registraste correctamente");
-
-        
-        console.log({ userName, userEmail, userPassword });
+        // Enviar datos al backend
+        try {
+            const response = await fetch('http://127.0.0.1:5000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: userName, email: userEmail, password: userPassword })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert(alertaExito, "Registro exitoso");
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            } else {
+                showAlert(alertaError, result.message);
+            }
+        } catch (error) {
+            showAlert(alertaError, "Error al conectar con el servidor");
+        }
     });
 
-    // Valida el formato del correo electrónico
     function validateEmail(email) {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
@@ -48,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // campos vacios
     function highlightEmptyFields(form, fields) {
         const inputFields = form.querySelectorAll('input');
         inputFields.forEach((input, index) => {
