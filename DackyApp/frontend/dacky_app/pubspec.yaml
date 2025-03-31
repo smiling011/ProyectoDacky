@@ -9,6 +9,7 @@ dependencies:
   google_fonts: ^6.2.1
   http: ^1.2.2
   google_maps_flutter: ^2.5.0
+  cupertino_icons: ^1.0.2
 
   collection: ^1.18.0  # Mantén esta versión
   material_color_utilities: ^0.11.1  # Mantén esta versión
@@ -23,6 +24,9 @@ fonts:
 flutter:
   assets:
     - assets/Minilogo dacky.png
+    - assets/google.png
+    - assets/facebook.png
+    - assets/correo.png
 
 
 

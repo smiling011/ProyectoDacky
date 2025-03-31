@@ -71,10 +71,10 @@ class InicioScreen extends StatelessWidget {
                       backgroundColor: const Color(0xFFD8CFBC), // Color del botón
                       foregroundColor: const Color(0xFF11120D), // Color del texto
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 15),
+                          horizontal: 80, vertical: 15),
                     ),
                     onPressed: () {
                       Navigator.pushNamed(context, '/login'); // Navegación a LoginScreen
@@ -87,10 +87,10 @@ class InicioScreen extends StatelessWidget {
                       backgroundColor: const Color(0xFFD8CFBC),
                       foregroundColor: const Color(0xFF11120D),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 15),
+                          horizontal: 80, vertical: 15),
                     ),
                     onPressed: () {
                       Navigator.pushNamed(context, '/register'); // Navegación a RegisterScreen
@@ -98,19 +98,17 @@ class InicioScreen extends StatelessWidget {
                     child: const Text('Registro'),
                   ),
                   const SizedBox(height: 30),
+                  //iconos del inicio y el login con mis img
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.g_translate,
-                          size: 30, color: Color(0xFFFFFBF4)), // Google
+                    children: [
+                      Image.asset('assets/google.png', width: 30, height: 30),
                       SizedBox(width: 20),
-                      Icon(Icons.facebook,
-                          size: 30, color: Color(0xFFFFFBF4)), // Facebook
+                      Image.asset('assets/facebook.png', width: 30, height: 30),
                       SizedBox(width: 20),
-                      Icon(Icons.email,
-                          size: 30, color: Color(0xFFFFFBF4)), // Correo
+                      Image.asset('assets/correo.png', width: 30, height: 30),
                     ],
-                  ),
+                  )
                 ],
               ),
             ),

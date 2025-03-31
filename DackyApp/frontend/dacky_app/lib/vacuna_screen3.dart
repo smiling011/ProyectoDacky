@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'vacuna_screen5.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 
 class VacunaScreen3 extends StatelessWidget {
   @override
@@ -42,10 +43,10 @@ class VacunaScreen3 extends StatelessWidget {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black54,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.vaccines), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.pets), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.location_on), label: ''),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.vaccines), label: ''),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.pets), label: ''),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: ''),
         ],
       ),
     );

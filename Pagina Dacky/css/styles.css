@@ -11026,7 +11026,7 @@ p {
   margin-top: 40px;
 }
 .site-heading-upper {
-  margin-top: 10px; /* Ajusta según lo que necesites */
+  margin-top: 10px; 
 }
 
 footer{
@@ -11042,8 +11042,11 @@ footer{
 }
 
 .nav-link:hover .fa-user {
-  color: #11120D; /* Cambia el color al pasar el cursor */
+  color: #11120D; 
 }
 
+.carousel-inner.rounded {
+  border-radius: 10rem;
+}
 
 

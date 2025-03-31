@@ -21,19 +21,15 @@ class RegisterScreen extends StatelessWidget {
         child: Column(
           children: [
             // Sección superior (Icono y título)
-            Expanded(
+             Expanded(
               flex: 2,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.black,
-                    radius: 50,
-                    child: Icon(
-                      Icons.pets, // Cambia esto por tu logo
-                      size: 50,
-                      color: Color(0xFFFFFBF4),
-                    ),
+                   Image.asset( // edite desde aca
+                    'assets/Minilogo dacky.png', // logo
+                    width: 190,// tamaño
+                    height: 190,
                   ),
                   const SizedBox(height: 10),
                   const Text(

@@ -17,10 +17,10 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.pets, // Cambia esto por el logo que necesites
-                    size: 80,
-                    color: Color(0xFFFFFBF4),
+                   Image.asset( // edite desde aca
+                    'assets/Minilogo dacky.png', // logo
+                    width: 190,// tamaño
+                    height: 190,
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -104,15 +104,15 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Botones de inicio con Google, Facebook y correo
+                  //iconos del inicio y el login con mis img
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.g_translate, size: 30, color: Color(0xFFFFFBF4)),
+                      children: [
+                        Image.asset('assets/google_icon.png', width: 30, height: 30),
                         SizedBox(width: 20),
-                        Icon(Icons.facebook, size: 30, color: Color(0xFFFFFBF4)),
+                        Image.asset('assets/facebook_icon.png', width: 30, height: 30),
                         SizedBox(width: 20),
-                        Icon(Icons.email, size: 30, color: Color(0xFFFFFBF4)),
+                        Image.asset('assets/email_icon.png', width: 30, height: 30),
                       ],
                     ),
                     const SizedBox(height: 20),
