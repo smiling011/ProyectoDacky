@@ -9,15 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
 
         const userName = registerForm.userName.value.trim();
+        const userLastName = registerForm.userLastName.value.trim(); // Asegúrate de tener este campo en tu formulario
         const userEmail = registerForm.userEmail.value.trim();
         const userPassword = registerForm.userPassword.value.trim();
+        const userPhone = registerForm.userPhone.value.trim(); // Asegúrate de tener este campo
+        const userAddress = registerForm.userAddress.value.trim(); // Asegúrate de tener este campo
 
         clearErrorStyles(registerForm);
 
-        // Validaciones
-        if (!userName || !userEmail || !userPassword) {
+        if (!userName || !userLastName || !userEmail || !userPassword || !userPhone || !userAddress) {
             showAlert(alertaError, "Todos los campos son obligatorios");
-            highlightEmptyFields(registerForm, [userName, userEmail, userPassword]);
+            highlightEmptyFields(registerForm, [userName, userLastName, userEmail, userPassword, userPhone, userAddress]);
             return;
         }
 
@@ -27,23 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Enviar datos al backend
         try {
-            const response = await fetch('http://127.0.0.1:5000/register', {
+            const response = await fetch('/register', { // URL relativa
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: userName, email: userEmail, password: userPassword })
+                body: new FormData(registerForm) // Enviar FormData
             });
-            
+
             const result = await response.json();
-            
-            if (result.success) {
+
+            if (response.status === 201) {
                 showAlert(alertaExito, "Registro exitoso");
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 2000);
-            } else {
+            } else if (response.status === 409) {
                 showAlert(alertaError, result.message);
+            } else {
+                showAlert(alertaError, "Error al registrar el usuario");
             }
         } catch (error) {
             showAlert(alertaError, "Error al conectar con el servidor");

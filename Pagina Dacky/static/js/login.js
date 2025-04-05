@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('.form-login');
     const alertaError = document.querySelector('.alerta-error');
     const alertaExito = document.querySelector('.alerta-exito');
-    
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         clearErrorStyles(loginForm);
 
-        // Validaciones
         if (!userEmail || !userPassword) {
             showAlert(alertaError, "Todos los campos son obligatorios");
             highlightEmptyFields(loginForm, [userEmail, userPassword]);
@@ -27,21 +25,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Enviar datos al backend
         try {
-            const response = await fetch('http://127.0.0.1:5000/login', {
+            const response = await fetch('/login', { // URL relativa
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, password: userPassword })
+                body: new FormData(loginForm) // Enviar FormData
             });
-            
+
             const result = await response.json();
-            
-            if (result.success) {
+
+            if (response.status === 200) {
                 showAlert(alertaExito, "Inicio de sesión exitoso");
-                window.location.href = '/dashboard';
-            } else {
+                window.location.href = '/perfil'; // Redirigir a /perfil
+            } else if (response.status === 401) {
                 showAlert(alertaError, result.message);
+            } else {
+                showAlert(alertaError, "Error al iniciar sesión");
             }
         } catch (error) {
             showAlert(alertaError, "Error al conectar con el servidor");

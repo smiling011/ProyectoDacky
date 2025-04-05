@@ -243,7 +243,8 @@ body {
 .return-home {
   position: absolute;
   top: 10px; /* Ajusta la posición vertical según sea necesario */
-  right: 10px; /* Ajusta la posición horizontal según sea necesario */
+  left: 10px; /* Ajusta la posición horizontal según sea necesario */
+  
 }
 
 .return-home a {
@@ -251,6 +252,6 @@ body {
 }
 
 .return-home img {
-  border-radius: 50%; /* Opcional: para hacerlo circular */
+  border-radius: 0%; /* Opcional: para hacerlo circular */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Opcional: sombra para resaltar */
 }

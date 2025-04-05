@@ -8,18 +8,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="icon" type="image/x-icon" href="img/Minilogo dacky.png" />
-    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/Minilogo dacky.png') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <title>DACKY</title>
 
 </head>
 <body>
-<!-- registro -->
-    <div class="container-form register">
+<div class="container-form register">
         <div class="information">
             <div class="info-childs">
                 <h2>DACKY</h2>
-                <img src="img/Minilogo dacky.png" alt="" class="welcome-image">
+                <img src="{{ url_for('static', filename='img/Minilogo dacky.png') }}" alt="" class="welcome-image">
                 <input type="button" value="Iniciar Sesión" id="sign-in">
             </div>
         </div>
@@ -27,8 +27,6 @@
         <div class="form-information">
             <div class="form-information-childs">
                 <h2>Crear una Cuenta</h2>
-                <!-- aca estaban los iconos -->
-                
                 <form class="form form-register" method="POST" action="/register" novalidate>
                     <div>
                         <label>
@@ -55,18 +53,18 @@
                         </label>
                    </div>
                    <div>
-                    <label>
-                        <i class='bx bx-phone'></i>
-                        <input type="text" placeholder="Celular" name="userPhone" required>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <i class='bx bx-map'></i>
-                        <input type="text" placeholder="Direccion" name="userAddress" required>
-                    </label>
-                </div>
-                   
+                        <label>
+                            <i class='bx bx-phone'></i>
+                            <input type="text" placeholder="Celular" name="userPhone" required>
+                        </label>
+                   </div>
+                   <div>
+                        <label>
+                            <i class='bx bx-map'></i>
+                            <input type="text" placeholder="Direccion" name="userAddress" required>
+                        </label>
+                   </div>
+
                     <input type="submit" value="Registrarse">
                     <div class="alerta-error">Todos los campos son obligatorios</div>
                     <div class="alerta-exito">Te registraste correctamente</div>
@@ -80,12 +78,11 @@
         </div>
     </div>
 
-<!-- inicio sesion -->
-    <div class="container-form login hide">
+<div class="container-form login hide">
         <div class="information">
             <div class="info-childs">
                 <h2>DACKY</h2>
-                <img src="img/Minilogo dacky.png" alt="" class="welcome-image">
+                <img src="{{ url_for('static', filename='img/Minilogo dacky.png') }}" alt="" class="welcome-image">
                 <input type="button" value="Registrarse" id="sign-up">
             </div>
         </div>
@@ -93,9 +90,6 @@
         <div class="form-information">
             <div class="form-information-childs">
                 <h2>Iniciar Sesión</h2>
-                <!-- aca estaban los iconos -->
-                
-                
                 <form class="form form-login" method="POST" action="/login" novalidate>
                     <div>
                         <label >
@@ -122,12 +116,12 @@
         </div>
     </div>
     <div class="return-home">
-        <a href="index.html">
-            <img src="img/home.png" alt="Inicio" style="width: 30px; height: 30px;">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/home.png') }}" alt="Inicio" style="width: 30px; height: 30px;">
         </a>
     </div>
-    <script src="js/script.js"></script>
-    <script src="js/register.js"></script>
-    <script src="js/login.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
 </html>
