@@ -11,7 +11,11 @@ class RegisterScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF11120D),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFFFFFBF4)),
+          icon: Image.asset(
+            'assets/nombre_de_tu_imagen.png', // Reemplaza con la ruta de tu imagen
+            width: 24, // Opcional: ajusta el ancho
+            height: 24, // Opcional: ajusta la altura
+          ),
           onPressed: () {
             Navigator.pop(context); // Navegar hacia atrás
           },
@@ -21,14 +25,15 @@ class RegisterScreen extends StatelessWidget {
         child: Column(
           children: [
             // Sección superior (Icono y título)
-             Expanded(
+            Expanded(
               flex: 2,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Image.asset( // edite desde aca
+                  Image.asset(
+                    // edite desde aca
                     'assets/Minilogo dacky.png', // logo
-                    width: 190,// tamaño
+                    width: 190, // tamaño
                     height: 190,
                   ),
                   const SizedBox(height: 10),
@@ -82,7 +87,7 @@ class RegisterScreen extends StatelessWidget {
                         backgroundColor: const Color(0xFF11120D),
                         foregroundColor: const Color(0xFFFFFBF4),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(50),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
@@ -116,7 +121,7 @@ class RegisterScreen extends StatelessWidget {
             ? const Icon(Icons.visibility_off, color: Color(0xFFD8CFBC))
             : null,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide.none,
         ),
       ),

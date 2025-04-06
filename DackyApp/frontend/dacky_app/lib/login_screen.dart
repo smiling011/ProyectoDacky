@@ -17,9 +17,10 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Image.asset( // edite desde aca
+                  Image.asset(
+                    // edite desde aca
                     'assets/Minilogo dacky.png', // logo
-                    width: 190,// tamaño
+                    width: 190, // tamaño
                     height: 190,
                   ),
                   const SizedBox(height: 10),
@@ -52,13 +53,14 @@ class LoginScreen extends StatelessWidget {
                     // Campo de correo
                     TextField(
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.person, color: Color(0xFFD8CFBC)),
+                        prefixIcon:
+                            const Icon(Icons.person, color: Color(0xFFD8CFBC)),
                         hintText: 'Correo',
                         hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
                         filled: true,
                         fillColor: const Color(0xFFFFFBF4),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(50),
                           borderSide: BorderSide.none,
                         ),
                       ),
@@ -68,13 +70,14 @@ class LoginScreen extends StatelessWidget {
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock, color: Color(0xFFD8CFBC)),
+                        prefixIcon:
+                            const Icon(Icons.lock, color: Color(0xFFD8CFBC)),
                         hintText: 'Contraseña',
                         hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
                         filled: true,
                         fillColor: const Color(0xFFFFFBF4),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(50),
                           borderSide: BorderSide.none,
                         ),
                       ),
@@ -85,14 +88,16 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => GpsScreen()), // va la pantalla del GPS
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GpsScreen()), // va la pantalla del GPS
                         );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF11120D),
                         foregroundColor: const Color(0xFFFFFBF4),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(50),
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
@@ -104,15 +109,16 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                  //iconos del inicio y el login con mis img
+                    //iconos del inicio y el login con mis img
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset('assets/google_icon.png', width: 30, height: 30),
+                        Image.asset('assets/google.png', width: 30, height: 30),
                         SizedBox(width: 20),
-                        Image.asset('assets/facebook_icon.png', width: 30, height: 30),
+                        Image.asset('assets/facebook.png',
+                            width: 30, height: 30),
                         SizedBox(width: 20),
-                        Image.asset('assets/email_icon.png', width: 30, height: 30),
+                        Image.asset('assets/correo.png', width: 30, height: 30),
                       ],
                     ),
                     const SizedBox(height: 20),

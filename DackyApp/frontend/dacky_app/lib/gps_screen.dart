@@ -32,7 +32,7 @@ class _GpsScreenState extends State<GpsScreen> {
             top: 40,
             right: 20,
             child: Image.asset(
-              'assets/4.png', // Logo en la esquina superior derecha
+              'assets/Minilogo dacky.png', // Logo en la esquina superior derecha
               width: 50,
               height: 50,
             ),

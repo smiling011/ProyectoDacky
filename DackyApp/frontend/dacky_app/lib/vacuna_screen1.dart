@@ -27,7 +27,7 @@ class VacunaScreen1 extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 15.0),
             child: CircleAvatar(
-              backgroundImage: AssetImage('assets/4.png'),
+              backgroundImage: AssetImage('assets/Minilogo Dacky.png'),
               radius: 20,
             ),
           ),

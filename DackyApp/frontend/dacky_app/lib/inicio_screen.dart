@@ -74,7 +74,7 @@ class InicioScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 80, vertical: 15),
+                          horizontal: 100, vertical: 15),
                     ),
                     onPressed: () {
                       Navigator.pushNamed(context, '/login'); // Navegación a LoginScreen
@@ -90,7 +90,7 @@ class InicioScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 80, vertical: 15),
+                          horizontal: 115, vertical: 15),
                     ),
                     onPressed: () {
                       Navigator.pushNamed(context, '/register'); // Navegación a RegisterScreen

@@ -29,7 +29,7 @@ class VacunaScreen4 extends StatelessWidget {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage('assets/dog.jpg'),
+                  backgroundImage: AssetImage('assets/Minilogo Dacky.png'),
                   radius: 30,
                 ),
                 SizedBox(width: 10),
