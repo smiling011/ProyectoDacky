@@ -12,7 +12,7 @@ class RegisterScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: Image.asset(
-            'assets/nombre_de_tu_imagen.png', // Reemplaza con la ruta de tu imagen
+            'assets/atras_blanco.png', // Reemplaza con la ruta de tu imagen
             width: 24, // Opcional: ajusta el ancho
             height: 24, // Opcional: ajusta la altura
           ),
@@ -22,35 +22,14 @@ class RegisterScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // Sección superior (Icono y título)
-            Expanded(
-              flex: 2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    // edite desde aca
-                    'assets/Minilogo dacky.png', // logo
-                    width: 190, // tamaño
-                    height: 190,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'REGISTRO',
-                    style: TextStyle(
-                      color: Color(0xFFFFFBF4),
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Sección inferior (Formulario)
-            Expanded(
-              flex: 3,
+            // Contenedor del formulario (parte inferior)
+            Positioned(
+              top: 120.0, // Ajusta este valor para controlar la posición superior del formulario
+              left: 0,
+              right: 0,
+              bottom: 0,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFF565449), // Fondo del formulario
@@ -63,22 +42,17 @@ class RegisterScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Campo de correo
+                    const SizedBox(height: 80), // Espacio para el logo y título superpuestos
                     _buildTextField('Correo', false),
                     const SizedBox(height: 15),
-                    // Campo de nombre
                     _buildTextField('Nombre', false),
                     const SizedBox(height: 15),
-                    // Campo de apellido
                     _buildTextField('Apellido', false),
                     const SizedBox(height: 15),
-                    // Campo de contraseña
                     _buildTextField('Contraseña', true),
                     const SizedBox(height: 15),
-                    // Campo de repetir contraseña
                     _buildTextField('Repita Contraseña', true),
                     const SizedBox(height: 20),
-                    // Botón de registrarse
                     ElevatedButton(
                       onPressed: () {
                         // Función de registro
@@ -100,6 +74,32 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+            // Sección superior (Logo y título) superpuesta
+            Positioned(
+              top: 0.0, // Cambiado a 0.0 para subirlo a la parte superior
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'REGISTRO',
+                    style: TextStyle(
+                      color: Color(0xFFFFFBF4),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Image.asset(
+                    // edite desde aca
+                    'assets/Minilogo dacky.png', // logo
+                    width: 190, // tamaño
+                    height: 190,
+                  ),
+                ],
               ),
             ),
           ],

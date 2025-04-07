@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+// import 'gps_screen.dart';
+import 'vacuna_screen1.dart';
+import 'pet_screen1.dart';
+import 'user_screen1.dart';
 
 class GpsScreen extends StatefulWidget {
   @override
@@ -42,7 +46,7 @@ class _GpsScreenState extends State<GpsScreen> {
             child: Container(
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Color(0xFF11120D),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
@@ -75,7 +79,7 @@ class _GpsScreenState extends State<GpsScreen> {
         CircleAvatar(
           backgroundColor: Colors.white,
           radius: 30,
-          child: Icon(icon, size: 30, color: Colors.black),
+          child: Icon(icon, size: 30, color: Color(0xFF11120D)),
         ),
         SizedBox(height: 8),
         Text(label, style: TextStyle(color: Colors.white)),
@@ -85,20 +89,69 @@ class _GpsScreenState extends State<GpsScreen> {
 
   Widget _buildBottomNavBar() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Icon(Icons.location_on, size: 30),
-          Icon(Icons.vaccines, size: 30),
-          Icon(Icons.pets, size: 30),
-          Icon(Icons.person, size: 30),
-        ],
-      ),
-    );
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(30),
+        ),
+        // ... (importaciones) ...
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GpsScreen()),
+                );
+              },
+              child: Image.asset(
+                'assets/gps_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VacunaScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/vacuna_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PetScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/huella_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/user_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+          ],
+        ));
   }
 }

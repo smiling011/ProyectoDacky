@@ -43,8 +43,10 @@ class VacunaScreen3 extends StatelessWidget {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black54,
         items: [
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.location_on), label: ''),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.vaccines), label: ''),
+          BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.location_on), label: ''),
+          BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.vaccines), label: ''),
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.pets), label: ''),
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: ''),
         ],

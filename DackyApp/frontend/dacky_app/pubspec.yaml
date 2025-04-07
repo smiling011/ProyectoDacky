@@ -27,7 +27,13 @@ flutter:
     - assets/google.png
     - assets/facebook.png
     - assets/correo.png
-
+    - assets/atras_blanco.png
+    - assets/gps_icon.png
+    - assets/vacuna_icon.png
+    - assets/huella_icon.png
+    - assets/user_icon.png 
+    - assets/usuario.png
+    - assets/candado.png
 
 
 

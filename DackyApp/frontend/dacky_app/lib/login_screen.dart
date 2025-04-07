@@ -8,6 +8,20 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF11120D), // Fondo oscuro
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF11120D),
+        elevation: 0,
+        leading: IconButton(
+          icon: Image.asset(
+            'assets/atras_blanco.png', // Reemplaza con la ruta correcta de tu imagen
+            width: 24,
+            height: 24,
+          ),
+          onPressed: () {
+            Navigator.pop(context); // Navegar hacia atrás 
+          },
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -18,7 +32,6 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    // edite desde aca
                     'assets/Minilogo dacky.png', // logo
                     width: 190, // tamaño
                     height: 190,
@@ -51,37 +64,51 @@ class LoginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Campo de correo
-                    TextField(
-                      decoration: InputDecoration(
-                        prefixIcon:
-                            const Icon(Icons.person, color: Color(0xFFD8CFBC)),
-                        hintText: 'Correo',
-                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
-                        filled: true,
-                        fillColor: const Color(0xFFFFFBF4),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: BorderSide.none,
+                   TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Padding( // Envuelve Image.asset con Padding para ajustar el tamaño si es necesario
+                        padding: const EdgeInsets.all(8.0), // Ajusta el padding según necesites
+                        child: Image.asset(
+                          'assets/usuario.png', // Reemplaza con la ruta de tu imagen de persona
+                          width: 24, // Opcional: ajusta el ancho
+                          height: 24, // Opcional: ajusta la altura
+                          color: const Color(0xFFD8CFBC), // Opcional: aplica un color a la imagen si es monocromática
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Campo de contraseña
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        prefixIcon:
-                            const Icon(Icons.lock, color: Color(0xFFD8CFBC)),
-                        hintText: 'Contraseña',
-                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
-                        filled: true,
-                        fillColor: const Color(0xFFFFFBF4),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: BorderSide.none,
-                        ),
+                      hintText: 'Correo',
+                      hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                      filled: true,
+                      fillColor: const Color(0xFFFFFBF4),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: BorderSide.none,
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Campo de contraseña
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      prefixIcon: Padding( // Envuelve Image.asset con Padding
+                        padding: const EdgeInsets.all(8.0), // Ajusta el padding según necesites
+                        child: Image.asset(
+                          'assets/candado.png', // Reemplaza con la ruta de tu imagen de candado
+                          width: 24, // Opcional: ajusta el ancho
+                          height: 24, // Opcional: ajusta la altura
+                          color: const Color(0xFFD8CFBC), // Opcional: aplica un color a la imagen
+                        ),
+                      ),
+                      hintText: 'Contraseña',
+                      hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                      filled: true,
+                      fillColor: const Color(0xFFFFFBF4),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
                     const SizedBox(height: 20),
                     // Botón de iniciar sesión
                     ElevatedButton(
@@ -114,10 +141,10 @@ class LoginScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset('assets/google.png', width: 30, height: 30),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Image.asset('assets/facebook.png',
                             width: 30, height: 30),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Image.asset('assets/correo.png', width: 30, height: 30),
                       ],
                     ),
