@@ -58,8 +58,8 @@ class _GpsScreenState extends State<GpsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildButton(Icons.gps_fixed, 'Conectar GPS'),
-                      _buildButton(Icons.pets, 'Buscar'),
+                      _buildButton('assets/collar-para-mascotas.png', 'Conectar GPS'), // Reemplaza con la ruta correcta
+                      _buildButton('assets/localizacion.png', 'Buscar'), // Reemplaza con la ruta correcta
                     ],
                   ),
                   SizedBox(height: 20),
@@ -73,13 +73,21 @@ class _GpsScreenState extends State<GpsScreen> {
     );
   }
 
-  Widget _buildButton(IconData icon, String label) {
+  Widget _buildButton(String imagePath, String label) {
     return Column(
       children: [
         CircleAvatar(
           backgroundColor: Colors.white,
           radius: 30,
-          child: Icon(icon, size: 30, color: Color(0xFF11120D)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              imagePath,
+              width: 30,
+              height: 30,
+              color: Color(0xFF11120D), // Opcional: aplica un color si es necesario
+            ),
+          ),
         ),
         SizedBox(height: 8),
         Text(label, style: TextStyle(color: Colors.white)),
@@ -94,8 +102,6 @@ class _GpsScreenState extends State<GpsScreen> {
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(30),
         ),
-        // ... (importaciones) ...
-
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

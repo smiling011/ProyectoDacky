@@ -26,7 +26,8 @@ class RegisterScreen extends StatelessWidget {
           children: [
             // Contenedor del formulario (parte inferior)
             Positioned(
-              top: 120.0, // Ajusta este valor para controlar la posición superior del formulario
+              top:
+                  120.0, // Ajusta este valor para controlar la posición superior del formulario
               left: 0,
               right: 0,
               bottom: 0,
@@ -42,7 +43,9 @@ class RegisterScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 80), // Espacio para el logo y título superpuestos
+                    const SizedBox(
+                        height:
+                            80), // Espacio para el logo y título superpuestos
                     _buildTextField('Correo', false),
                     const SizedBox(height: 15),
                     _buildTextField('Nombre', false),
@@ -117,9 +120,6 @@ class RegisterScreen extends StatelessWidget {
         hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
         filled: true,
         fillColor: const Color(0xFFFFFBF4),
-        suffixIcon: isPassword
-            ? const Icon(Icons.visibility_off, color: Color(0xFFD8CFBC))
-            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide.none,
