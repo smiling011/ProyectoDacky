@@ -14,3 +14,7 @@ App/main1.dart
 
 # Ignorar archivos comprimidos
 *.zip
+
+
+# Ignorar styles.css específico
+/Pagina Dacky/static/css/styles.css
