@@ -33,3 +33,10 @@ Desarrollar una aplicación móvil con Flutter y un backend en Flask que permita
 3️⃣ **Docker** → Contenedores para el backend y frontend.
 
 4️⃣ **Prometheus** → Monitoreo de métricas en Flask.
+
+
+## 🛡️ Licencia
+
+Este proyecto es propiedad exclusiva de **Victoria Saleck Adelaide Vielma Romero**.  
+Está protegido por una licencia propietaria en español e inglés.  
+Consulta el archivo [LICENSE](LICENSE) para más información.
