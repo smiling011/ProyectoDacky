@@ -1,22 +1,19 @@
 # DACKY - Aplicativo de Rastreo GPS para Mascotas
 
-## **Descripción General**
+## ✨ Descripción General
 
-Dacky es una aplicación móvil diseñada para el rastreo GPS de mascotas, permitiendo a los dueños gestionar la información básica de sus perros, su tarjeta virtual de vacunas y facilitar su recuperación en caso de extravío mediante un código QR en el collar.
+**Dacky** es una aplicación móvil diseñada para el rastreo GPS de mascotas, permitiendo a los dueños gestionar la información básica de sus perros, su tarjeta virtual de vacunas y facilitar su recuperación en caso de extravío mediante un código QR en el collar.
 
-## **Objetivo del Proyecto**
+## 💡 Objetivo del Proyecto
 
-Desarrollar una aplicación móvil con Flutter y un backend en Flask que permita a los usuarios registrar y rastrear a sus mascotas, integrando funcionalidades como:
+Desarrollar una aplicación móvil con **Flutter** y un backend en **Flask** que permita a los usuarios:
 
-✔️ Registro de la información del perro.
+- ✅ Registrar información básica del perro
+- ✅ Generar una tarjeta de vacunación digital
+- ✅ Realizar seguimiento en tiempo real mediante GPS
+- ✅ Escanear un código QR para mostrar información de contacto en caso de pérdida
 
-✔️ Tarjeta de vacunación digital.
-
-✔️ Seguimiento en tiempo real mediante GPS.
-
-✔️ Escaneo de código QR para mostrar la información de contacto en caso de pérdida.
-
-## **Tecnologías Utilizadas**
+## 🚀 Tecnologías Utilizadas
 
 - **Frontend:** Dart (Flutter)
 - **Backend:** Python (Flask)
@@ -24,28 +21,23 @@ Desarrollar una aplicación móvil con Flutter y un backend en Flask que permita
 - **Control de Versiones:** GitHub
 - **Infraestructura:** Servidores en la nube (futuro)
 
-## **Herramientas en DevOps**
+## 🚧 Herramientas DevOps
 
-1️⃣ **GitHub** → Control de versiones.
-
-2️⃣ **GitHub Actions** → Automatización CI/CD.
-
-3️⃣ **Docker** → Contenedores para el backend y frontend.
-
-4️⃣ **Prometheus** → Monitoreo de métricas en Flask.
-
+- **GitHub** → Control de versiones
+- **GitHub Actions** → Automatización CI/CD
+- **Docker** → Contenedores para backend y frontend
+- **Prometheus** → Monitoreo de métricas en Flask
 
 ## 🛡️ Licencia
 
-Este proyecto es propiedad exclusiva de **Victoria Saleck Adelaide Vielma Romero**.  
-Está protegido por una licencia propietaria en español e inglés.  
+Este proyecto es propiedad exclusiva de **Victoria Saleck Adelaide Vielma Romero**.
+
+Está protegido por una licencia propietaria en español e inglés.
 Consulta el archivo [LICENSE](LICENSE) para más información.
-
-
 
 ---
 
-## ✅ Requisitos previos
+## ✅ Requisitos Previos
 
 ### General
 - Sistema operativo: Windows (recomendado) o Linux
@@ -53,119 +45,128 @@ Consulta el archivo [LICENSE](LICENSE) para más información.
 - Conexión a internet
 
 ### Frontend (Flutter)
-- Flutter SDK: `3.5.0` o superior
-- Android Studio o Visual Studio Code con extensiones de Flutter y Dart
+- Flutter SDK `3.5.0` o superior
+- Android Studio o VS Code con extensiones de Flutter y Dart
 - Emulador Android o dispositivo físico
-- Conexión AVD configurada (Android Virtual Device)
+- Configuración de AVD (Android Virtual Device)
 
 ### Backend (Python)
-- Python: `3.10` o superior
-- XAMPP (con Apache y MySQL)
+- Python `3.10` o superior
+- XAMPP (Apache y MySQL)
 - pip
 
 ---
 
-## 🛠️ Instalación y configuración
+## 🛠️ Instalación y Configuración
 
 ### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/smiling011/ProyectoDacky.git
-cd Proyecto Dacky
+cd "Proyecto Dacky"
+```
 
-2. Configurar backend (Flask)
-a. Crear entorno virtual (opcional pero recomendado)
-bash
-Copiar
-Editar
+### 2. Configurar Backend (Flask)
+
+**a. Crear entorno virtual**
+
+```bash
 python -m venv venv
 venv\Scripts\activate  # En Windows
-b. Instalar dependencias
-bash
-Copiar
-Editar
+```
+
+**b. Instalar dependencias**
+
+```bash
 pip install flask flask_sqlalchemy pymysql
-c. Configurar base de datos
-Abrir XAMPP y arrancar MySQL
+```
 
-Ingresar a http://localhost/phpmyadmin
+**c. Configurar base de datos**
 
-Crear una base de datos llamada dacky
+- Abrir XAMPP y arrancar MySQL
+- Ir a http://localhost/phpmyadmin
+- Crear una base de datos llamada `dacky`
+- Importar el archivo `dacky.sql` incluido en el proyecto
 
-Importar el archivo dacky.sql incluido en el proyecto
+**d. Archivo config.py (ejemplo)**
 
-d. Archivo config.py (ejemplo)
-python
-Copiar
-Editar
+```python
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/dacky'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-e. Ejecutar servidor Flask
-bash
-Copiar
-Editar
+```
+
+**e. Ejecutar servidor Flask**
+
+```bash
 python dacky.py
-Deberías ver: Running on http://127.0.0.1:5000/
+```
 
-3. Configurar frontend (Flutter)
-a. Ir al directorio del proyecto Flutter
-bash
-Copiar
-Editar
+Deberías ver: `Running on http://127.0.0.1:5000/`
+
+### 3. Configurar Frontend (Flutter)
+
+**a. Ir al directorio del proyecto Flutter**
+
+```bash
 cd dacky_app
-b. Verificar y obtener paquetes
-bash
-Copiar
-Editar
+```
+
+**b. Obtener paquetes**
+
+```bash
 flutter pub get
-c. Asegurarse de tener configurado un emulador o dispositivo conectado
-bash
-Copiar
-Editar
+```
+
+**c. Verificar emulador o dispositivo**
+
+```bash
 flutter devices
-d. Ejecutar la app
-bash
-Copiar
-Editar
+```
+
+**d. Ejecutar la app**
+
+```bash
 flutter run
-🌐 Comunicación entre Flutter y Flask
-La app Flutter se comunica con Flask a través de http://10.0.2.2:5000 (si estás usando un emulador Android)
+```
 
-Si usas un dispositivo físico, asegúrate de estar en la misma red y usar la IP local de tu PC (ej. http://192.168.1.10:5000)
+## 🌐 Comunicación entre Flutter y Flask
 
-📝 Notas adicionales
-La app usa una base de datos MySQL alojada localmente.
+- Si usas emulador Android: `http://10.0.2.2:5000`
+- Si usas un dispositivo físico: usa tu IP local (ej. `http://192.168.1.10:5000`)
 
-El código QR redirige a una URL que en futuras versiones podrá conectarse a un backend online.
+---
 
-Los colores y la tipografía están personalizados según la marca Dacky.
+## 📝 Notas Adicionales
 
-📦 Dependencias principales
-Backend
-Flask
+- La app usa una base de datos MySQL alojada localmente
+- El código QR redirige a una URL que podrá conectarse a un backend online
+- Colores y tipografía personalizados según la marca Dacky
 
-Flask-SQLAlchemy
+## 📆 Dependencias Principales
 
-PyMySQL
+### Backend
+- Flask
+- Flask-SQLAlchemy
+- PyMySQL
 
-Frontend
-Flutter SDK 3.5.0+
+### Frontend
+- Flutter SDK 3.5.0+
+- Google Fonts (Montserrat)
+- Material Components
 
-Google Fonts (Montserrat)
+---
 
-Material Components
+## 🚧 Futuras Mejoras
 
-🚧 Futuras mejoras
-Autenticación segura (tokens JWT)
+- Autenticación segura (JWT)
+- Subida de imagen del perro
+- Integración con GPS real y mapas
+- Portal web para dueños y veterinarias
+- Planes premium con publicidad personalizada
 
-Subida de imagen del perro
+## 📨 Contacto
 
-Integración con GPS real y mapas
-
-Portal web para dueños y veterinarias
-
-Planes premium con publicidad personalizada
-
-📬 Contacto
 Si tienes alguna duda o sugerencia, no dudes en escribir a:
-📧 victoriavielmaromero@gmail.com
+
+**victoriavielmaromero@gmail.com**
+
