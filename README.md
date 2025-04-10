@@ -40,3 +40,37 @@ Desarrollar una aplicación móvil con Flutter y un backend en Flask que permita
 Este proyecto es propiedad exclusiva de **Victoria Saleck Adelaide Vielma Romero**.  
 Está protegido por una licencia propietaria en español e inglés.  
 Consulta el archivo [LICENSE](LICENSE) para más información.
+
+
+
+---
+
+## ✅ Requisitos previos
+
+### General
+- Sistema operativo: Windows (recomendado) o Linux
+- Git instalado
+- Conexión a internet
+
+### Frontend (Flutter)
+- Flutter SDK: `3.5.0` o superior
+- Android Studio o Visual Studio Code con extensiones de Flutter y Dart
+- Emulador Android o dispositivo físico
+- Conexión AVD configurada (Android Virtual Device)
+
+### Backend (Python)
+- Python: `3.10` o superior
+- XAMPP (con Apache y MySQL)
+- pip
+
+---
+
+## 🛠️ Instalación y configuración
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/smiling011/ProyectoDacky.git
+cd Proyecto Dacky
+
+
