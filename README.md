@@ -73,4 +73,99 @@ Consulta el archivo [LICENSE](LICENSE) para más información.
 git clone https://github.com/smiling011/ProyectoDacky.git
 cd Proyecto Dacky
 
+2. Configurar backend (Flask)
+a. Crear entorno virtual (opcional pero recomendado)
+bash
+Copiar
+Editar
+python -m venv venv
+venv\Scripts\activate  # En Windows
+b. Instalar dependencias
+bash
+Copiar
+Editar
+pip install flask flask_sqlalchemy pymysql
+c. Configurar base de datos
+Abrir XAMPP y arrancar MySQL
 
+Ingresar a http://localhost/phpmyadmin
+
+Crear una base de datos llamada dacky
+
+Importar el archivo dacky.sql incluido en el proyecto
+
+d. Archivo config.py (ejemplo)
+python
+Copiar
+Editar
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/dacky'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+e. Ejecutar servidor Flask
+bash
+Copiar
+Editar
+python dacky.py
+Deberías ver: Running on http://127.0.0.1:5000/
+
+3. Configurar frontend (Flutter)
+a. Ir al directorio del proyecto Flutter
+bash
+Copiar
+Editar
+cd dacky_app
+b. Verificar y obtener paquetes
+bash
+Copiar
+Editar
+flutter pub get
+c. Asegurarse de tener configurado un emulador o dispositivo conectado
+bash
+Copiar
+Editar
+flutter devices
+d. Ejecutar la app
+bash
+Copiar
+Editar
+flutter run
+🌐 Comunicación entre Flutter y Flask
+La app Flutter se comunica con Flask a través de http://10.0.2.2:5000 (si estás usando un emulador Android)
+
+Si usas un dispositivo físico, asegúrate de estar en la misma red y usar la IP local de tu PC (ej. http://192.168.1.10:5000)
+
+📝 Notas adicionales
+La app usa una base de datos MySQL alojada localmente.
+
+El código QR redirige a una URL que en futuras versiones podrá conectarse a un backend online.
+
+Los colores y la tipografía están personalizados según la marca Dacky.
+
+📦 Dependencias principales
+Backend
+Flask
+
+Flask-SQLAlchemy
+
+PyMySQL
+
+Frontend
+Flutter SDK 3.5.0+
+
+Google Fonts (Montserrat)
+
+Material Components
+
+🚧 Futuras mejoras
+Autenticación segura (tokens JWT)
+
+Subida de imagen del perro
+
+Integración con GPS real y mapas
+
+Portal web para dueños y veterinarias
+
+Planes premium con publicidad personalizada
+
+📬 Contacto
+Si tienes alguna duda o sugerencia, no dudes en escribir a:
+📧 victoriavielmaromero@gmail.com
