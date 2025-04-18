@@ -1,95 +1,85 @@
-# -*- coding: utf-8 -*- # Añadir encoding por si acaso
 
 # librerias utilizadas
 from flask import (Flask, render_template, request, jsonify,
-                   session, redirect, url_for, flash) # <--- Añadidos session, redirect, url_for, flash
-from functools import wraps # <--- Añadido para el decorador de protección
-import mysql.connector # Conector para bases de datos
-# IMPORTANTE: Seguridad de Contraseñas (ver nota al final)
-# from werkzeug.security import generate_password_hash, check_password_hash
+                   session, redirect, url_for, flash)
+from functools import wraps
+import mysql.connector
+# --- IMPORTAR HERRAMIENTAS DE HASHEO ---
+from werkzeug.security import generate_password_hash, check_password_hash
+# --------------------------------------
 
 # inicializacion
 app = Flask(__name__)
 
-# !!! CLAVE SECRETA PARA SESIONES !!!
-# Cambia esto por una cadena de caracteres larga, aleatoria y secreta
+# Clave secreta (mantenla segura)
 app.secret_key = 'tu_llave_muy_secreta_y_dificil_de_adivinar_12345!@#$%'
 
-# configuracion de los parametros de conexion a la base de datos
+# Configuración DB (sin cambios)
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "12345", # Considera usar variables de entorno para esto
+    "password": "12345",
     "database": "dacky",
-    "charset": "utf8mb4" # Añadir charset para soportar caracteres especiales
+    "charset": "utf8mb4"
 }
 
-# establece la conexión con la base de datos usando la configuracion anterior
+# Función conectar_db (sin cambios)
 def conectar_db():
     try:
         conn = mysql.connector.connect(**db_config)
         return conn
     except mysql.connector.Error as err:
         print(f"Error conectando a la base de datos: {err}")
-        # En un caso real, podrías manejar esto de forma más robusta
-        # Por ahora, si falla la conexión, la app no funcionará correctamente
         return None
 
-# --- Decorador para proteger rutas de administrador ---
+# Decorador admin_required (sin cambios)
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Verificar si el usuario está en sesión Y si su rol es 'admin'
         if 'user_role' not in session or session['user_role'] != 'admin':
             flash('Acceso no autorizado. Debes ser administrador.', 'warning')
-            return redirect(url_for('login')) # Redirigir a la página de login
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
 
-# ruta para la pagina principal
+# Rutas /, sobrenosotros, servicio, descargarapp (sin cambios)
 @app.route('/')
 def index():
     return render_template('index.html')
-
-# --- Rutas existentes (sin cambios) ---
 @app.route('/sobrenosotros')
 def sobrenosotros():
     return render_template('sobrenosotros.html')
-
 @app.route('/servicio')
 def servicio():
     return render_template('servicio.html')
-
 @app.route('/descargarapp')
 def descargarapp():
     return render_template('descargarapp.html')
 
-# --- Ruta de Perfil (Quizás protegerla para usuarios logueados?) ---
+# Ruta perfil (sin cambios funcionales, solo protección básica)
 @app.route('/perfil')
 def perfil():
-    # Ejemplo de protección básica para CUALQUIER usuario logueado
     if 'user_id' not in session:
         flash('Debes iniciar sesión para ver tu perfil.', 'info')
         return redirect(url_for('login'))
-    # Aquí podrías cargar datos específicos del usuario desde la BD usando session['user_id']
-    return render_template('perfil.html', user_name=session.get('user_name')) # Pasar nombre a la plantilla
+    return render_template('perfil.html', user_name=session.get('user_name'))
 
-
-# --- Ruta de Registro (Modificada para seguridad de contraseña - RECOMENDADO) ---
+# --- Ruta de Registro (MODIFICADA PARA HASHEAR) ---
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         Nom = request.form['userName']
         Apell = request.form['userLastName']
         Email = request.form['userEmail']
-        Contrasena = request.form['userPassword'] # <-- Contraseña en texto plano
+        Contrasena = request.form['userPassword'] # <-- Contraseña en texto plano del form
         NumTelf = request.form['userPhone']
         Direccion = request.form['userAddress']
 
-        # --- ¡¡¡RECOMENDACIÓN FUERTE: HASHEAR CONTRASEÑA!!! ---
-        # hashed_password = generate_password_hash(Contrasena)
-        # Guarda hashed_password en lugar de Contrasena
-        # ----------------------------------------------------
+        # --- GENERAR HASH DE LA CONTRASEÑA ---
+        # El método 'pbkdf2:sha256' es un buen estándar actual.
+        # Puedes ajustar el salt_length si lo deseas.
+        hashed_password = generate_password_hash(Contrasena, method='pbkdf2:sha256')
+        # ---------------------------------------
 
         db = None
         cursor = None
@@ -102,22 +92,19 @@ def register():
             # 1. Verificar si el usuario ya existe
             cursor.execute("SELECT IdInicioSesion FROM iniciosesion WHERE Email = %s", (Email,))
             if cursor.fetchone():
-                return jsonify({'message': 'El correo electrónico ya está registrado'}), 409 # 409 Conflict
+                return jsonify({'message': 'El correo electrónico ya está registrado'}), 409
 
-            # 2. Insertar en perfildueño (si aún es necesario mantenerla separada)
-            # Asegúrate que la lógica de negocio realmente requiera perfildueño separada
-            # Si no, podrías simplificar y tener todo en iniciosesion
+            # 2. Insertar en perfildueño (si es necesario)
             cursor.execute("INSERT INTO perfildueño (NomDueño, Apell, Email, NumTelf) VALUES (%s, %s, %s, %s)", (Nom, Apell, Email, NumTelf))
             perfil_dueno_id = cursor.lastrowid
 
-            # 3. Insertar en iniciosesion (¡usar contraseña hasheada!)
-            # Asegúrate que la columna Contrasena sea lo suficientemente larga para el hash (ej. VARCHAR(255))
+            # 3. --- INSERTAR EN iniciosesion CON CONTRASEÑA HASHEADA ---
             cursor.execute(
                 "INSERT INTO iniciosesion (Nom, Apell, Email, Contrasena, NumTelf, Direccion, PerfilDueño_IdPerfilDueño, rol) "
                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                #(Nom, Apell, Email, hashed_password, NumTelf, Direccion, perfil_dueno_id, 'usuario') # <-- Usar hashed_password
-                (Nom, Apell, Email, Contrasena, NumTelf, Direccion, perfil_dueno_id, 'usuario') # <-- Versión insegura actual
+                (Nom, Apell, Email, hashed_password, NumTelf, Direccion, perfil_dueno_id, 'usuario') # <-- Usar hashed_password
             )
+            # ---------------------------------------------------------
             db.commit()
 
             return jsonify({'message': 'Usuario registrado con éxito'}), 201
@@ -131,22 +118,19 @@ def register():
             if db and db.is_connected(): db.close()
 
     else: # GET
-        return render_template('login.html') # Asumo que el registro está en la misma pág que login
+        return render_template('login.html')
 
-
-# --- Ruta para iniciar sesión (MODIFICADA) ---
+# --- Ruta para iniciar sesión (MODIFICADA PARA VERIFICAR HASH) ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Si el usuario ya está logueado, redirigir según su rol
     if 'user_id' in session:
-        if session.get('user_role') == 'admin':
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('perfil')) # O a donde vayan los usuarios normales
+        # Redirigir si ya está logueado
+        return redirect(url_for('admin_dashboard') if session.get('user_role') == 'admin' else url_for('perfil'))
 
     if request.method == 'POST':
         Email = request.form['userEmail']
-        Contrasena = request.form['userPassword'] # Contraseña enviada por el usuario
+        # Contraseña ingresada por el usuario en el formulario
+        Contrasena_ingresada = request.form['userPassword']
 
         db = None
         cursor = None
@@ -155,40 +139,36 @@ def login():
             if db is None:
                  return jsonify({'message': 'Error interno del servidor (DB Connection)'}), 500
 
-            # Usar un diccionario para obtener resultados por nombre de columna es más claro
-            cursor = db.cursor(dictionary=True)
+            cursor = db.cursor(dictionary=True) # Usar dictionary=True es útil
 
-            # Seleccionar usuario por email Y OBTENER LA CONTRASEÑA (¡hasheada!) Y EL ROL
-            # En tu caso actual, obtienes la contraseña en texto plano (INSEGURO)
+            # Seleccionar usuario y obtener su HASH de contraseña guardado
             cursor.execute(
                 "SELECT IdInicioSesion, Email, Nom, rol, Contrasena FROM iniciosesion WHERE Email = %s",
                 (Email,)
             )
-            user = cursor.fetchone() # Obtiene un usuario o None
+            user = cursor.fetchone() # user['Contrasena'] contiene el HASH guardado
 
-            # Verificar si se encontró el usuario Y si la contraseña coincide
-            # ¡¡¡DEBERÍAS USAR check_password_hash(user['Contrasena'], Contrasena) !!!
-            if user and user['Contrasena'] == Contrasena: # <-- Comparación insegura actual
+            # --- VERIFICAR CONTRASEÑA USANDO check_password_hash ---
+            # Comprueba si se encontró un usuario Y si el hash guardado coincide
+            # con la contraseña ingresada.
+            if user and check_password_hash(user['Contrasena'], Contrasena_ingresada):
+            # ---------------------------------------------------------
 
                 # Usuario autenticado -> Guardar en sesión
                 session['user_id'] = user['IdInicioSesion']
                 session['user_email'] = user['Email']
                 session['user_name'] = user['Nom']
                 session['user_role'] = user['rol']
-                session.permanent = True # Puedes hacer la sesión más duradera si quieres
+                session.permanent = True # Opcional: hacer sesión más duradera
 
-                # Redirigir según el rol
-                if user['rol'] == 'admin':
-                    redirect_url = url_for('admin_dashboard')
-                    message = 'Inicio de sesión exitoso (Admin)'
-                else:
-                    redirect_url = url_for('perfil') # O la ruta para usuarios normales
-                    message = 'Inicio de sesión exitoso'
+                # Determinar URL de redirección según el rol
+                redirect_url = url_for('admin_dashboard' if user['rol'] == 'admin' else 'perfil')
+                message = 'Inicio de sesión exitoso' + (' (Admin)' if user['rol'] == 'admin' else '')
 
                 return jsonify({'message': message, 'redirect_url': redirect_url}), 200
 
             else:
-                # Credenciales incorrectas
+                # Usuario no encontrado O la contraseña no coincide con el hash
                 return jsonify({'message': 'Correo o contraseña incorrectos'}), 401
 
         except mysql.connector.Error as err:
@@ -199,26 +179,23 @@ def login():
             if db and db.is_connected(): db.close()
 
     else: # GET
-        # Mostrar formulario de login (asegúrate que muestre mensajes flash si hay)
         return render_template('login.html')
 
-# --- Ruta del Panel de Administrador (NUEVA Y PROTEGIDA) ---
-@app.route('/admin')
-@admin_required # <--- Aplicar el decorador de protección
-def admin_dashboard():
-    # Solo usuarios con rol 'admin' en la sesión llegarán aquí
-    # Aquí podrías cargar datos específicos para el admin si fuera necesario
-    return render_template('admin.html', admin_name=session.get('user_name')) # Pasar nombre a la plantilla
 
-# --- Ruta de Logout (NUEVA) ---
+# Ruta admin (protegida, sin cambios en lógica interna)
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    return render_template('admin.html', admin_name=session.get('user_name'))
+
+# Ruta logout (sin cambios)
 @app.route('/logout')
 def logout():
-    session.clear() # Limpiar toda la sesión
+    session.clear()
     flash('Has cerrado sesión exitosamente.', 'success')
-    return redirect(url_for('login')) # Redirigir a la página de login
+    return redirect(url_for('login'))
 
-
-# Ruta de prueba (sin cambios)
+# Ruta test (sin cambios)
 @app.route('/test')
 def test():
     return '¡La aplicación Flask está funcionando!'
