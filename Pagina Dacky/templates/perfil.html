@@ -47,6 +47,36 @@
                 </div>
             </div>
         </nav>
+        {
+        <section class="page-section about-heading">
+            <div class="container">
+                <div class="about-heading-content">
+                    <div class="row">
+                        <div class="col-xl-9 col-lg-10 mx-auto">
+                            <div class="bg-faded rounded p-5">
+                                <div class="profile-container">
+                                    <div class="profile-image">
+                                        <img src="{{ url_for('static', filename='assets/img/perfil.png') }}" alt="Foto de perfil">
+                                    </div>
+                                    <div class="profile-details">
+                                        <h2>Bienvenido "usuario"</h2>
+                                        <p><span class="profile-label">Nombre:</span> "Nombre del usuario"</p>
+                                        <p><span class="profile-label">Apellido:</span> "Apellido del usuario"</p>
+                                        <p><span class="profile-label">Correo:</span> "correo del usuario"</p>
+                                        <p><span class="profile-label">Celular:</span> "celular del usuario"</p>
+                                        <p><span class="profile-label">Teléfono:</span> "telefono del usuario"</p>
+                                        <p><span class="profile-label">Dirección:</span> "direccion del usuario"</p>
+                                        </div>
+                                        <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        
+        </section>
         
 
         <footer>

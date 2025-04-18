@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Lista de registros DACKY" />
+    <meta name="author" content="@tory_vielma" />
+    <title>DACKY - Admin</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/Minilogo dacky.png') }}" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #EFEBE6; /* Un fondo general ligeramente diferente para contraste */
+            /* background-color: #f5f5f5; */ /* Fondo gris si prefieres el anterior */
+            font-family: sans-serif; /* Fuente simple por defecto */
+        }
+
+        /* Contenedor principal que simula la imagen */
+        .crud-container {
+            margin: 40px auto;
+            padding: 25px;
+            background-color: #F8F5F0; /* Beige muy claro */
+            border-radius: 8px; /* Bordes redondeados */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            max-width: 1100px; /* Ancho máximo */
+        }
+
+        /* Sección del encabezado (Botón + Título) */
+        .crud-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #DDDDDD; /* Línea separadora */
+        }
+
+        /* Botón Añadir específico */
+        .btn-add-custom {
+            background-color: #E0E0E0; /* Fondo gris claro */
+            border: 1px solid #BDBDBD; /* Borde gris */
+            color: #424242; /* Icono gris oscuro */
+            width: 38px; /* Ancho fijo */
+            height: 38px; /* Alto fijo */
+            border-radius: 5px; /* Ligeramente redondeado */
+            display: inline-flex; /* Para centrar icono */
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            margin-right: 15px; /* Espacio a la derecha */
+            font-size: 1.1em; /* Tamaño del icono '+' */
+        }
+        .btn-add-custom:hover {
+            background-color: #D5D5D5; /* Más oscuro al pasar el mouse */
+            color: #333333;
+        }
+
+        .crud-header h2 {
+            margin: 0; /* Quitar margen por defecto */
+            font-size: 24px;
+            font-weight: bold;
+            color: #333333; /* Color de texto oscuro */
+        }
+
+        /* Estilos de la tabla */
+        .table {
+            background-color: #FFFFFF; /* Fondo blanco para la tabla */
+            border: 1px solid #DDDDDD; /* Borde alrededor de la tabla */
+            margin-bottom: 0; /* Quitar margen inferior por defecto */
+            color: #333333; /* Color de texto general */
+        }
+
+        /* Cabecera de la tabla */
+        .table thead th {
+            background-color: #EAE0D5; /* Beige/Canela oscuro */
+            color: #333333; /* Texto oscuro */
+            border-bottom: 2px solid #DDDDDD; /* Borde inferior más grueso */
+            border-right: 1px solid #DDDDDD; /* Borde derecho */
+            padding: 10px 12px; /* Relleno */
+            text-align: left; /* Alineación */
+            font-weight: bold; /* Negrita */
+            vertical-align: middle;
+        }
+        .table thead th:last-child {
+             border-right: none; /* Quitar borde derecho en la última celda header */
+        }
+
+
+        /* Celdas del cuerpo de la tabla */
+        .table tbody td {
+            padding: 10px 12px;
+            border-right: 1px solid #DDDDDD; /* Borde derecho */
+            border-top: 1px solid #DDDDDD; /* Borde superior */
+            vertical-align: middle; /* Centrar verticalmente */
+        }
+         .table tbody tr:first-child td {
+             border-top: none; /* Quitar borde superior de la primera fila */
+         }
+        .table tbody td:last-child {
+            border-right: none; /* Quitar borde derecho en la última celda */
+            text-align: center; /* Centrar iconos de acción */
+        }
+
+        /* Iconos de acción */
+        .action-icon {
+            font-size: 1.2em; /* Tamaño de iconos */
+            text-decoration: none;
+            margin: 0 6px; /* Espacio entre iconos */
+            cursor: pointer;
+        }
+        .action-icon.edit {
+            color: #28a745; /* Verde */
+        }
+        .action-icon.edit:hover {
+            color: #218838; /* Verde más oscuro */
+        }
+        .action-icon.delete {
+            color: #dc3545; /* Rojo */
+        }
+        .action-icon.delete:hover {
+            color: #c82333; /* Rojo más oscuro */
+        }
+
+        /* Para responsividad en tablas */
+        .table-responsive {
+            /* Bootstrap ya maneja esto, pero puedes añadir estilos si es necesario */
+        }
+
+        footer {
+          margin-top: 30px;
+          text-align: center;
+          color: #6c757d;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="crud-container">
+        <div class="crud-header">
+            <a href="#addModal" class="btn-add-custom" title="Añadir Nuevo" data-bs-toggle="modal">
+                <i class="fas fa-plus"></i>
+            </a>
+            <h2>LISTA DE REGISTROS</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table"> <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NOMBRE</th>
+                        <th>APELLIDO</th>
+                        <th>CORREO</th>
+                        <th>CONTRASEÑA</th> <th>CELULAR</th>
+                        <th>TELEFONO</th>
+                        <th>DIRECCION</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Victoria</td>
+                        <td>Vielma</td>
+                        <td>zorrarosa@gmai.com</td>
+                        <td>******</td> <td>1234567890</td>
+                        <td>123456</td>
+                        <td>CR34CL45 1234 QWERTY</td>
+                        <td>
+                            <a href="#editModal" class="action-icon edit" title="Editar" data-bs-toggle="modal" data-id="1"> <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="#deleteModal" class="action-icon delete" title="Borrar" data-bs-toggle="modal" data-id="1"> <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Otro</td>
+                        <td>Registro</td>
+                        <td>otro@correo.com</td>
+                        <td>******</td>
+                        <td>0987654321</td>
+                        <td>654321</td>
+                        <td>AV SIEMPREVIVA 742</td>
+                        <td>
+                            <a href="#editModal" class="action-icon edit" title="Editar" data-bs-toggle="modal" data-id="2">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            <a href="#deleteModal" class="action-icon delete" title="Borrar" data-bs-toggle="modal" data-id="2">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addModalLabel">Añadir Nuevo Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form id="addForm">
+                  <div class="mb-3">
+                    <label for="addNombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="addNombre" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="addApellido" class="form-label">Apellido</label>
+                    <input type="text" class="form-control" id="addApellido" required>
+                  </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="addForm" class="btn btn-primary">Guardar Registro</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div> 
+        
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Inicializar Tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Lógica para pasar datos a los modales (Ejemplo para modal de borrado)
+        var deleteModal = document.getElementById('deleteModal')
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+              // Botón que activó el modal
+              var button = event.relatedTarget
+              // Extraer info de data-bs-* attributes (o data-*)
+              var recordId = button.getAttribute('data-id')
+              // Actualizar contenido del modal (ej: poner el ID en un input hidden o texto)
+              var modalBodyInput = deleteModal.querySelector('.modal-body input#recordIdToDelete') // Suponiendo que tienes un input con id='recordIdToDelete'
+              var modalBodyText = deleteModal.querySelector('.modal-body #recordInfo') // Suponiendo que tienes un span/p con id='recordInfo'
+
+              if(modalBodyInput) modalBodyInput.value = recordId;
+              if(modalBodyText) modalBodyText.textContent = 'ID ' + recordId; // Mostrar info
+            })
+        }
+
+        // Necesitarás lógica similar para el modal de edición para cargar los datos actuales.
+        // También necesitarás manejar el envío de los formularios (addForm, editForm, deleteForm)
+        // usualmente con JavaScript y peticiones fetch/AJAX a tu backend.
+
+    </script>
+
+</body>
+</html>
