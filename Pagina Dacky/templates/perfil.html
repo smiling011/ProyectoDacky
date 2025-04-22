@@ -47,7 +47,8 @@
                 </div>
             </div>
         </nav>
-        {
+
+
         <section class="page-section about-heading">
             <div class="container">
                 <div class="about-heading-content">
@@ -59,23 +60,22 @@
                                         <img src="{{ url_for('static', filename='assets/img/perfil.png') }}" alt="Foto de perfil">
                                     </div>
                                     <div class="profile-details">
-                                        <h2>Bienvenido "usuario"</h2>
-                                        <p><span class="profile-label">Nombre:</span> "Nombre del usuario"</p>
-                                        <p><span class="profile-label">Apellido:</span> "Apellido del usuario"</p>
-                                        <p><span class="profile-label">Correo:</span> "correo del usuario"</p>
-                                        <p><span class="profile-label">Celular:</span> "celular del usuario"</p>
-                                        <p><span class="profile-label">Teléfono:</span> "telefono del usuario"</p>
-                                        <p><span class="profile-label">Dirección:</span> "direccion del usuario"</p>
-                                        </div>
-                                        <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+                                        <h2>Bienvenido {{ user_profile.NomDueño | default('Usuario') }}</h2>
+        
+                                        <p><span class="profile-label">Nombre:</span> {{ user_profile.NomDueño | default('No disponible') }}</p>
+                                        <p><span class="profile-label">Apellido:</span> {{ user_profile.Apell | default('No disponible') }}</p>
+                                        <p><span class="profile-label">Correo:</span> {{ user_profile.Email | default('No disponible') }}</p>
+                                        <p><span class="profile-label">Celular:</span> {{ user_profile.NumCel | default('No disponible') }}</p>
+                                        <p><span class="profile-label">Teléfono:</span> {{ user_profile.NumTelf | default('No disponible') }}</p>
+                                        <p><span class="profile-label">Dirección:</span> {{ user_profile.Direccion | default('No disponible') }}</p>
+                                    </div>
+                                     <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">Cerrar Sesión</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        
-        
         </section>
         
 

@@ -59,10 +59,70 @@ def descargarapp():
 # Ruta perfil (sin cambios funcionales, solo protección básica)
 @app.route('/perfil')
 def perfil():
+    # 1. Verificar si el usuario está logueado
     if 'user_id' not in session:
         flash('Debes iniciar sesión para ver tu perfil.', 'info')
         return redirect(url_for('login'))
-    return render_template('perfil.html', user_name=session.get('user_name'))
+
+    # 2. Obtener el ID del usuario de la sesión
+    user_id_logueado = session['user_id']
+
+    db = None
+    cursor = None
+    user_profile_data = None # Variable para guardar los datos
+
+    try:
+        db = conectar_db()
+        if db is None:
+            flash('Error al conectar con la base de datos.', 'danger')
+            # Redirigir a alguna página de error o al index
+            return redirect(url_for('index'))
+
+        # Usar dictionary=True para acceder a los datos por nombre de columna
+        cursor = db.cursor(dictionary=True)
+
+        # 3. Consulta SQL con JOIN para obtener datos de perfildueño e iniciosesion
+        #    Basado en el IdInicioSesion del usuario logueado.
+        sql_query = """
+            SELECT
+                pd.NomDueño,
+                pd.Apell,
+                pd.Email,       -- Email de perfildueño
+                pd.NumTelf,     -- Telefono Fijo de perfildueño
+                pd.NumCel,      -- Celular de perfildueño
+                i.Direccion     -- Direccion de iniciosesion
+            FROM
+                iniciosesion i
+            JOIN
+                perfildueño pd ON i.PerfilDueño_IdPerfilDueño = pd.IdPerfilDueño
+            WHERE
+                i.IdInicioSesion = %s
+        """
+        cursor.execute(sql_query, (user_id_logueado,))
+        user_profile_data = cursor.fetchone() # Obtener la fila de datos
+
+        if not user_profile_data:
+            # Esto no debería pasar si la BD está consistente, pero es bueno verificarlo
+            flash('No se pudo encontrar la información de tu perfil.', 'warning')
+            session.clear() # Limpiar sesión si hay inconsistencia
+            return redirect(url_for('login'))
+
+    except mysql.connector.Error as err:
+        print(f"Error al consultar perfil: {err}")
+        flash('Ocurrió un error al cargar tu perfil.', 'danger')
+        # Considera redirigir a una página de error o al index
+        return redirect(url_for('index'))
+    finally:
+        # 4. Cerrar cursor y conexión
+        if cursor: cursor.close()
+        if db and db.is_connected(): db.close()
+
+    # 5. Renderizar la plantilla pasando los datos obtenidos
+    #    user_profile_data es ahora un diccionario con los datos del usuario
+    return render_template('perfil.html', user_profile=user_profile_data)
+
+# (Resto de las rutas: register, login, admin_dashboard, logout, etc. sin cambios necesarios para esta funcionalidad)
+# ... (código posterior) ...
 
 # --- Ruta de Registro (MODIFICADA PARA HASHEAR) ---
 @app.route('/register', methods=['GET', 'POST'])
@@ -182,11 +242,92 @@ def login():
         return render_template('login.html')
 
 
-# Ruta admin (protegida, sin cambios en lógica interna)
+# --- Ruta del Panel de Administrador (MODIFICADA PARA MOSTRAR USUARIOS) ---
 @app.route('/admin')
-@admin_required
+@admin_required # Aplicar el decorador de protección
 def admin_dashboard():
-    return render_template('admin.html', admin_name=session.get('user_name'))
+    db = None
+    cursor = None
+    lista_usuarios = [] # Lista para guardar los usuarios
+
+    try:
+        db = conectar_db()
+        if db is None:
+            flash('Error al conectar con la base de datos.', 'danger')
+            return redirect(url_for('index')) # O redirigir a login?
+
+        cursor = db.cursor(dictionary=True) # Usar dictionary=True
+
+        # Consulta para obtener los usuarios de la tabla iniciosesion
+        # NO seleccionamos la contraseña por seguridad.
+        # Seleccionamos las columnas que coinciden con la tabla HTML
+        # Asumiendo que NumTelf en iniciosesion es 'TELEFONO' en la tabla
+        # Necesitaríamos saber qué campo es 'CELULAR' (¿está en perfildueño?)
+        # Por ahora, mostraremos los campos de iniciosesion
+        sql_query = """
+            SELECT IdInicioSesion, Nom, Apell, Email, NumTelf, Direccion
+            FROM iniciosesion
+            ORDER BY IdInicioSesion ASC
+        """
+        cursor.execute(sql_query)
+        lista_usuarios = cursor.fetchall() # Obtener todos los usuarios
+
+    except mysql.connector.Error as err:
+        print(f"Error al consultar usuarios para admin: {err}")
+        flash('Ocurrió un error al cargar la lista de usuarios.', 'danger')
+    finally:
+        if cursor: cursor.close()
+        if db and db.is_connected(): db.close()
+
+    # Pasar la lista de usuarios a la plantilla
+    return render_template('admin.html',
+                           admin_name=session.get('user_name'),
+                           users=lista_usuarios) # Pasamos la lista como 'users'
+
+# --- Ruta para Borrar Usuario (NUEVA) ---
+@app.route('/admin/delete_user/<int:user_id>', methods=['DELETE'])
+@admin_required # Proteger la ruta
+def delete_user(user_id):
+    db = None
+    cursor = None
+    try:
+        db = conectar_db()
+        if db is None:
+            return jsonify({'success': False, 'message': 'Error de conexión'}), 500
+
+        cursor = db.cursor()
+
+        # OPCIONAL: Borrar primero de perfildueño si existe dependencia y no hay CASCADE DELETE
+        # Necesitarías obtener el PerfilDueño_IdPerfilDueño primero
+        # cursor.execute("SELECT PerfilDueño_IdPerfilDueño FROM iniciosesion WHERE IdInicioSesion = %s", (user_id,))
+        # result = cursor.fetchone()
+        # if result and result[0]:
+        #     perfil_id = result[0]
+        #     cursor.execute("DELETE FROM perfildueño WHERE IdPerfilDueño = %s", (perfil_id,))
+        #     # Considerar manejo de errores aquí también
+
+        # Borrar de la tabla iniciosesion
+        cursor.execute("DELETE FROM iniciosesion WHERE IdInicioSesion = %s", (user_id,))
+        db.commit() # Confirmar la transacción
+
+        # Verificar si se borró la fila
+        if cursor.rowcount > 0:
+             return jsonify({'success': True, 'message': 'Usuario eliminado correctamente'}), 200
+        else:
+             return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
+
+
+    except mysql.connector.Error as err:
+        if db: db.rollback() # Revertir cambios en caso de error
+        print(f"Error al eliminar usuario: {err}")
+        # Verificar si es un error de Foreign Key (si intentas borrar de iniciosesion y perfildueño depende de él sin CASCADE)
+        # Código de error para Foreign Key constraint suele ser 1451 o similar
+        if err.errno == 1451:
+             return jsonify({'success': False, 'message': 'Error: No se puede eliminar el usuario debido a registros relacionados.'}), 409 # 409 Conflict
+        return jsonify({'success': False, 'message': f'Error de base de datos: {err}'}), 500
+    finally:
+        if cursor: cursor.close()
+        if db and db.is_connected(): db.close()
 
 # Ruta logout (sin cambios)
 @app.route('/logout')
@@ -203,3 +344,5 @@ def test():
 # Punto de entrada (sin cambios)
 if __name__ == '__main__':
     app.run(debug=True)
+    
+    
