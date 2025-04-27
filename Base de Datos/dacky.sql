@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-03-2025 a las 23:13:40
+-- Tiempo de generación: 27-04-2025 a las 04:04:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -92,7 +92,7 @@ CREATE TABLE `iniciosesion` (
   `Nom` varchar(100) NOT NULL,
   `Apell` varchar(100) CHARACTER SET armscii8 COLLATE armscii8_general_ci NOT NULL,
   `Email` varchar(200) NOT NULL,
-  `Contrasena` varchar(100) NOT NULL,
+  `Contrasena` varchar(255) NOT NULL,
   `NumTelf` bigint(12) NOT NULL,
   `NumCel` bigint(10) NOT NULL,
   `Direccion` text NOT NULL,
@@ -108,8 +108,18 @@ INSERT INTO `iniciosesion` (`IdInicioSesion`, `Nom`, `Apell`, `Email`, `Contrase
 (1, 'Juan', 'P?rez', 'juan.perez@mail.com', 'password1', 3112345678, 3001234567, 'Calle 123, Bogotá', 1, 'usuario'),
 (2, 'María', 'Gonz?lez', 'maria.gonzalez@mail.com', 'password2', 3123456789, 3002345678, 'Carrera 456, Medellín', 2, 'usuario'),
 (3, 'Carlos', 'Ram?rez', 'carlos.ramirez@mail.com', 'password3', 3134567890, 3003456789, 'Avenida 789, Cali', 3, 'usuario'),
-(4, 'Ana', 'Fern?ndez', 'ana.fernandez@mail.com', 'password4', 3145678901, 3004567890, 'Diagonal 101, Barranquilla', 4, 'usuario'),
-(6, 'admin', 'admin', 'zorrarosa@hotmail.com', '1234567890', 1234567890, 123456790, 'Paris', 1, 'admin');
+(6, 'admin', 'admin', 'zorrarosa@hotmail.com', '1234567890', 1234567890, 123456790, 'Paris', 1, 'admin'),
+(13, 'vicky', 'vielma', 'tqm1234@gmail.com', '1234', 1234567890, 0, 'qeqqeqe', 5, 'usuario'),
+(14, 'tory', 'vielma', 'tory@gmail.com', '12344321', 1828162, 0, 'jbskjasbkJS', 6, 'usuario'),
+(15, 'lily', 'romero', 'lily@gmail.com', '123445', 67890, 0, 'jslsdasldjalsdhlA', 7, 'usuario'),
+(16, 'ojsnoASN09JASOI', '0IASJO', 'iAJSO@adhysad.com', 'ioasia', 0, 0, 'oASOa', 8, 'usuario'),
+(17, 'Jose Manuel', 'Montes Taborda', 'iphone@gmail.com', 'putoelquelolea', 4376785, 0, 'calle 37 a 40', 9, 'usuario'),
+(18, 'hola ', 'qtak', 'asajhs@gmail.com', '12345', 1234, 0, 'oASOa', 10, 'usuario'),
+(19, 'guille', 'burgos', '123@gmail.com', '123456', 0, 0, 'skjdbkadbkja', 11, 'usuario'),
+(20, 'prueba', 'cifrado', 'prueba@gmail.com', '1234', 231213, 0, '223fdfsd', 12, 'usuario'),
+(21, 'contraseña', 'hihi', '1234prueba@gmail.com', 'pbkdf2:sha256:600000$9VMZ1uO1pXM9IrkH$7fb1f82577402d971b1a7cabc1f5b63a99256fa6dcfa4a24a363ad30ade13dbf', 23231, 0, 'ddasdadad3423', 13, 'usuario'),
+(22, 'admin', 'admin ap', 'admin@gmail.com', 'pbkdf2:sha256:600000$yn8Ll9tdlCtq4HAS$106bbea86ef2deda0d250dbe46847cc6150ba5b283c7e3aa7c24a5df80639953', 123455432, 0, '121212hghfhg', 14, 'admin'),
+(23, 'hola', 'que tal', 'hoa@gmail.com', 'pbkdf2:sha256:600000$3S5NUYqX3wxE34Mc$a9a595d11caf0949c0e272dd84c20dcb58fcdb2b5aed40d6483a874e01ae87fa', 1234567890, 0, 'jslsdasldjalsdhlA', 15, 'usuario');
 
 -- --------------------------------------------------------
 
@@ -137,6 +147,25 @@ INSERT INTO `mascota` (`IdMascota`, `NumMascota`, `PerfilDueño_IdPerfilDueño`,
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `mascotaseliminadas`
+--
+
+CREATE TABLE `mascotaseliminadas` (
+  `IdMascotaEliminada` int(11) NOT NULL,
+  `IdMascota` int(11) DEFAULT NULL,
+  `NomMascota` varchar(100) DEFAULT NULL,
+  `Raza` varchar(100) DEFAULT NULL,
+  `Edad` int(11) DEFAULT NULL,
+  `Peso` decimal(10,0) DEFAULT NULL,
+  `Altura` decimal(10,0) DEFAULT NULL,
+  `Descripcion` text DEFAULT NULL,
+  `FechaEliminacion` datetime DEFAULT current_timestamp(),
+  `IdPerfilDueño` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `perfildueño`
 --
 
@@ -157,7 +186,19 @@ INSERT INTO `perfildueño` (`IdPerfilDueño`, `NomDueño`, `Apell`, `Email`, `Nu
 (1, 'Juan', 'Pérez', 'juan.perez@mail.com', 3112345678, 3001234567),
 (2, 'María', 'González', 'maria.gonzalez@mail.com', 3123456789, 3002345678),
 (3, 'Carlos', 'Ramírez', 'carlos.ramirez@mail.com', 3134567890, 3003456789),
-(4, 'Ana', 'Fernández', 'ana.fernandez@mail.com', 3145678901, 3004567890);
+(4, 'Ana', 'Fernández', 'ana.fernandez@mail.com', 3145678901, 3004567890),
+(5, 'vicky', 'vielma', 'tqm1234@gmail.com', 1234567890, 0),
+(6, 'tory', 'vielma', 'tory@gmail.com', 1828162, 0),
+(7, 'lily', 'romero', 'lily@gmail.com', 67890, 0),
+(8, 'ojsnoASN09JASOI', '0IASJO', 'iAJSO@adhysad.com', 0, 0),
+(9, 'Jose Manuel', 'Montes Taborda', 'iphone@gmail.com', 4376785, 0),
+(10, 'hola ', 'qtak', 'asajhs@gmail.com', 1234, 0),
+(11, 'guille', 'burgos', '123@gmail.com', 0, 0),
+(12, 'prueba', 'cifrado', 'prueba@gmail.com', 231213, 0),
+(13, 'contraseña', 'hihi', '1234prueba@gmail.com', 23231, 0),
+(14, 'admin', 'admin ap', 'admin@gmail.com', 123455432, 0),
+(15, 'hola', 'que tal', 'hoa@gmail.com', 1234567890, 0),
+(16, 'hola', 'vielma', 'hjahajsh@gmail.com', 1234, 0);
 
 -- --------------------------------------------------------
 
@@ -261,18 +302,24 @@ CREATE TABLE `vacunasmascota` (
   `IdVacunasMascota` int(11) NOT NULL,
   `NomVacuna` varchar(100) NOT NULL,
   `Mascota_IdMascota` int(11) NOT NULL,
-  `Vacunas_IdVacunas` int(11) NOT NULL
+  `Vacunas_IdVacunas` int(11) NOT NULL,
+  `FechaVac` date DEFAULT NULL,
+  `Edad` int(11) NOT NULL,
+  `FechaVenVac` date DEFAULT NULL,
+  `NumDosis` int(11) NOT NULL,
+  `Nota` text DEFAULT NULL,
+  `Img` blob DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `vacunasmascota`
 --
 
-INSERT INTO `vacunasmascota` (`IdVacunasMascota`, `NomVacuna`, `Mascota_IdMascota`, `Vacunas_IdVacunas`) VALUES
-(1, 'Rabia', 1, 1),
-(2, 'Parvovirus', 2, 2),
-(3, 'Moquillo', 3, 3),
-(4, 'Hepatitis', 4, 4);
+INSERT INTO `vacunasmascota` (`IdVacunasMascota`, `NomVacuna`, `Mascota_IdMascota`, `Vacunas_IdVacunas`, `FechaVac`, `Edad`, `FechaVenVac`, `NumDosis`, `Nota`, `Img`) VALUES
+(1, 'Rabia', 1, 1, NULL, 0, NULL, 0, NULL, NULL),
+(2, 'Parvovirus', 2, 2, NULL, 0, NULL, 0, NULL, NULL),
+(3, 'Moquillo', 3, 3, NULL, 0, NULL, 0, NULL, NULL),
+(4, 'Hepatitis', 4, 4, NULL, 0, NULL, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -473,6 +520,13 @@ ALTER TABLE `mascota`
   ADD KEY `PerfilMascota_IdPerfilMascota` (`PerfilMascota_IdPerfilMascota`);
 
 --
+-- Indices de la tabla `mascotaseliminadas`
+--
+ALTER TABLE `mascotaseliminadas`
+  ADD PRIMARY KEY (`IdMascotaEliminada`),
+  ADD KEY `IdPerfilDueño` (`IdPerfilDueño`);
+
+--
 -- Indices de la tabla `perfildueño`
 --
 ALTER TABLE `perfildueño`
@@ -527,7 +581,7 @@ ALTER TABLE `dispositivogps`
 -- AUTO_INCREMENT de la tabla `iniciosesion`
 --
 ALTER TABLE `iniciosesion`
-  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT de la tabla `mascota`
@@ -536,10 +590,16 @@ ALTER TABLE `mascota`
   MODIFY `IdMascota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de la tabla `mascotaseliminadas`
+--
+ALTER TABLE `mascotaseliminadas`
+  MODIFY `IdMascotaEliminada` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `perfildueño`
 --
 ALTER TABLE `perfildueño`
-  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `perfilmascota`
@@ -593,6 +653,12 @@ ALTER TABLE `iniciosesion`
 ALTER TABLE `mascota`
   ADD CONSTRAINT `mascota_ibfk_1` FOREIGN KEY (`PerfilDueño_IdPerfilDueño`) REFERENCES `perfildueño` (`IdPerfilDueño`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `mascota_ibfk_2` FOREIGN KEY (`PerfilMascota_IdPerfilMascota`) REFERENCES `perfilmascota` (`IdPerfilMascota`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `mascotaseliminadas`
+--
+ALTER TABLE `mascotaseliminadas`
+  ADD CONSTRAINT `mascotaseliminadas_ibfk_1` FOREIGN KEY (`IdPerfilDueño`) REFERENCES `perfildueño` (`IdPerfilDueño`);
 
 --
 -- Filtros para la tabla `perfilmascota`
