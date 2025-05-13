@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'inicio_screen.dart';
 import 'login_screen.dart';
-import 'register_screen.dart';
+import 'register_screen.dart'; 
 
 void main() {
   runApp(MyApp());
@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () { // Duración de la pantalla de carga
+    Timer(Duration(seconds: 3), () { // Duracion de la pantalla de carga
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => InicioScreen()),
@@ -52,3 +52,4 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+// Actualizacion de datos 
