@@ -36,6 +36,9 @@ flutter:
     - assets/candado.png
     - assets/collar-para-mascotas.png
     - assets/localizacion.png
+    - assets/menu.png
+    - assets/atras.png 
+    - assets/editar.png
 
 
 

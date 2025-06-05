@@ -72,6 +72,7 @@ class _GpsScreenState extends State<GpsScreen> {
       ),
     );
   }
+// barra de tareas de la app
 
   Widget _buildButton(String imagePath, String label) {
     return Column(
