@@ -1,70 +1,112 @@
 import 'package:flutter/material.dart';
+import 'gps_screen.dart';
+import 'vacuna_screen1.dart';
+import 'user_screen1.dart';
 
-class VacunaScreen1 extends StatelessWidget {
+class PetScreen1 extends StatelessWidget {
+  const PetScreen1({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Tarjeta de Vacunas',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage('assets/Minilogo Dacky.png'),
-              radius: 20,
-            ),
-          ),
-        ],
-      ),
-      body: Center(
-        child: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: Colors.black,
-          child: Icon(Icons.add, color: Colors.white),
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: Color(0xFFEAEAEA),
-        shape: CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+      backgroundColor: const Color(0xFFFEF9F3), // Fondo claro
+      body: SafeArea(
+        child: Column(
           children: [
-            IconButton(
-              icon: Icon(Icons.location_on, color: Colors.black),
-              onPressed: () {},
+            // Encabezado
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      'assets/atras.png',
+                      width: 28,
+                      height: 28,
+                    ),
+                  ),
+                  const Text(
+                    'Tarjeta de Vacunas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Image.asset(
+                    'assets/Minilogo dacky.png',
+                    width: 28,
+                    height: 28,
+                  ),
+                ],
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.vaccines, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.pets, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.person, color: Colors.black),
-              onPressed: () {},
+
+            const SizedBox(height: 80),
+
+            // Imagen centrada con botón
+            Expanded(
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    // Aquí navegas al formulario para agregar mascota
+                    Navigator.pushNamed(context, '/add_pet');
+                  },
+                  child: Container(
+                    width: 65,
+                    height: 65,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0), // Ajusta si la imagen es muy grande
+                      child: Image.asset(
+                        'assets/agregar_mascota.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: _buildBottomNavBar(context),
+    );
+  }
+
+  // Barra de navegación inferior
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          InkWell(
+            onTap: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => GpsScreen())),
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => VacunaScreen1())),
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => PetScreen1())),
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => UserScreen1())),
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
+        ],
       ),
     );
   }
