@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
+import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
-class PetScreen1 extends StatelessWidget {
-  const PetScreen1({super.key});
+class VacunaScreen1 extends StatelessWidget {
+  const VacunaScreen1({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +34,8 @@ class PetScreen1 extends StatelessWidget {
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
-                    width: 28,
-                    height: 28,
+                    width: 50,
+                    height: 50,
                   ),
                 ],
               ),
@@ -58,9 +59,10 @@ class PetScreen1 extends StatelessWidget {
                       color: Colors.black,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0), // Ajusta si la imagen es muy grande
+                      padding: const EdgeInsets.all(
+                          10.0), // Ajusta si la imagen es muy grande
                       child: Image.asset(
-                        'assets/agregar_mascota.png',
+                        'assets/agregar.png',
                         fit: BoxFit.contain,
                       ),
                     ),
