@@ -44,6 +44,7 @@ class PetScreen1 extends StatelessWidget {
             const SizedBox(height: 80),
 
             // Imagen centrada con botón
+            // Imagen centrada con botón
             Expanded(
               child: Center(
                 child: GestureDetector(
@@ -51,21 +52,11 @@ class PetScreen1 extends StatelessWidget {
                     // Aquí navegas al formulario para agregar mascota
                     Navigator.pushNamed(context, '/add_pet');
                   },
-                  child: Container(
-                    width: 65,
+                  child: Image.asset(
+                    'assets/agregar.png',
+                    width: 65,  // o el tamaño que prefieras
                     height: 65,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(
-                          10.0), // Ajusta si la imagen es muy grande
-                      child: Image.asset(
-                        'assets/agregar.png',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
