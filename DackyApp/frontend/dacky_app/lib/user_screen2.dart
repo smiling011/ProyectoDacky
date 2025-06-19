@@ -66,7 +66,7 @@ class UserScreen2 extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF11120D),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           padding: EdgeInsets.symmetric(
                               horizontal: 40, vertical: 14),
@@ -108,7 +108,7 @@ class UserScreen2 extends StatelessWidget {
               filled: true,
               fillColor: Color(0xFFFFFBF4),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
               ),
               contentPadding:
@@ -121,37 +121,54 @@ class UserScreen2 extends StatelessWidget {
   }
 
   Widget _buildBottomNavBar(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => GpsScreen())),
-            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => VacunaScreen1())),
-            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => PetScreen1())),
-            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => UserScreen1())),
-            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
-          ),
-        ],
-      ),
-    );
-  }
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    decoration: BoxDecoration(
+      color: Colors.grey[300],
+      borderRadius: BorderRadius.circular(30),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => GpsScreen()),
+            );
+          },
+          child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => VacunaScreen1()),
+            );
+          },
+          child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PetScreen1()),
+            );
+          },
+          child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+        ),
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserScreen1()),
+            );
+          },
+          child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+        ),
+      ],
+    ),
+  );
+}
 }
