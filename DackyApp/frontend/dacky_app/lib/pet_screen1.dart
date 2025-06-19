@@ -64,7 +64,7 @@ class PetScreen1 extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavBar(context),
+      bottomNavigationBar: SafeArea(child: _buildBottomNavBar(context)),
     );
   }
 
@@ -72,6 +72,7 @@ class PetScreen1 extends StatelessWidget {
   Widget _buildBottomNavBar(BuildContext context) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     decoration: BoxDecoration(
       color: Colors.grey[300],
       borderRadius: BorderRadius.circular(30),

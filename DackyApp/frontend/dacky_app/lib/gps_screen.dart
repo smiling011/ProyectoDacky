@@ -99,6 +99,7 @@ class _GpsScreenState extends State<GpsScreen> {
   Widget _buildBottomNavBar() {
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(30),
