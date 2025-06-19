@@ -123,27 +123,59 @@ class UserScreen1 extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => GpsScreen())),
-            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => VacunaScreen1())),
-            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => PetScreen1())),
-            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
-          ),
-          InkWell(
-            onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => UserScreen1())),
-            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
-          ),
-        ],
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GpsScreen()),
+                );
+              },
+              child: Image.asset(
+                'assets/gps_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VacunaScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/vacuna_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PetScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/huella_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserScreen1()),
+                );
+              },
+              child: Image.asset(
+                'assets/user_icon.png', // Reemplaza con la ruta correcta
+                width: 30,
+                height: 30,
+              ),
+            ),
+          ],
       ),
     );
   }
