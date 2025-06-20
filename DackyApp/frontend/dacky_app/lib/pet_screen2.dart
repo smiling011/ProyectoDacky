@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
+import 'pet_screen3.dart';
 import 'user_screen1.dart';
 
 class PetScreen2 extends StatelessWidget {
@@ -48,6 +49,11 @@ class PetScreen2 extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               // Guardar datos
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => PetScreen3()),
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
