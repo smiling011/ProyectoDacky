@@ -164,7 +164,7 @@ class PetScreen2 extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const GpsScreen()),
+                MaterialPageRoute(builder: (context) => GpsScreen()),
               );
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
@@ -173,7 +173,7 @@ class PetScreen2 extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const VacunaScreen1()),
+                MaterialPageRoute(builder: (context) => VacunaScreen1()),
               );
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
@@ -182,7 +182,7 @@ class PetScreen2 extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const PetScreen1()),
+                MaterialPageRoute(builder: (context) => PetScreen1()),
               );
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
@@ -191,7 +191,7 @@ class PetScreen2 extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const UserScreen1()),
+                MaterialPageRoute(builder: (context) => UserScreen1()),
               );
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
+import 'pet_screen2.dart';
 import 'user_screen1.dart';
 
 class PetScreen1 extends StatelessWidget {
@@ -43,14 +44,16 @@ class PetScreen1 extends StatelessWidget {
 
             const SizedBox(height: 80),
 
-            // Imagen centrada con botón
+            
             // Imagen centrada con botón
             Expanded(
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    // Aquí navegas al formulario para agregar mascota
-                    Navigator.pushNamed(context, '/add_pet');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PetScreen2()),
+                    );
                   },
                   child: Image.asset(
                     'assets/agregar.png',
