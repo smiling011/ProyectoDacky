@@ -52,7 +52,7 @@ class UserScreen1 extends StatelessWidget {
                       CircleAvatar(
                         radius: 45,
                         backgroundImage: AssetImage(
-                            'assets/usuario.png'), // Reemplaza con tu imagen
+                            'assets/usuario.png'), 
                       ),
                       SizedBox(height: 20),
                       _buildInfoRow('Nombre', 'Victoria'),
@@ -67,7 +67,7 @@ class UserScreen1 extends StatelessWidget {
                         children: [
                           IconButton(
                             icon: Image.asset(
-                              'assets/editar.png', // Asegúrate de tener esta imagen en tu carpeta assets
+                              'assets/editar.png', 
                               width: 24,
                               height: 24,
                             ),
@@ -76,7 +76,7 @@ class UserScreen1 extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        UserScreen2()), // Asegúrate de importar esta pantalla
+                                        UserScreen2()), 
                               );
                             },
                           ),
@@ -116,7 +116,7 @@ class UserScreen1 extends StatelessWidget {
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.grey[300],
         borderRadius: BorderRadius.circular(30),

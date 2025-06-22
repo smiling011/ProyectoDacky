@@ -40,6 +40,9 @@ flutter:
     - assets/atras.png 
     - assets/editar.png
     - assets/agregar.png
+    - assets/images/dog-7694676_1280.jpg
+    - assets/images/cat-5162540_1280.jpg
+    - assets/borrar.png
 
 
 

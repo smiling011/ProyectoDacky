@@ -25,14 +25,14 @@ class PetScreen3 extends StatelessWidget {
                     children: [
                       _buildPetCard(
                         context,
-                        name: 'Mascota 1',
-                        imagePath: 'assets/images/husky.jpg',
+                        name: 'Nombre Mascota 1',
+                        imagePath: 'assets/images/dog-7694676_1280.jpg',
                       ),
                       const SizedBox(height: 16),
                       _buildPetCard(
                         context,
-                        name: 'Mascota 2',
-                        imagePath: 'assets/images/cat.jpg',
+                        name: 'Nombre Mascota 2',
+                        imagePath: 'assets/images/cat-5162540_1280.jpg',
                       ),
                       const SizedBox(height: 24),
                       Center(
@@ -40,10 +40,11 @@ class PetScreen3 extends StatelessWidget {
                           onTap: () {
                             // Acción al presionar +
                           },
-                          child: const CircleAvatar(
-                            radius: 22,
-                            backgroundColor: Colors.black,
-                            child: Icon(Icons.add, color: Colors.white),
+                          child: Image.asset(
+                            'assets/agregar.png',
+                            width: 40,  
+                            height: 40,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -97,7 +98,7 @@ class PetScreen3 extends StatelessWidget {
   Widget _buildPetCard(BuildContext context, {required String name, required String imagePath}) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const PetScreen4()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => PetScreen4()));
       },
       child: Container(
         decoration: BoxDecoration(
