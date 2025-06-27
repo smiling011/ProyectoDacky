@@ -1,95 +1,181 @@
 import 'package:flutter/material.dart';
-import 'vacuna_screen3.dart';
+import 'vacuna_screen4.dart';
+import 'vacuna_screen1.dart';
+import 'gps_screen.dart';
+import 'pet_screen1.dart';
+import 'user_screen1.dart';
 
 class VacunaScreen2 extends StatelessWidget {
-  final List<Map<String, String>> mascotas = [
-    {'nombre': 'Mascota 1', 'imagen': 'assets/husky.jpg'},
-    {'nombre': 'Mascota 2', 'imagen': 'assets/gato.jpg'},
-  ];
+  const VacunaScreen2({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
-      appBar: AppBar(
-        backgroundColor: Color(0xFFFFFBF4),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Tarjeta de Vacunas',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: mascotas.map((mascota) {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VacunaScreen3(),
+      backgroundColor: const Color(0xFFFEF9F3),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Encabezado
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      'assets/atras.png',
+                      width: 28,
+                      height: 28,
                     ),
-                  );
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFD8CFBC),
-                    borderRadius: BorderRadius.circular(15),
                   ),
-                  child: Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Image.asset(
-                          mascota['imagen']!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        mascota['nombre']!,
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  const Text(
+                    'Tarjeta de Vacunas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                ),
-              );
-            }).toList(),
+                  Image.asset(
+                    'assets/Minilogo dacky.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                ],
+              ),
+            ),
+
+            // Lista de mascotas
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildMascotaCard(
+                    context,
+                    imagePath: 'assets/perro.png',
+                    nombre: 'Mascota 1',
+                  ),
+                  const SizedBox(width: 16),
+                  _buildMascotaCard(
+                    context,
+                    imagePath: 'assets/gato.png',
+                    nombre: 'Mascota 2',
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Botón Agregar
+            GestureDetector(
+              onTap: () {
+                // Aquí puedes poner la lógica para agregar una nueva mascota
+              },
+              child: const CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.black,
+                child: Icon(Icons.add, color: Colors.white, size: 28),
+              ),
+            ),
+
+            const Spacer(),
+
+            // Barra de navegación inferior
+            _buildBottomNavBar(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget para cada tarjeta de mascota
+  Widget _buildMascotaCard(BuildContext context, {required String imagePath, required String nombre}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) =>  VacunaScreen4()),
+        );
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD8CFBC),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: Image.asset(
+                imagePath,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-          SizedBox(height: 20),
-          FloatingActionButton(
-            backgroundColor: Colors.black,
-            child: Icon(Icons.add, color: Colors.white),
-            onPressed: () {
-              // Acción para agregar una nueva mascota en el futuro
-            },
+          const SizedBox(height: 8),
+          Text(
+            nombre,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[200],
-        shape: CircularNotchedRectangle(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(icon: Icon(Icons.location_on), onPressed: () {}),
-            IconButton(icon: Icon(Icons.vaccines), onPressed: () {}),
-            IconButton(icon: Icon(Icons.pets), onPressed: () {}),
-            IconButton(icon: Icon(Icons.person), onPressed: () {}),
-          ],
-        ),
+    );
+  }
+
+  // Barra inferior
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GpsScreen()),
+              );
+            },
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VacunaScreen1()),
+              );
+            },
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PetScreen1()),
+              );
+            },
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserScreen1()),
+              );
+            },
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
+        ],
       ),
     );
   }
