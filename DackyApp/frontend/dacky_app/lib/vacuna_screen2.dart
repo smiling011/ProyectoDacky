@@ -50,13 +50,13 @@ class VacunaScreen2 extends StatelessWidget {
                 children: [
                   _buildMascotaCard(
                     context,
-                    imagePath: 'assets/perro.png',
+                    imagePath: 'assets/images/dog-7694676_1280.jpg',
                     nombre: 'Mascota 1',
                   ),
                   const SizedBox(width: 16),
                   _buildMascotaCard(
                     context,
-                    imagePath: 'assets/gato.png',
+                    imagePath: 'assets/images/cat-5162540_1280.jpg',
                     nombre: 'Mascota 2',
                   ),
                 ],
@@ -70,11 +70,12 @@ class VacunaScreen2 extends StatelessWidget {
               onTap: () {
                 // Aquí puedes poner la lógica para agregar una nueva mascota
               },
-              child: const CircleAvatar(
-                radius: 24,
-                backgroundColor: Colors.black,
-                child: Icon(Icons.add, color: Colors.white, size: 28),
-              ),
+              child: Image.asset(
+                    'assets/agregar.png',
+                    width: 65, // o el tamaño que prefieras
+                    height: 65,
+                    fit: BoxFit.contain,
+                  ),
             ),
 
             const Spacer(),

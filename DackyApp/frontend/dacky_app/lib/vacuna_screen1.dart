@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
+import 'vacuna_screen2.dart';
 import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
@@ -49,11 +50,14 @@ class VacunaScreen1 extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     // Aquí navegas al formulario para agregar mascota
-                    Navigator.pushNamed(context, '/add_pet');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => VacunaScreen2()),
+                    );
                   },
                   child: Image.asset(
                     'assets/agregar.png',
-                    width: 65,  // o el tamaño que prefieras
+                    width: 65, // o el tamaño que prefieras
                     height: 65,
                     fit: BoxFit.contain,
                   ),
@@ -69,55 +73,54 @@ class VacunaScreen1 extends StatelessWidget {
 
   // Barra de navegación inferior
   Widget _buildBottomNavBar(BuildContext context) {
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    decoration: BoxDecoration(
-      color: Colors.grey[300],
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => GpsScreen()),
-            );
-          },
-          child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
-        ),
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => VacunaScreen1()),
-            );
-          },
-          child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
-        ),
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PetScreen1()),
-            );
-          },
-          child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
-        ),
-        InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserScreen1()),
-            );
-          },
-          child: Image.asset('assets/user_icon.png', width: 30, height: 30),
-        ),
-      ],
-    ),
-  );
-}
-
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GpsScreen()),
+              );
+            },
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VacunaScreen1()),
+              );
+            },
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PetScreen1()),
+              );
+            },
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserScreen1()),
+              );
+            },
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
+        ],
+      ),
+    );
+  }
 }

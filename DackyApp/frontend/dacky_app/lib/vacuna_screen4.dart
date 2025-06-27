@@ -1,89 +1,170 @@
 import 'package:flutter/material.dart';
+import 'vacuna_screen5.dart';
+import 'vacuna_screen1.dart';
+import 'gps_screen.dart';
+import 'pet_screen1.dart';
+import 'user_screen1.dart';
 
 class VacunaScreen4 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
-      appBar: AppBar(
-        backgroundColor: Color(0xFFFFFBF4),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Lista de Vacunas',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 15.0),
-            child: Icon(Icons.pets, color: Colors.black),
-          )
-        ],
+  const VacunaScreen4({super.key});
+
+  // Barra de navegación inferior
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
       ),
-      body: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/Minilogo Dacky.png'),
-                  radius: 30,
-                ),
-                SizedBox(width: 10),
-                Text('Mascota 1',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16)),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                _buildVacunaCard('Rabia Canina', '10 / 07 / 2013'),
-                _buildVacunaCard('Rabia Canina', '10 / 07 / 2013'),
-              ],
-            ),
-          ),
-          SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/vacuna_screen5');
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => GpsScreen()));
             },
-            backgroundColor: Colors.black,
-            child: Icon(Icons.add, color: Colors.white),
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
-          SizedBox(height: 20),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFFEAEAEA),
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black54,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.vaccines), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.pets), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VacunaScreen1()));
+            },
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PetScreen1()));
+            },
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserScreen1()));
+            },
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildVacunaCard(String nombre, String fecha) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0xFFEAEAEA),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          leading: Icon(Icons.vaccines, size: 40),
-          title: Text('Nombre:  $nombre'),
-          subtitle: Text('Fecha:  $fecha'),
+  // Widget para una tarjeta de vacuna
+  Widget _buildVaccineCard(String nombre, String fecha) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/ampolla.png',
+            width: 40,
+            height: 40,
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Nombre:  $nombre",
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text("Fecha:  $fecha"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFEF9F3),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Encabezado
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      'assets/atras.png',
+                      width: 28,
+                      height: 28,
+                    ),
+                  ),
+                  const Text(
+                    'Tarjeta de Vacunas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Image.asset(
+                    'assets/Minilogo dacky.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                ],
+              ),
+            ),
+
+            // Mascota (imagen + nombre)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/perfil_mascota.png'),
+                    radius: 30,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Mascota 1',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Lista de vacunas (puedes duplicar según los datos reales)
+            _buildVaccineCard('Rabia Canina', '10 / 07 / 2013'),
+            _buildVaccineCard('Rabia Canina', '10 / 07 / 2013'),
+
+            const SizedBox(height: 20),
+
+            // Botón agregar (icono central)
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VacunaScreen5()),
+                );
+              },
+              child: Image.asset(
+                'assets/agregar.png',
+                width: 55,
+                height: 55,
+              ),
+            ),
+
+            const Spacer(),
+
+            // Barra de navegación inferior
+            _buildBottomNavBar(context),
+          ],
         ),
       ),
     );
