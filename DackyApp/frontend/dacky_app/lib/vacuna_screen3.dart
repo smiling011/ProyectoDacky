@@ -1,54 +1,124 @@
 import 'package:flutter/material.dart';
-import 'vacuna_screen5.dart';
-import 'package:cupertino_icons/cupertino_icons.dart';
+import 'gps_screen.dart';
+import 'vacuna_screen1.dart';
+import 'vacuna_screen2.dart';
+import 'pet_screen1.dart';
+import 'user_screen1.dart';
 
-class VacunaScreen3 extends StatelessWidget {
+class VacunaScreen1 extends StatelessWidget {
+  const VacunaScreen1({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
-      appBar: AppBar(
-        backgroundColor: Color(0xFFFFFBF4),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+      backgroundColor: const Color(0xFFFEF9F3), // Fondo claro
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Encabezado
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      'assets/atras.png',
+                      width: 28,
+                      height: 28,
+                    ),
+                  ),
+                  const Text(
+                    'Tarjeta de Vacunas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Image.asset(
+                    'assets/Minilogo dacky.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 80),
+
+            // Imagen centrada con botón
+            Expanded(
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    // Aquí navegas al formulario para agregar mascota
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => VacunaScreen2()),
+                    );
+                  },
+                  child: Image.asset(
+                    'assets/agregar.png',
+                    width: 65, // o el tamaño que prefieras
+                    height: 65,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        title: Text(
-          'Tarjeta de Vacunas',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.pets, color: Colors.black),
+      ),
+      bottomNavigationBar: SafeArea(child: _buildBottomNavBar(context)),
+    );
+  }
+
+  // Barra de navegación inferior
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GpsScreen()),
+              );
+            },
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
-        ],
-      ),
-      body: Center(
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => VacunaScreen5()),
-            );
-          },
-          backgroundColor: Colors.black,
-          child: Icon(Icons.add, color: Colors.white),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFFEAEAEA),
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black54,
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.location_on), label: ''),
-          BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.vaccines), label: ''),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.pets), label: ''),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: ''),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VacunaScreen1()),
+              );
+            },
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PetScreen1()),
+              );
+            },
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserScreen1()),
+              );
+            },
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
         ],
       ),
     );
