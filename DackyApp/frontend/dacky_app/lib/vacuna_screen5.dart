@@ -209,25 +209,29 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
         children: [
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/gps');
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => GpsScreen()));
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/vacuna');
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VacunaScreen1()));
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/pet');
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PetScreen1()));
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/user');
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
