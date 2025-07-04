@@ -166,7 +166,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
             suffixIcon: Padding(
               padding: EdgeInsets.all(10),
               child: Image.asset(
-                'assets/mi_calendario.png', // Asegúrate que esta imagen exista en tu carpeta assets
+                'assets/calendario.png', // Asegúrate que esta imagen exista en tu carpeta assets
                 width: 20,
                 height: 20,
               ),
