@@ -10,6 +10,7 @@ app.config.from_object(Config)
 # Inicializar SQLAlchemy con la app
 db.init_app(app)
 
+# registro de usuario
 @app.route('/registro', methods=['POST'])
 def registro():
     data = request.get_json()
@@ -32,6 +33,26 @@ def registro():
     db.session.commit()
 
     return jsonify({'mensaje': 'Usuario registrado correctamente'})
+
+
+# inicio de sesion del user
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    contrasena = data.get('contrasena')
+
+    user = InicioSesion.query.filter_by(Email=email).first()
+
+    if not user:
+        return jsonify({'success': False, 'message': 'Correo no registrado'}), 401
+
+    # Si usas contraseñas sin hash:
+    if user.Contrasena != contrasena:
+        return jsonify({'success': False, 'message': 'Contraseña incorrecta'}), 401
+
+    # Si todo está bien:
+    return jsonify({'success': True, 'message': 'Inicio de sesión exitoso'})
 
 # Ejecutar app
 if __name__ == '__main__':
