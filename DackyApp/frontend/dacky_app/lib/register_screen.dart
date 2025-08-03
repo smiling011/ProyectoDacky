@@ -1,7 +1,62 @@
+import 'dart:convert'; // Para codificar datos JSON
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Para hacer peticiones HTTP
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  // Controladores para cada campo
+  final TextEditingController correoController = TextEditingController();
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController apellidoController = TextEditingController();
+  final TextEditingController contrasenaController = TextEditingController();
+  final TextEditingController repetirController = TextEditingController();
+
+  // Función para registrar usuario
+  Future<void> registrarUsuario() async {
+    // Validar que las contraseñas coincidan
+    if (contrasenaController.text != repetirController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:5000/registro'), // Cambia a tu IP local si estás en celular físico
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "Nom": nombreController.text,
+          "Apell": apellidoController.text,
+          "Email": correoController.text,
+          "Contrasena": contrasenaController.text
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['mensaje'])),
+        );
+        Navigator.pop(context); // Regresa a la pantalla anterior (login)
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${data['mensaje']}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de conexión: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,28 +67,27 @@ class RegisterScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: Image.asset(
-            'assets/atras_blanco.png', // Reemplaza con la ruta de tu imagen
-            width: 24, // Opcional: ajusta el ancho
-            height: 24, // Opcional: ajusta la altura
+            'assets/atras_blanco.png',
+            width: 24,
+            height: 24,
           ),
           onPressed: () {
-            Navigator.pop(context); // Navegar hacia atrás
+            Navigator.pop(context); // Volver atrás
           },
         ),
       ),
       body: SafeArea(
         child: Stack(
           children: [
-            // Contenedor del formulario (parte inferior)
+            // Formulario inferior
             Positioned(
-              top:
-                  120.0, // Ajusta este valor para controlar la posición superior del formulario
+              top: 120.0,
               left: 0,
               right: 0,
               bottom: 0,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF565449), // Fondo del formulario
+                  color: Color(0xFF565449),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -43,23 +97,19 @@ class RegisterScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                        height:
-                            80), // Espacio para el logo y título superpuestos
-                    _buildTextField('Correo', false),
+                    const SizedBox(height: 80),
+                    _buildTextField('Correo', false, correoController),
                     const SizedBox(height: 15),
-                    _buildTextField('Nombre', false),
+                    _buildTextField('Nombre', false, nombreController),
                     const SizedBox(height: 15),
-                    _buildTextField('Apellido', false),
+                    _buildTextField('Apellido', false, apellidoController),
                     const SizedBox(height: 15),
-                    _buildTextField('Contraseña', true),
+                    _buildTextField('Contraseña', true, contrasenaController),
                     const SizedBox(height: 15),
-                    _buildTextField('Repita Contraseña', true),
+                    _buildTextField('Repita Contraseña', true, repetirController),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {
-                        // Función de registro
-                      },
+                      onPressed: registrarUsuario,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF11120D),
                         foregroundColor: const Color(0xFFFFFBF4),
@@ -79,9 +129,9 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Sección superior (Logo y título) superpuesta
+            // Parte superior con logo y título
             Positioned(
-              top: 0.0, // Cambiado a 0.0 para subirlo a la parte superior
+              top: 0.0,
               left: 0,
               right: 0,
               child: Column(
@@ -97,9 +147,8 @@ class RegisterScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Image.asset(
-                    // edite desde aca
-                    'assets/Minilogo dacky.png', // logo
-                    width: 190, // tamaño
+                    'assets/Minilogo dacky.png',
+                    width: 190,
                     height: 190,
                   ),
                 ],
@@ -111,9 +160,10 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 
-  // Método para crear un campo de texto
-  Widget _buildTextField(String hintText, bool isPassword) {
+  // Método reutilizable para los campos de texto
+  Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
