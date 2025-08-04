@@ -1,41 +1,86 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'gps_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final contrasena = _passwordController.text.trim();
+
+    if (email.isEmpty || contrasena.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, completa todos los campos')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.0.14:5000/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'contrasena': contrasena}),
+      );
+
+      print('Código de estado: ${response.statusCode}');
+      print('Respuesta del servidor: ${response.body}');
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => GpsScreen()),
+        );
+      } else {
+        final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(mensaje)),
+        );
+      }
+    } catch (e) {
+      print('Error al iniciar sesión: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al iniciar sesión')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF11120D), // Fondo oscuro
+      backgroundColor: const Color(0xFF11120D),
       appBar: AppBar(
         backgroundColor: const Color(0xFF11120D),
         elevation: 0,
         leading: IconButton(
-          icon: Image.asset(
-            'assets/atras_blanco.png', // Reemplaza con la ruta correcta de tu imagen
-            width: 24,
-            height: 24,
-          ),
+          icon: Image.asset('assets/atras_blanco.png', width: 24, height: 24),
           onPressed: () {
-            Navigator.pop(context); // Navegar hacia atrás 
+            Navigator.pop(context);
           },
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Sección superior (Icono y título)
             Expanded(
               flex: 2,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'assets/Minilogo dacky.png', // logo
-                    width: 190, // tamaño
-                    height: 190,
-                  ),
+                  Image.asset('assets/Minilogo dacky.png',
+                      width: 190, height: 190),
                   const SizedBox(height: 10),
                   const Text(
                     'INICIA SESION',
@@ -48,12 +93,11 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Sección inferior (Formulario y botones)
             Expanded(
               flex: 3,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF565449), // Fondo de la parte inferior
+                  color: Color(0xFF565449),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -63,63 +107,55 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Campo de correo
-                   TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Padding( // Envuelve Image.asset con Padding para ajustar el tamaño si es necesario
-                        padding: const EdgeInsets.all(8.0), // Ajusta el padding según necesites
-                        child: Image.asset(
-                          'assets/usuario.png', // Reemplaza con la ruta de tu imagen de persona
-                          width: 24, // Opcional: ajusta el ancho
-                          height: 24, // Opcional: ajusta la altura
-                          color: const Color(0xFFD8CFBC), // Opcional: aplica un color a la imagen si es monocromática
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/usuario.png',
+                            width: 24,
+                            height: 24,
+                            color: const Color(0xFFD8CFBC),
+                          ),
+                        ),
+                        hintText: 'Correo',
+                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                        filled: true,
+                        fillColor: const Color(0xFFFFFBF4),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      hintText: 'Correo',
-                      hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
-                      filled: true,
-                      fillColor: const Color(0xFFFFFBF4),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Campo de contraseña
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      prefixIcon: Padding( // Envuelve Image.asset con Padding
-                        padding: const EdgeInsets.all(8.0), // Ajusta el padding según necesites
-                        child: Image.asset(
-                          'assets/candado.png', // Reemplaza con la ruta de tu imagen de candado
-                          width: 24, // Opcional: ajusta el ancho
-                          height: 24, // Opcional: ajusta la altura
-                          color: const Color(0xFFD8CFBC), // Opcional: aplica un color a la imagen
-                        ),
-                      ),
-                      hintText: 'Contraseña',
-                      hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
-                      filled: true,
-                      fillColor: const Color(0xFFFFFBF4),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
                     const SizedBox(height: 20),
-                    // Botón de iniciar sesión
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/candado.png',
+                            width: 24,
+                            height: 24,
+                            color: const Color(0xFFD8CFBC),
+                          ),
+                        ),
+                        hintText: 'Contraseña',
+                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                        filled: true,
+                        fillColor: const Color(0xFFFFFBF4),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  GpsScreen()), // va la pantalla del GPS
-                        );
-                      },
+                      onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF11120D),
                         foregroundColor: const Color(0xFFFFFBF4),
@@ -129,14 +165,11 @@ class LoginScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                       child: const Center(
-                        child: Text(
-                          'Iniciar Sesión',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                        child: Text('Iniciar Sesión',
+                            style: TextStyle(fontSize: 16)),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    //iconos del inicio y el login con mis img
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -149,14 +182,11 @@ class LoginScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    // Texto para registrar cuenta
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          '¿No tienes cuenta?',
-                          style: TextStyle(color: Color(0xFFFFFBF4)),
-                        ),
+                        const Text('¿No tienes cuenta?',
+                            style: TextStyle(color: Color(0xFFFFFBF4))),
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');

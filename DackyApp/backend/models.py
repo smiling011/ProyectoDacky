@@ -19,6 +19,7 @@ class InicioSesion(db.Model):
     
     Rol = db.Column(db.Enum('admin', 'usuario'), default='usuario', nullable=False)
 
+
 class PerfilDueño(db.Model):
     __tablename__ = 'perfildueño'
 
@@ -28,6 +29,7 @@ class PerfilDueño(db.Model):
     Email = db.Column(db.String(100), nullable=False)
     NumTelf = db.Column(db.BigInteger, nullable=False)
     NumCel = db.Column(db.BigInteger, nullable=False)
+    Direccion = db.Column(db.Text, nullable=True)
     
 
     # Relación con la tabla InicioSesion
