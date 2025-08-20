@@ -117,3 +117,4 @@ class VacunasMascota(db.Model):
     
     vacuna = db.relationship('Vacunas', backref='vacunas_mascota', lazy=True)
     mascota = db.relationship('Mascota', backref='vacunas_mascota', lazy=True)
+
