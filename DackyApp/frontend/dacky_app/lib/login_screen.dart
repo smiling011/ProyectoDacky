@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.14:5000/login'),
+        Uri.parse('http://192.168.0.14:5000/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'contrasena': contrasena}),
       );
@@ -39,9 +39,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
+        final userEmail = data['email']; // <- aquí tomamos el email
+  
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => GpsScreen()),
+          MaterialPageRoute(
+            builder: (context) => GpsScreen(email: userEmail), 
+          ),
         );
       } else {
         final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';

@@ -29,7 +29,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.14:5000/registro'), // Cambia a tu IP local si estás en celular físico
+        Uri.parse('http://192.168.0.14:5000/auth/registro'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "Nom": nombreController.text,
