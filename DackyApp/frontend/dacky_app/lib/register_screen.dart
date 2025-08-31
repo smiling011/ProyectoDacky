@@ -1,6 +1,9 @@
-import 'dart:convert'; // Para codificar datos JSON
+import 'dart:convert'; 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Para hacer peticiones HTTP
+import 'package:http/http.dart' as http; 
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'gps_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -10,16 +13,13 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controladores para cada campo
   final TextEditingController correoController = TextEditingController();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController apellidoController = TextEditingController();
   final TextEditingController contrasenaController = TextEditingController();
   final TextEditingController repetirController = TextEditingController();
 
-  // Función para registrar usuario
   Future<void> registrarUsuario() async {
-    // Validar que las contraseñas coincidan
     if (contrasenaController.text != repetirController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Las contraseñas no coinciden')),
@@ -29,26 +29,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.14:5000/auth/registro'),
+        Uri.parse('http://192.168.0.18:5000/auth/registro'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "Nom": nombreController.text,
-          "Apell": apellidoController.text,
-          "Email": correoController.text,
-          "Contrasena": contrasenaController.text
+          "Nom": nombreController.text.trim(),
+          "Apell": apellidoController.text.trim(),
+          "Email": correoController.text.trim(),
+          "Contrasena": contrasenaController.text.trim()
         }),
       );
 
       final data = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && data['success'] == true) {
+        // ✅ Guardamos el correo en SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', correoController.text.trim());
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['mensaje'])),
+          SnackBar(content: Text(data['mensaje'] ?? 'Registro exitoso')),
         );
-        Navigator.pop(context); // Regresa a la pantalla anterior (login)
+
+        // ✅ Enviamos directo al mapa
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const GpsScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${data['mensaje']}')),
+          SnackBar(content: Text(data['mensaje'] ?? 'Error al registrarse')),
         );
       }
     } catch (e) {
@@ -61,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF11120D), // Fondo oscuro
+      backgroundColor: const Color(0xFF11120D),
       appBar: AppBar(
         backgroundColor: const Color(0xFF11120D),
         elevation: 0,
@@ -72,14 +81,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             height: 24,
           ),
           onPressed: () {
-            Navigator.pop(context); // Volver atrás
+            Navigator.pop(context);
           },
         ),
       ),
       body: SafeArea(
         child: Stack(
           children: [
-            // Formulario inferior
             Positioned(
               top: 120.0,
               left: 0,
@@ -129,7 +137,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ),
-            // Parte superior con logo y título
             Positioned(
               top: 0.0,
               left: 0,
@@ -160,7 +167,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // Método reutilizable para los campos de texto
   Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller) {
     return TextField(
       controller: controller,

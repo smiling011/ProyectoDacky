@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DackyApp/frontend/dacky_app/web/flutter" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Pagina Dacky" vcs="Git" />
   </component>
 </project>

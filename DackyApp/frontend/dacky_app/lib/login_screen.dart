@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'gps_screen.dart';
 
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.0.14:5000/auth/login'),
+        Uri.parse('http://192.168.0.18:5000/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'contrasena': contrasena}),
       );
@@ -39,13 +40,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        final userEmail = data['email']; // <- aquí tomamos el email
-  
+        // ✅ Guardamos el email del usuario en SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', email);
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => GpsScreen(email: userEmail), 
-          ),
+          MaterialPageRoute(builder: (context) => const GpsScreen()),
         );
       } else {
         final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';

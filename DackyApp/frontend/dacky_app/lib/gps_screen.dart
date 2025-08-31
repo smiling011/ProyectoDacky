@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-// import 'gps_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
 class GpsScreen extends StatefulWidget {
+  const GpsScreen({Key? key}) : super(key: key);
+
   @override
   _GpsScreenState createState() => _GpsScreenState();
 }
 
 class _GpsScreenState extends State<GpsScreen> {
   late GoogleMapController mapController;
+  final LatLng _initialPosition = const LatLng(19.432608, -99.133209);
 
-  final LatLng _initialPosition =
-      const LatLng(19.432608, -99.133209); // CDMX de ejemplo
+  String? _currentEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmail();
+  }
+
+  Future<void> _loadEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentEmail = prefs.getString('email');
+    });
+  }
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -35,17 +51,36 @@ class _GpsScreenState extends State<GpsScreen> {
           Positioned(
             top: 40,
             right: 20,
-            child: Image.asset(
-              'assets/Minilogo dacky.png', // Logo en la esquina superior derecha
-              width: 50,
-              height: 50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Image.asset(
+                  'assets/Minilogo dacky.png',
+                  width: 50,
+                  height: 50,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _currentEmail != null
+                        ? 'Usuario: $_currentEmail'
+                        : 'Cargando usuario...',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ],
             ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
               height: 200,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xFF11120D),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
@@ -58,11 +93,11 @@ class _GpsScreenState extends State<GpsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildButton('assets/collar-para-mascotas.png', 'Conectar GPS'), // Reemplaza con la ruta correcta
-                      _buildButton('assets/localizacion.png', 'Buscar'), // Reemplaza con la ruta correcta
+                      _buildButton('assets/collar-para-mascotas.png', 'Conectar GPS'),
+                      _buildButton('assets/localizacion.png', 'Buscar'),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildBottomNavBar(),
                 ],
               ),
@@ -72,11 +107,11 @@ class _GpsScreenState extends State<GpsScreen> {
       ),
     );
   }
-// barra de tareas de la app
 
   Widget _buildButton(String imagePath, String label) {
     return Column(
       children: [
+        const SizedBox(height: 6),
         CircleAvatar(
           backgroundColor: Colors.white,
           radius: 30,
@@ -86,80 +121,53 @@ class _GpsScreenState extends State<GpsScreen> {
               imagePath,
               width: 30,
               height: 30,
-              color: Color(0xFF11120D), // Opcional: aplica un color si es necesario
+              color: const Color(0xFF11120D),
             ),
           ),
         ),
-        SizedBox(height: 8),
-        Text(label, style: TextStyle(color: Colors.white)),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(color: Colors.white)),
       ],
     );
   }
 
   Widget _buildBottomNavBar() {
     return Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GpsScreen()),
-                );
-              },
-              child: Image.asset(
-                'assets/gps_icon.png', // Reemplaza con la ruta correcta
-                width: 30,
-                height: 30,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => VacunaScreen1()),
-                );
-              },
-              child: Image.asset(
-                'assets/vacuna_icon.png', // Reemplaza con la ruta correcta
-                width: 30,
-                height: 30,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PetScreen1()),
-                );
-              },
-              child: Image.asset(
-                'assets/huella_icon.png', // Reemplaza con la ruta correcta
-                width: 30,
-                height: 30,
-              ),
-            ),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserScreen1()),
-                );
-              },
-              child: Image.asset(
-                'assets/user_icon.png', // Reemplaza con la ruta correcta
-                width: 30,
-                height: 30,
-              ),
-            ),
-          ],
-        ));
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          InkWell(
+            onTap: () {
+              // Ya estás en esta pantalla, así que no es necesario navegar otra vez
+            },
+            child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) =>  VacunaScreen1()));
+            },
+            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) =>  PetScreen1()));
+            },
+            child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) =>  UserScreen1()));
+            },
+            child: Image.asset('assets/user_icon.png', width: 30, height: 30),
+          ),
+        ],
+      ),
+    );
   }
 }
