@@ -40,9 +40,10 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        // ✅ Guardamos el email del usuario en SharedPreferences
+        // ✅ Guardamos email e id en SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('email', email);
+        await prefs.setInt('id', data['id']); // 🔑 Guardar también el id
 
         Navigator.pushReplacement(
           context,

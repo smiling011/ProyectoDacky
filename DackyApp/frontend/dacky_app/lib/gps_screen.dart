@@ -18,17 +18,19 @@ class _GpsScreenState extends State<GpsScreen> {
   final LatLng _initialPosition = const LatLng(19.432608, -99.133209);
 
   String? _currentEmail;
+  int? _currentId;
 
   @override
   void initState() {
     super.initState();
-    _loadEmail();
+    _loadUserData();
   }
 
-  Future<void> _loadEmail() async {
+  Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _currentEmail = prefs.getString('email');
+      _currentId = prefs.getInt('id');
     });
   }
 
@@ -67,8 +69,8 @@ class _GpsScreenState extends State<GpsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    _currentEmail != null
-                        ? 'Usuario: $_currentEmail'
+                    _currentEmail != null && _currentId != null
+                        ? 'Usuario: $_currentEmail\nID: $_currentId'
                         : 'Cargando usuario...',
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
@@ -144,25 +146,28 @@ class _GpsScreenState extends State<GpsScreen> {
         children: [
           InkWell(
             onTap: () {
-              // Ya estás en esta pantalla, así que no es necesario navegar otra vez
+              // Ya estás en esta pantalla
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) =>  VacunaScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => VacunaScreen1()));
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) =>  PetScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => PetScreen1()));
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) =>  UserScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),

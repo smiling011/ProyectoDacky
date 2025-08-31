@@ -1,6 +1,6 @@
-import 'dart:convert'; 
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; 
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'gps_screen.dart';
@@ -35,29 +35,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "Nom": nombreController.text.trim(),
           "Apell": apellidoController.text.trim(),
           "Email": correoController.text.trim(),
-          "Contrasena": contrasenaController.text.trim()
+          "Contrasena": contrasenaController.text.trim(),
+          "NumCel": "", // o null si quieres
+          "NumTelf": "",
+          "Direccion": ""
         }),
       );
 
       final data = jsonDecode(response.body);
+      print('Respuesta del backend: $data');
 
-      if (response.statusCode == 200 && data['success'] == true) {
-        // ✅ Guardamos el correo en SharedPreferences
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          data['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('email', correoController.text.trim());
+        await prefs.setString('email', data['email']);
+        await prefs.setInt('id', data['id']);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['mensaje'] ?? 'Registro exitoso')),
+          SnackBar(content: Text(data['message'] ?? 'Registro exitoso')),
         );
 
-        // ✅ Enviamos directo al mapa
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const GpsScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['mensaje'] ?? 'Error al registrarse')),
+          SnackBar(content: Text(data['message'] ?? 'Error al registrarse')),
         );
       }
     } catch (e) {
@@ -114,7 +118,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 15),
                     _buildTextField('Contraseña', true, contrasenaController),
                     const SizedBox(height: 15),
-                    _buildTextField('Repita Contraseña', true, repetirController),
+                    _buildTextField(
+                        'Repita Contraseña', true, repetirController),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: registrarUsuario,
@@ -167,7 +172,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTextField(String hintText, bool isPassword, TextEditingController controller) {
+  Widget _buildTextField(
+      String hintText, bool isPassword, TextEditingController controller) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
