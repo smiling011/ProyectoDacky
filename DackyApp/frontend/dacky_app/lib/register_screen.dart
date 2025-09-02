@@ -36,7 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "Apell": apellidoController.text.trim(),
           "Email": correoController.text.trim(),
           "Contrasena": contrasenaController.text.trim(),
-          "NumCel": "", // o null si quieres
+          "NumCel": "", 
           "NumTelf": "",
           "Direccion": ""
         }),
