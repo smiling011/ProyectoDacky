@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-04-2025 a las 04:04:42
+-- Tiempo de generación: 02-09-2025 a las 08:18:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -20,45 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `dacky`
 --
-
-DELIMITER $$
---
--- Procedimientos
---
-CREATE DEFINER=`root`@`localhost` PROCEDURE `ActualizarDispositivoGPS` (IN `p_IdDispositivoGPS` INT, IN `p_Mascota_IdMascota` INT)   BEGIN
-    UPDATE dispositivogps
-    SET Mascota_IdMascota = p_Mascota_IdMascota
-    WHERE IdDispositivoGPS = p_IdDispositivoGPS;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `ConsultarVacunasMascota` (IN `p_IdMascota` INT)   BEGIN
-    SELECT v.NomVacuna
-    FROM vacunasmascota vm
-    JOIN vacunas v ON vm.Vacunas_IdVacunas = v.IdVacunas
-    WHERE vm.Mascota_IdMascota = p_IdMascota;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `EliminarPerfilMascota` (IN `p_IdPerfilMascota` INT)   BEGIN
-    DELETE FROM perfilmascota
-    WHERE IdPerfilMascota = p_IdPerfilMascota;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertarPerfilDueño` (IN `p_NomDueño` VARCHAR(100), IN `p_Apell` VARCHAR(100), IN `p_Email` VARCHAR(100), IN `p_NumTelf` BIGINT, IN `p_NumCel` BIGINT)   BEGIN
-    INSERT INTO perfildueño (NomDueño, Apell, Email, NumTelf, NumCel)
-    VALUES (p_NomDueño, p_Apell, p_Email, p_NumTelf, p_NumCel);
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `RegistrarMascota` (IN `p_NumMascota` INT, IN `p_PerfilDueño_IdPerfilDueño` INT, IN `p_PerfilMascota_IdPerfilMascota` INT)   BEGIN
-    INSERT INTO mascota (NumMascota, PerfilDueño_IdPerfilDueño, PerfilMascota_IdPerfilMascota)
-    VALUES (p_NumMascota, p_PerfilDueño_IdPerfilDueño, p_PerfilMascota_IdPerfilMascota);
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `RegistrarVacunaMascota` (IN `p_NomVacuna` VARCHAR(100), IN `p_Mascota_IdMascota` INT, IN `p_Vacunas_IdVacunas` INT)   BEGIN
-    INSERT INTO vacunasmascota (NomVacuna, Mascota_IdMascota, Vacunas_IdVacunas)
-    VALUES (p_NomVacuna, p_Mascota_IdMascota, p_Vacunas_IdVacunas);
-END$$
-
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -93,9 +54,9 @@ CREATE TABLE `iniciosesion` (
   `Apell` varchar(100) CHARACTER SET armscii8 COLLATE armscii8_general_ci NOT NULL,
   `Email` varchar(200) NOT NULL,
   `Contrasena` varchar(255) NOT NULL,
-  `NumTelf` bigint(12) NOT NULL,
-  `NumCel` bigint(10) NOT NULL,
-  `Direccion` text NOT NULL,
+  `NumTelf` bigint(12) DEFAULT NULL,
+  `NumCel` bigint(10) DEFAULT NULL,
+  `Direccion` text DEFAULT NULL,
   `PerfilDueño_IdPerfilDueño` int(11) NOT NULL,
   `Rol` enum('admin','usuario') NOT NULL DEFAULT 'usuario'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -119,7 +80,11 @@ INSERT INTO `iniciosesion` (`IdInicioSesion`, `Nom`, `Apell`, `Email`, `Contrase
 (20, 'prueba', 'cifrado', 'prueba@gmail.com', '1234', 231213, 0, '223fdfsd', 12, 'usuario'),
 (21, 'contraseña', 'hihi', '1234prueba@gmail.com', 'pbkdf2:sha256:600000$9VMZ1uO1pXM9IrkH$7fb1f82577402d971b1a7cabc1f5b63a99256fa6dcfa4a24a363ad30ade13dbf', 23231, 0, 'ddasdadad3423', 13, 'usuario'),
 (22, 'admin', 'admin ap', 'admin@gmail.com', 'pbkdf2:sha256:600000$yn8Ll9tdlCtq4HAS$106bbea86ef2deda0d250dbe46847cc6150ba5b283c7e3aa7c24a5df80639953', 123455432, 0, '121212hghfhg', 14, 'admin'),
-(23, 'hola', 'que tal', 'hoa@gmail.com', 'pbkdf2:sha256:600000$3S5NUYqX3wxE34Mc$a9a595d11caf0949c0e272dd84c20dcb58fcdb2b5aed40d6483a874e01ae87fa', 1234567890, 0, 'jslsdasldjalsdhlA', 15, 'usuario');
+(23, 'hola', 'que tal', 'hoa@gmail.com', 'pbkdf2:sha256:600000$3S5NUYqX3wxE34Mc$a9a595d11caf0949c0e272dd84c20dcb58fcdb2b5aed40d6483a874e01ae87fa', 1234567890, 0, 'jslsdasldjalsdhlA', 15, 'usuario'),
+(25, 'victoria', 'virlma', '12345@hotmail.com', '12345', 0, 0, '', 1, 'usuario'),
+(26, 'prueba1', 'prueba1', 'prueba1@gmail.com', '12345', 0, 0, '', 1, 'usuario'),
+(27, 'prueba2', 'prueba2', 'prueba2@gmail.com', '12345', 0, 0, '', 1, 'usuario'),
+(38, 'victoria', 'vielma', 'prueba4@gmail.com', '1234', 0, 0, '', 0, 'usuario');
 
 -- --------------------------------------------------------
 
@@ -174,31 +139,35 @@ CREATE TABLE `perfildueño` (
   `NomDueño` varchar(100) NOT NULL,
   `Apell` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
-  `NumTelf` bigint(12) NOT NULL,
-  `NumCel` bigint(10) NOT NULL
+  `NumTelf` varchar(20) DEFAULT NULL,
+  `NumCel` bigint(10) NOT NULL,
+  `Direccion` text DEFAULT NULL,
+  `IdInicioSesion` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `perfildueño`
 --
 
-INSERT INTO `perfildueño` (`IdPerfilDueño`, `NomDueño`, `Apell`, `Email`, `NumTelf`, `NumCel`) VALUES
-(1, 'Juan', 'Pérez', 'juan.perez@mail.com', 3112345678, 3001234567),
-(2, 'María', 'González', 'maria.gonzalez@mail.com', 3123456789, 3002345678),
-(3, 'Carlos', 'Ramírez', 'carlos.ramirez@mail.com', 3134567890, 3003456789),
-(4, 'Ana', 'Fernández', 'ana.fernandez@mail.com', 3145678901, 3004567890),
-(5, 'vicky', 'vielma', 'tqm1234@gmail.com', 1234567890, 0),
-(6, 'tory', 'vielma', 'tory@gmail.com', 1828162, 0),
-(7, 'lily', 'romero', 'lily@gmail.com', 67890, 0),
-(8, 'ojsnoASN09JASOI', '0IASJO', 'iAJSO@adhysad.com', 0, 0),
-(9, 'Jose Manuel', 'Montes Taborda', 'iphone@gmail.com', 4376785, 0),
-(10, 'hola ', 'qtak', 'asajhs@gmail.com', 1234, 0),
-(11, 'guille', 'burgos', '123@gmail.com', 0, 0),
-(12, 'prueba', 'cifrado', 'prueba@gmail.com', 231213, 0),
-(13, 'contraseña', 'hihi', '1234prueba@gmail.com', 23231, 0),
-(14, 'admin', 'admin ap', 'admin@gmail.com', 123455432, 0),
-(15, 'hola', 'que tal', 'hoa@gmail.com', 1234567890, 0),
-(16, 'hola', 'vielma', 'hjahajsh@gmail.com', 1234, 0);
+INSERT INTO `perfildueño` (`IdPerfilDueño`, `NomDueño`, `Apell`, `Email`, `NumTelf`, `NumCel`, `Direccion`, `IdInicioSesion`) VALUES
+(1, 'Juan', 'Pérez', 'juan.perez@mail.com', '3112345678', 3001234567, NULL, NULL),
+(2, 'María', 'González', 'maria.gonzalez@mail.com', '3123456789', 3002345678, NULL, NULL),
+(3, 'Carlos', 'Ramírez', 'carlos.ramirez@mail.com', '3134567890', 3003456789, NULL, NULL),
+(4, 'Ana', 'Fernández', 'ana.fernandez@mail.com', '3145678901', 3004567890, NULL, NULL),
+(5, 'vicky', 'vielma', 'tqm1234@gmail.com', '1234567890', 0, NULL, NULL),
+(6, 'tory', 'vielma', 'tory@gmail.com', '1828162', 0, NULL, NULL),
+(7, 'lily', 'romero', 'lily@gmail.com', '67890', 0, NULL, NULL),
+(8, 'ojsnoASN09JASOI', '0IASJO', 'iAJSO@adhysad.com', '0', 0, NULL, NULL),
+(9, 'Jose Manuel', 'Montes Taborda', 'iphone@gmail.com', '4376785', 0, NULL, NULL),
+(10, 'hola ', 'qtak', 'asajhs@gmail.com', '1234', 0, NULL, NULL),
+(11, 'guille', 'burgos', '123@gmail.com', '0', 0, NULL, NULL),
+(12, 'prueba', 'cifrado', 'prueba@gmail.com', '231213', 0, NULL, NULL),
+(13, 'contraseña', 'hihi', '1234prueba@gmail.com', '23231', 0, NULL, NULL),
+(14, 'admin', 'admin ap', 'admin@gmail.com', '123455432', 0, NULL, NULL),
+(15, 'hola', 'que tal', 'hoa@gmail.com', '1234567890', 0, NULL, NULL),
+(16, 'hola', 'vielma', 'hjahajsh@gmail.com', '1234', 0, NULL, NULL),
+(27, 'prueba2', 'prueba2', 'prueba2@gmail.com', '0', 0, NULL, NULL),
+(28, 'victoria', 'vielma', 'prueba4@gmail.com', '555555', 44444, '626363637', 38);
 
 -- --------------------------------------------------------
 
@@ -366,7 +335,7 @@ CREATE TABLE `vista_iniciosesion_dueño` (
 ,`NomDueño` varchar(100)
 ,`ApellidoDueño` varchar(100)
 ,`EmailDueño` varchar(100)
-,`TelfDueño` bigint(12)
+,`TelfDueño` varchar(20)
 ,`CelDueño` bigint(10)
 );
 
@@ -388,7 +357,7 @@ CREATE TABLE `vista_mascotas_dueños` (
 ,`NomDueño` varchar(100)
 ,`Apell` varchar(100)
 ,`Email` varchar(100)
-,`NumTelf` bigint(12)
+,`NumTelf` varchar(20)
 ,`NumCel` bigint(10)
 );
 
@@ -530,7 +499,8 @@ ALTER TABLE `mascotaseliminadas`
 -- Indices de la tabla `perfildueño`
 --
 ALTER TABLE `perfildueño`
-  ADD PRIMARY KEY (`IdPerfilDueño`);
+  ADD PRIMARY KEY (`IdPerfilDueño`),
+  ADD KEY `perfildueño_ibfk_1` (`IdInicioSesion`);
 
 --
 -- Indices de la tabla `perfilmascota`
@@ -581,7 +551,7 @@ ALTER TABLE `dispositivogps`
 -- AUTO_INCREMENT de la tabla `iniciosesion`
 --
 ALTER TABLE `iniciosesion`
-  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `mascota`
@@ -599,7 +569,7 @@ ALTER TABLE `mascotaseliminadas`
 -- AUTO_INCREMENT de la tabla `perfildueño`
 --
 ALTER TABLE `perfildueño`
-  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `perfilmascota`
@@ -642,12 +612,6 @@ ALTER TABLE `dispositivogps`
   ADD CONSTRAINT `dispositivogps_ibfk_1` FOREIGN KEY (`Mascota_IdMascota`) REFERENCES `mascota` (`IdMascota`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `iniciosesion`
---
-ALTER TABLE `iniciosesion`
-  ADD CONSTRAINT `iniciosesion_ibfk_1` FOREIGN KEY (`PerfilDueño_IdPerfilDueño`) REFERENCES `perfildueño` (`IdPerfilDueño`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
---
 -- Filtros para la tabla `mascota`
 --
 ALTER TABLE `mascota`
@@ -659,6 +623,13 @@ ALTER TABLE `mascota`
 --
 ALTER TABLE `mascotaseliminadas`
   ADD CONSTRAINT `mascotaseliminadas_ibfk_1` FOREIGN KEY (`IdPerfilDueño`) REFERENCES `perfildueño` (`IdPerfilDueño`);
+
+--
+-- Filtros para la tabla `perfildueño`
+--
+ALTER TABLE `perfildueño`
+  ADD CONSTRAINT `fk_perfildueño_iniciosesion` FOREIGN KEY (`IdInicioSesion`) REFERENCES `iniciosesion` (`IdInicioSesion`),
+  ADD CONSTRAINT `perfildueño_ibfk_1` FOREIGN KEY (`IdInicioSesion`) REFERENCES `iniciosesion` (`IdInicioSesion`);
 
 --
 -- Filtros para la tabla `perfilmascota`
