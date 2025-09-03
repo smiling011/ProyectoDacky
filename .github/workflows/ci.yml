@@ -29,6 +29,7 @@ jobs:
 
       - name: Mostrar estructura de archivos
         run: ls -R .
+        working-directory: ProyectoDacky
 
       - name: Configurar Python 3.10
         uses: actions/setup-python@v4
@@ -40,14 +41,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r "DackyApp/backend/requirements.txt"
           pip install pytest
+        working-directory: ProyectoDacky
 
       - name: Reemplazar host MySQL en config.py
         run: sed -i "s/localhost/mysql/" "DackyApp/backend/app/utils/config.py"
+        working-directory: ProyectoDacky
 
       - name: Esperar que MySQL esté listo
         run: sleep 30
+        working-directory: ProyectoDacky
 
       - name: Ejecutar pruebas con pytest
         run: pytest "DackyApp/backend/tests" -v
-
-        
+        working-directory: ProyectoDacky
