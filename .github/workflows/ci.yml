@@ -15,6 +15,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: 12345
           MYSQL_DATABASE: dacky
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
         ports:
           - 3306:3306
         options: >-
@@ -35,14 +37,14 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r DackyApp/backend/requirements.txt
+          pip install -r "Proyecto Dacky/DackyApp/backend/requirements.txt"
           pip install pytest
+
+      - name: Reemplazar host MySQL
+        run: sed -i 's/localhost/mysql/' "Proyecto Dacky/DackyApp/backend/app/utils/config.py"
 
       - name: Esperar a MySQL
         run: sleep 30
 
-      - name: Sobrescribir config de DB
-        run: sed -i 's/localhost/mysql/' DackyApp/backend/app/utils/config.py
-        
       - name: Ejecutar tests
-        run: pytest DackyApp/backend/tests -v
+        run: pytest "Proyecto Dacky/DackyApp/backend/tests" -v
