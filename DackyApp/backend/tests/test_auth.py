@@ -7,7 +7,7 @@ def client():
     # Crear app de prueba
     app = create_app()
     app.config["TESTING"] = True
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://user:password@localhost/dacky_test"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:12345@mysql/dacky"
 
     with app.test_client() as client:
         with app.app_context():
