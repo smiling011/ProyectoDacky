@@ -27,7 +27,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Verificar estructura del módulo
+      - name: Mostrar estructura de archivos
         run: ls -R .
 
       - name: Configurar Python 3.10
@@ -38,14 +38,14 @@ jobs:
       - name: Instalar dependencias del backend
         run: |
           python -m pip install --upgrade pip
-          pip install -r DackyApp/backend/requirements.txt
+          pip install -r "ProyectoDacky/DackyApp/backend/requirements.txt"
           pip install pytest
 
-      - name: Corregir host MySQL en config.py
-        run: sed -i "s/localhost/mysql/" DackyApp/backend/app/utils/config.py
+      - name: Reemplazar host MySQL en config.py
+        run: sed -i "s/localhost/mysql/" "ProyectoDacky/DackyApp/backend/app/utils/config.py"
 
       - name: Esperar que MySQL esté listo
         run: sleep 30
 
       - name: Ejecutar pruebas con pytest
-        run: pytest DackyApp/backend/tests -v
+        run: pytest "ProyectoDacky/DackyApp/backend/tests" -v
