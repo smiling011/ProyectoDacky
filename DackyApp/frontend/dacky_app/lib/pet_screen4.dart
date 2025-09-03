@@ -1,11 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'pet_screen1.dart';
+import 'pet_screen2.dart';
 import 'gps_screen.dart';
 import 'user_screen1.dart';
 import 'vacuna_screen1.dart';
 
-class PetScreen4 extends StatelessWidget {
-  const PetScreen4({super.key});
+class PetScreen4 extends StatefulWidget {
+  final int idMascota;
+
+  const PetScreen4({super.key, required this.idMascota});
+
+  @override
+  State<PetScreen4> createState() => _PetScreen4State();
+}
+
+class _PetScreen4State extends State<PetScreen4> {
+  Map<String, dynamic>? mascota;
+  bool isLoading = true; // ✅ ahora sí existe
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarMascota();
+  }
+
+  Future<void> _cargarMascota() async {
+    final url = Uri.parse("http://192.168.0.18:5000/pet/detalle/${widget.idMascota}");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        mascota = json.decode(response.body) as Map<String, dynamic>;
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+        mascota = null;
+      });
+    }
+  }
+
+  Future<void> _eliminarMascota() async {
+    final url = Uri.parse("http://192.168.0.18:5000/pet/${widget.idMascota}");
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context); // Regresa a la lista
+    } else {
+      print("Error al eliminar mascota: ${response.body}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,56 +94,71 @@ class PetScreen4 extends StatelessWidget {
             ),
           ),
 
-          // Contenido
+          // Contenido dinámico
           Positioned.fill(
             top: 100,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  const CircleAvatar(
-                    radius: 90,
-                    backgroundImage: AssetImage('assets/images/dog-7694676_1280.jpg'), // Reemplaza por tu imagen
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Mascota 1',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator()) // ⏳ cargando
+                : mascota == null
+                    ? const Center(child: Text("Mascota no encontrada")) // ❌ error
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            const CircleAvatar(
+                              radius: 90,
+                              backgroundImage: AssetImage('assets/images/dog-7694676_1280.jpg'),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              mascota!['NomMascota'] ?? 'Sin nombre',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            const SizedBox(height: 20),
 
-                  // Información de la mascota
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        InfoRow(label: 'Raza', value: 'Husky'),
-                        InfoRow(label: 'Peso', value: '15kg'),
-                        InfoRow(label: 'Altura', value: '70cm'),
-                        InfoRow(label: 'Edad', value: '4 años'),
-                        InfoRow(label: 'Genero', value: 'Hembra'),
-                        InfoRow(label: 'Descripcion', value: 'Amable juguetón\ny muy activo'),
-                      ],
-                    ),
-                  ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  InfoRow(label: 'Raza', value: mascota!['Raza'] ?? ''),
+                                  InfoRow(label: 'Peso', value: "${mascota!['Peso']} kg"),
+                                  InfoRow(label: 'Altura', value: "${mascota!['Altura']} cm"),
+                                  InfoRow(label: 'Edad', value: "${mascota!['Edad']} años"),
+                                  InfoRow(label: 'Descripción', value: mascota!['Descripcion'] ?? ''),
+                                ],
+                              ),
+                            ),
 
-                  const SizedBox(height: 20),
+                            const SizedBox(height: 20),
 
-                  // Iconos de editar y borrar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset('assets/editar.png', width: 35, height: 35),
-                      const SizedBox(width: 20),
-                      Image.asset('assets/borrar.png', width: 35, height: 35),
-                    ],
-                  ),
+                            // Botones editar y borrar
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const PetScreen2(), // ⚠️ luego aquí se pasa para edición
+                                      ),
+                                    );
+                                  },
+                                  child: Image.asset('assets/editar.png', width: 35, height: 35),
+                                ),
+                                const SizedBox(width: 20),
+                                GestureDetector(
+                                  onTap: _eliminarMascota,
+                                  child: Image.asset('assets/borrar.png', width: 35, height: 35),
+                                ),
+                              ],
+                            ),
 
-                  const SizedBox(height: 80), // espacio para la barra inferior
-                ],
-              ),
-            ),
+                            const SizedBox(height: 80),
+                          ],
+                        ),
+                      ),
           ),
         ],
       ),
@@ -103,7 +166,6 @@ class PetScreen4 extends StatelessWidget {
     );
   }
 
-  // Barra de navegación inferior
   static Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -145,7 +207,7 @@ class PetScreen4 extends StatelessWidget {
   }
 }
 
-// Widget para fila de información
+// Fila de información
 class InfoRow extends StatelessWidget {
   final String label;
   final String value;
@@ -164,10 +226,7 @@ class InfoRow extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.normal),
-            ),
+            child: Text(value),
           ),
         ],
       ),

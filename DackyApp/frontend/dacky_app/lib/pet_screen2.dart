@@ -1,12 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'pet_screen3.dart';
 import 'user_screen1.dart';
 
-class PetScreen2 extends StatelessWidget {
+class PetScreen2 extends StatefulWidget {
   const PetScreen2({super.key});
+
+  @override
+  State<PetScreen2> createState() => _PetScreen2State();
+}
+
+class _PetScreen2State extends State<PetScreen2> {
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController razaController = TextEditingController();
+  final TextEditingController pesoController = TextEditingController();
+  final TextEditingController alturaController = TextEditingController();
+  final TextEditingController edadController = TextEditingController();
+  final TextEditingController generoController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
+
+  bool _loading = false;
+
+  Future<void> _guardarMascota() async {
+    setState(() => _loading = true);
+
+    final prefs = await SharedPreferences.getInstance();
+    final idUsuario = prefs.getInt('id');
+
+    if (idUsuario == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No se encontró el usuario.")),
+      );
+      setState(() => _loading = false);
+      return;
+    }
+
+    final url = Uri.parse("http://192.168.0.18:5000/pet/$idUsuario");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "NomMascota": nombreController.text,
+        "Raza": razaController.text,
+        "Peso": int.tryParse(pesoController.text) ?? 0,
+        "Altura": int.tryParse(alturaController.text) ?? 0,
+        "Edad": int.tryParse(edadController.text) ?? 0,
+        "Genero": generoController.text,
+        "Descripcion": descripcionController.text,
+      }),
+    );
+
+    setState(() => _loading = false);
+
+    if (response.statusCode == 201) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const PetScreen3()),
+      );
+    } else {
+      final data = json.decode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${data['mensaje'] ?? 'No se pudo registrar'}")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +78,6 @@ class PetScreen2 extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Contenido desplazable
             Padding(
               padding: const EdgeInsets.only(top: 80, bottom: 90),
               child: SingleChildScrollView(
@@ -36,25 +98,17 @@ class PetScreen2 extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
 
-                          // Campos del formulario
-                          _buildTextField(label: 'Nombre'),
-                          _buildTextField(label: 'Raza'),
-                          _buildTextField(label: 'Peso'),
-                          _buildTextField(label: 'Altura'),
-                          _buildTextField(label: 'Edad'),
-                          _buildTextField(label: 'Género'),
-                          _buildDescriptionField(label: 'Descripción'),
+                          _buildTextField(label: 'Nombre', controller: nombreController),
+                          _buildTextField(label: 'Raza', controller: razaController),
+                          _buildTextField(label: 'Peso', controller: pesoController, keyboardType: TextInputType.number),
+                          _buildTextField(label: 'Altura', controller: alturaController, keyboardType: TextInputType.number),
+                          _buildTextField(label: 'Edad', controller: edadController, keyboardType: TextInputType.number),
+                          _buildTextField(label: 'Género', controller: generoController),
+                          _buildDescriptionField(label: 'Descripción', controller: descripcionController),
 
                           const SizedBox(height: 20),
                           ElevatedButton(
-                            onPressed: () {
-                              // Guardar datos
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => PetScreen3()),
-                              );
-                            },
+                            onPressed: _loading ? null : _guardarMascota,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
                               shape: RoundedRectangleBorder(
@@ -62,10 +116,12 @@ class PetScreen2 extends StatelessWidget {
                               ),
                               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                             ),
-                            child: const Text(
-                              'Guardar',
-                              style: TextStyle(color: Colors.white, fontSize: 16),
-                            ),
+                            child: _loading
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : const Text(
+                                    'Guardar',
+                                    style: TextStyle(color: Colors.white, fontSize: 16),
+                                  ),
                           ),
                         ],
                       ),
@@ -122,7 +178,7 @@ class PetScreen2 extends StatelessWidget {
   }
 
   // Campo de texto común
-  static Widget _buildTextField({required String label}) {
+  Widget _buildTextField({required String label, required TextEditingController controller, TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -131,6 +187,8 @@ class PetScreen2 extends StatelessWidget {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           TextField(
+            controller: controller,
+            keyboardType: keyboardType,
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFFFFFBF4),
@@ -147,7 +205,7 @@ class PetScreen2 extends StatelessWidget {
   }
 
   // Campo de descripción
-  static Widget _buildDescriptionField({required String label}) {
+  Widget _buildDescriptionField({required String label, required TextEditingController controller}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -156,6 +214,7 @@ class PetScreen2 extends StatelessWidget {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           TextField(
+            controller: controller,
             maxLines: 4,
             decoration: InputDecoration(
               filled: true,
@@ -173,7 +232,7 @@ class PetScreen2 extends StatelessWidget {
   }
 
   // Barra de navegación inferior
-  static Widget _buildBottomNavBar(BuildContext context) {
+  Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
