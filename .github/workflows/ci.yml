@@ -42,7 +42,7 @@ jobs:
           pip install pytest
 
       - name: Reemplazar host MySQL en config.py
-        run: sed -i "s/localhost/mysql/" "ProyectoDacky/DackyApp/backend/app/utils/config.py"
+        run: sed -i "s/localhost/mysql/" "DackyApp/backend/app/utils/config.py"
 
       - name: Esperar que MySQL esté listo
         run: sleep 30
