@@ -3,14 +3,14 @@
 Copias de codigo de versiones anteriores/
 Web/
 CRUD.py
-App/
+Aplication/
 
-# Ignorar archivos específicos dentro de App/
-App/inicioscreen2.dart
-App/inicioscreen3.dart
-App/inicio_screen2.dart
-App/login_ant.dart
-App/main1.dart
+# Ignorar archivos específicos dentro de Aplication/
+Aplication/inicioscreen2.dart
+Aplication/inicioscreen3.dart
+Aplication/inicio_screen2.dart
+Aplication/login_ant.dart
+Aplication/main1.dart
 
 # Ignorar archivos comprimidos
 *.zip
