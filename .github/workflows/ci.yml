@@ -41,8 +41,11 @@ jobs:
           pip install -r "DackyApp/backend/requirements.txt"
           pip install pytest
 
+      - name: Mostrar estructura del backend
+        run: ls -R ./DackyApp/backend
+
       - name: Reemplazar host MySQL en config.py
-        run: sed -i "s/localhost/mysql/" "ProyectoDacky/DackyApp/backend/app/utils/config.py"
+        run: sed -i "s/localhost/mysql/" "./DackyApp/backend/app/utils/config.py"
 
       - name: Esperar que MySQL esté listo
         run: sleep 30
