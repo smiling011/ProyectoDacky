@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-09-2025 a las 08:18:22
+-- Tiempo de generación: 05-09-2025 a las 03:44:03
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -84,7 +84,9 @@ INSERT INTO `iniciosesion` (`IdInicioSesion`, `Nom`, `Apell`, `Email`, `Contrase
 (25, 'victoria', 'virlma', '12345@hotmail.com', '12345', 0, 0, '', 1, 'usuario'),
 (26, 'prueba1', 'prueba1', 'prueba1@gmail.com', '12345', 0, 0, '', 1, 'usuario'),
 (27, 'prueba2', 'prueba2', 'prueba2@gmail.com', '12345', 0, 0, '', 1, 'usuario'),
-(38, 'victoria', 'vielma', 'prueba4@gmail.com', '1234', 0, 0, '', 0, 'usuario');
+(38, 'victoria', 'vielma', 'prueba4@gmail.com', '1234', 0, 0, '', 0, 'usuario'),
+(39, 'vicky', 'vielma', 'vicky.py@gmail.com', 'scrypt:32768:8:1$ylB7ylfhk8DEfxdS$7bcb9c1a882cd32d3534abc7d0e8488388fbfed9f508bcfd48586be7e063ada2734c1b8fe705aadad4a797ec82492fce2410e6efe3ac51d703e91844f7a31045', 0, 0, '', 0, 'usuario'),
+(40, 'yokono', 'lennon', 'vielma@hotmail.com', 'scrypt:32768:8:1$4UWZMqkBnxHn6I1P$704b40e4b6a285269d4c57fcdd70a0bf56ddc253707a274286b89c83cab170d96769ef39f750ebe3a4e6a9a0a78e4724d9c2abd67684170919420cee7c6c726c', 0, 0, '', 0, 'usuario');
 
 -- --------------------------------------------------------
 
@@ -107,7 +109,9 @@ INSERT INTO `mascota` (`IdMascota`, `NumMascota`, `PerfilDueño_IdPerfilDueño`,
 (1, 1, 1, 1),
 (2, 2, 2, 2),
 (3, 3, 3, 3),
-(4, 4, 4, 4);
+(4, 4, 4, 4),
+(5, 1, 40, 8),
+(6, 2, 40, 9);
 
 -- --------------------------------------------------------
 
@@ -167,7 +171,9 @@ INSERT INTO `perfildueño` (`IdPerfilDueño`, `NomDueño`, `Apell`, `Email`, `Nu
 (15, 'hola', 'que tal', 'hoa@gmail.com', '1234567890', 0, NULL, NULL),
 (16, 'hola', 'vielma', 'hjahajsh@gmail.com', '1234', 0, NULL, NULL),
 (27, 'prueba2', 'prueba2', 'prueba2@gmail.com', '0', 0, NULL, NULL),
-(28, 'victoria', 'vielma', 'prueba4@gmail.com', '555555', 44444, '626363637', 38);
+(28, 'victoria', 'vielma', 'prueba4@gmail.com', '555555', 44444, '626363637', 38),
+(29, 'vicky', 'vielma', 'vicky.py@gmail.com', '', 0, '', 39),
+(40, 'john', 'lennon', 'vielma@hotmail.com', '63636363737', 41515155, 'gggggghhhhh66666', 40);
 
 -- --------------------------------------------------------
 
@@ -194,7 +200,9 @@ INSERT INTO `perfilmascota` (`IdPerfilMascota`, `NomMascota`, `Raza`, `Peso`, `A
 (1, 'Max', 'Labrador', 31, 60, 'Perro muy amigable', 5, 1),
 (2, 'Bella', 'Golden Retriever', 28, 55, 'Mascota juguetona', 3, 2),
 (3, 'Rocky', 'Bulldog', 25, 50, 'Perro de compañía', 4, 3),
-(4, 'Luna', 'Beagle', 12, 40, 'Perra curiosa y activa', 2, 4);
+(4, 'Luna', 'Beagle', 12, 40, 'Perra curiosa y activa', 2, 4),
+(8, 'mafalda', 'husky', 50, 60, 'Hermosa', 6, 40),
+(9, 'Mafakda', 'husky', 50, 70, 'lindo', 6, 40);
 
 -- --------------------------------------------------------
 
@@ -551,13 +559,13 @@ ALTER TABLE `dispositivogps`
 -- AUTO_INCREMENT de la tabla `iniciosesion`
 --
 ALTER TABLE `iniciosesion`
-  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `IdInicioSesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de la tabla `mascota`
 --
 ALTER TABLE `mascota`
-  MODIFY `IdMascota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IdMascota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `mascotaseliminadas`
@@ -569,13 +577,13 @@ ALTER TABLE `mascotaseliminadas`
 -- AUTO_INCREMENT de la tabla `perfildueño`
 --
 ALTER TABLE `perfildueño`
-  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `IdPerfilDueño` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de la tabla `perfilmascota`
 --
 ALTER TABLE `perfilmascota`
-  MODIFY `IdPerfilMascota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IdPerfilMascota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `raza`
