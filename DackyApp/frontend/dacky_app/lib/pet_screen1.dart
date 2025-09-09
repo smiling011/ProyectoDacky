@@ -69,8 +69,8 @@ class _PetScreen1State extends State<PetScreen1> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFEF9F3),
-      body: SafeArea(
+      backgroundColor: const Color(0xFFFFFBF4),
+      body: SafeArea(   // ✅ Protegemos encabezado
         child: Column(
           children: [
             // Encabezado
@@ -89,7 +89,11 @@ class _PetScreen1State extends State<PetScreen1> {
                   ),
                   const Text(
                     'Perfil de Mascota',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat',
+                    ),
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
@@ -125,7 +129,12 @@ class _PetScreen1State extends State<PetScreen1> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(child: _buildBottomNavBar(context)),
+      bottomNavigationBar: SafeArea(   // ✅ Barra protegida
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildBottomNavBar(context),
+        ),
+      ),
     );
   }
 
@@ -133,7 +142,7 @@ class _PetScreen1State extends State<PetScreen1> {
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[300],
         borderRadius: BorderRadius.circular(30),

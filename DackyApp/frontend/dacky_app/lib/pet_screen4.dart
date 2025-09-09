@@ -20,7 +20,7 @@ class PetScreen4 extends StatefulWidget {
 
 class _PetScreen4State extends State<PetScreen4> {
   Map<String, dynamic>? mascota;
-  bool isLoading = true; // ✅ ahora sí existe
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -60,16 +60,12 @@ class _PetScreen4State extends State<PetScreen4> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: Stack(
-        children: [
-          // Encabezado fijo
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
+      body: SafeArea( // ✅ Protegemos encabezado
+        child: Column(
+          children: [
+            // 🔹 Encabezado
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              color: const Color(0xFFFFFBF4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -83,7 +79,11 @@ class _PetScreen4State extends State<PetScreen4> {
                   ),
                   const Text(
                     'Hoja de Vida',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat',
+                    ),
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
@@ -93,77 +93,84 @@ class _PetScreen4State extends State<PetScreen4> {
                 ],
               ),
             ),
-          ),
 
-          // Contenido dinámico
-          Positioned.fill(
-            top: 100,
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator()) // ⏳ cargando
-                : mascota == null
-                    ? const Center(child: Text("Mascota no encontrada")) // ❌ error
-                    : SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 10),
-                            const CircleAvatar(
-                              radius: 90,
-                              backgroundImage: AssetImage('assets/images/dog-7694676_1280.jpg'),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              mascota!['NomMascota'] ?? 'Sin nombre',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
-                            const SizedBox(height: 20),
+            // 🔹 Contenido
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : mascota == null
+                      ? const Center(child: Text("Mascota no encontrada"))
+                      : SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              const CircleAvatar(
+                                radius: 90,
+                                backgroundImage: AssetImage('assets/images/dog-7694676_1280.jpg'),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                mascota!['NomMascota'] ?? 'Sin nombre',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 40),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 40),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InfoRow(label: 'Raza', value: mascota!['Raza'] ?? ''),
+                                    InfoRow(label: 'Peso', value: "${mascota!['Peso']} kg"),
+                                    InfoRow(label: 'Altura', value: "${mascota!['Altura']} cm"),
+                                    InfoRow(label: 'Edad', value: "${mascota!['Edad']} años"),
+                                    InfoRow(label: 'Descripción', value: mascota!['Descripcion'] ?? ''),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // Botones editar y borrar
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  InfoRow(label: 'Raza', value: mascota!['Raza'] ?? ''),
-                                  InfoRow(label: 'Peso', value: "${mascota!['Peso']} kg"),
-                                  InfoRow(label: 'Altura', value: "${mascota!['Altura']} cm"),
-                                  InfoRow(label: 'Edad', value: "${mascota!['Edad']} años"),
-                                  InfoRow(label: 'Descripción', value: mascota!['Descripcion'] ?? ''),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const PetScreen2(), // ⚠️ luego pasa datos
+                                        ),
+                                      );
+                                    },
+                                    child: Image.asset('assets/editar.png', width: 35, height: 35),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  GestureDetector(
+                                    onTap: _eliminarMascota,
+                                    child: Image.asset('assets/borrar.png', width: 35, height: 35),
+                                  ),
                                 ],
                               ),
-                            ),
 
-                            const SizedBox(height: 20),
-
-                            // Botones editar y borrar
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const PetScreen2(), // ⚠️ luego aquí se pasa para edición
-                                      ),
-                                    );
-                                  },
-                                  child: Image.asset('assets/editar.png', width: 35, height: 35),
-                                ),
-                                const SizedBox(width: 20),
-                                GestureDetector(
-                                  onTap: _eliminarMascota,
-                                  child: Image.asset('assets/borrar.png', width: 35, height: 35),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 80),
-                          ],
+                              const SizedBox(height: 40),
+                            ],
+                          ),
                         ),
-                      ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: _buildBottomNavBar(context),
+      bottomNavigationBar: SafeArea( // ✅ Barra protegida
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildBottomNavBar(context),
+        ),
+      ),
     );
   }
 
@@ -208,7 +215,7 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 }
 
-// Fila de información
+// 🔹 Fila de información
 class InfoRow extends StatelessWidget {
   final String label;
   final String value;

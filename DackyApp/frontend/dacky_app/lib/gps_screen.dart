@@ -43,6 +43,7 @@ class _GpsScreenState extends State<GpsScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // 🔹 Mapa
           GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
@@ -50,58 +51,71 @@ class _GpsScreenState extends State<GpsScreen> {
               zoom: 14.0,
             ),
           ),
-          Positioned(
-            top: 40,
-            right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Image.asset(
-                  'assets/Minilogo dacky.png',
-                  width: 50,
-                  height: 50,
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _currentEmail != null && _currentId != null
-                        ? 'Usuario: $_currentEmail\nID: $_currentId'
-                        : 'Cargando usuario...',
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: 200,
-              decoration: const BoxDecoration(
-                color: Color(0xFF11120D),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+
+          // 🔹 Encabezado protegido
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Image.asset(
+                      'assets/Minilogo dacky.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _currentEmail != null && _currentId != null
+                            ? 'Usuario: $_currentEmail\nID: $_currentId'
+                            : 'Cargando usuario...',
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildButton('assets/collar-para-mascotas.png', 'Conectar GPS'),
-                      _buildButton('assets/localizacion.png', 'Buscar'),
-                    ],
+            ),
+          ),
+
+          // 🔹 Panel inferior con botones + barra navegación
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea( // ✅ protegemos para que no choque con los gestos del sistema
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF11120D),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
-                  const SizedBox(height: 20),
-                  _buildBottomNavBar(),
-                ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildButton('assets/collar-para-mascotas.png', 'Conectar GPS'),
+                        _buildButton('assets/localizacion.png', 'Buscar'),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _buildBottomNavBar(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -113,7 +127,6 @@ class _GpsScreenState extends State<GpsScreen> {
   Widget _buildButton(String imagePath, String label) {
     return Column(
       children: [
-        const SizedBox(height: 6),
         CircleAvatar(
           backgroundColor: Colors.white,
           radius: 30,
@@ -127,7 +140,7 @@ class _GpsScreenState extends State<GpsScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(label, style: const TextStyle(color: Colors.white)),
       ],
     );
@@ -136,7 +149,7 @@ class _GpsScreenState extends State<GpsScreen> {
   Widget _buildBottomNavBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[300],
         borderRadius: BorderRadius.circular(30),
@@ -145,29 +158,24 @@ class _GpsScreenState extends State<GpsScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           InkWell(
-            onTap: () {
-              // Ya estás en esta pantalla
-            },
+            onTap: () {}, // Ya estás en GPS
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => VacunaScreen1()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => VacunaScreen1()));
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => PetScreen1()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => PetScreen1()));
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => UserScreen1()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
@@ -176,3 +184,4 @@ class _GpsScreenState extends State<GpsScreen> {
     );
   }
 }
+
