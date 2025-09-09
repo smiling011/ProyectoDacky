@@ -1,3 +1,4 @@
+// Elistado de mascotas - Pantalla 3
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -52,60 +53,77 @@ class _PetScreen3State extends State<PetScreen3> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: Column(
-        children: [
-          // 🔹 Encabezado fijo
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            color: const Color(0xFFFFFBF4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Image.asset(
-                    'assets/atras.png',
-                    width: 28,
-                    height: 28,
+      body: SafeArea(   // ✅ Esto protege encabezado y barra inferior
+        child: Column(
+          children: [
+            // 🔹 Encabezado fijo
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset(
+                      'assets/atras.png',
+                      width: 28,
+                      height: 28,
+                    ),
                   ),
-                ),
-                const Text(
-                  'Perfil de Mascota',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Montserrat'),
-                ),
-                Image.asset(
-                  'assets/Minilogo dacky.png',
-                  width: 50,
-                  height: 50,
-                ),
-              ],
+                  const Text(
+                    'Perfil de Mascota',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Montserrat'),
+                  ),
+                  Image.asset(
+                    'assets/Minilogo dacky.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // 🔹 Contenido principal
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : mascotas.isEmpty
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+            // 🔹 Contenido principal con scroll
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      children: [
+                        if (mascotas.isEmpty) ...[
+                          const SizedBox(height: 50),
                           const Text(
                             "No tienes mascotas registradas",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 20),
-                          GestureDetector(
+                        ] else ...[
+                          for (var mascota in mascotas) ...[
+                            _buildPetCard(
+                              context,
+                              idMascota: mascota['IdMascota'],
+                              name: mascota['NomMascota'],
+                              imagePath: 'assets/images/dog-7694676_1280.jpg',
+                            ),
+                            const SizedBox(height: 16),
+                          ]
+                        ],
+
+                        // 🔹 Botón agregar SIEMPRE al final
+                        Center(
+                          child: GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const PetScreen2()),
-                              ).then((_) => _cargarMascotas()); // 🔄 Recargar lista al volver
+                              ).then((_) => _cargarMascotas());
                             },
                             child: Image.asset(
                               'assets/agregar.png',
@@ -114,47 +132,19 @@ class _PetScreen3State extends State<PetScreen3> {
                               fit: BoxFit.contain,
                             ),
                           ),
-                        ],
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        itemCount: mascotas.length,
-                        itemBuilder: (context, index) {
-                          final mascota = mascotas[index];
-                          return Column(
-                            children: [
-                              _buildPetCard(
-                                context,
-                                idMascota: mascota['IdMascota'],
-                                name: mascota['NomMascota'],
-                                imagePath: 'assets/images/dog-7694676_1280.jpg',
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          );
-                        },
-                      ),
-          ),
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PetScreen2()),
-                ).then((_) => _cargarMascotas());
-              },
-              child: Image.asset(
-                'assets/agregar.png',
-                width: 40,
-                height: 40,
-                fit: BoxFit.contain,
-              ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
             ),
-          ),
-          // 🔹 Barra de navegación inferior
-          _buildBottomNavBar(context),
-        ],
+
+            // 🔹 Barra de navegación inferior
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12), // ✅ Igual que en UserScreen1
+              child: _buildBottomNavBar(context),
+            ),
+          ],
+        ),
       ),
     );
   }
