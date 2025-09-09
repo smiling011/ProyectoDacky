@@ -28,7 +28,7 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 
   Future<void> _cargarMascota() async {
-    final url = Uri.parse("http://192.168.0.18:5000/pet/detalle/${widget.idMascota}");
+    final url = Uri.parse("http://192.168.0.12:5000/pet/detalle/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -45,7 +45,7 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 
   Future<void> _eliminarMascota() async {
-    final url = Uri.parse("http://192.168.0.18:5000/pet/${widget.idMascota}");
+    final url = Uri.parse("http://192.168.0.12:5000/pet/${widget.idMascota}");
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {

@@ -29,11 +29,11 @@ class _PetScreen3State extends State<PetScreen3> {
 
   Future<void> _cargarMascotas() async {
     final prefs = await SharedPreferences.getInstance();
-    final idUsuario = prefs.getInt('id'); // 🔑 El ID guardado en login
+    final idUsuario = prefs.getInt('id'); //  El ID guardado en login
 
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://192.168.0.18:5000/pet/$idUsuario");
+    final url = Uri.parse("http://192.168.0.12:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

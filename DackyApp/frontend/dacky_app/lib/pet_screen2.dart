@@ -41,7 +41,7 @@ class _PetScreen2State extends State<PetScreen2> {
       return;
     }
 
-    final url = Uri.parse("http://192.168.0.18:5000/pet/$idUsuario");
+    final url = Uri.parse("http://192.168.0.12:5000/pet/$idUsuario");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
