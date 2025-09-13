@@ -21,7 +21,7 @@ def registro():
         Nom=data['Nom'],
         Apell=data['Apell'],
         Email=data['Email'],
-        Contrasena=generate_password_hash(data['Contrasena']),  # 🔑 seguridad
+        Contrasena=generate_password_hash(data['Contrasena']),
         NumTelf=data.get('NumTelf'),
         NumCel=data.get('NumCel'),
         Direccion=data.get('Direccion'),

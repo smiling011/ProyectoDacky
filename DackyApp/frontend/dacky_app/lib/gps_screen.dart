@@ -89,7 +89,7 @@ class _GpsScreenState extends State<GpsScreen> {
           // 🔹 Panel inferior con botones + barra navegación
           Align(
             alignment: Alignment.bottomCenter,
-            child: SafeArea( // ✅ protegemos para que no choque con los gestos del sistema
+            child: SafeArea( //  protegemos para que no choque con los gestos del sistema
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFF11120D),
