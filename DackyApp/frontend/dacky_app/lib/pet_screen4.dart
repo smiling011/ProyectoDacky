@@ -29,7 +29,8 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 
   Future<void> _cargarMascota() async {
-    final url = Uri.parse("http://192.168.0.12:5000/pet/detalle/${widget.idMascota}");
+    final url =
+        Uri.parse("http://192.168.0.12:5000/pet/detalle/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -60,7 +61,8 @@ class _PetScreen4State extends State<PetScreen4> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: SafeArea( // ✅ Protegemos encabezado
+      body: SafeArea(
+        // ✅ Protegemos encabezado
         child: Column(
           children: [
             // 🔹 Encabezado
@@ -106,7 +108,8 @@ class _PetScreen4State extends State<PetScreen4> {
                               const SizedBox(height: 10),
                               const CircleAvatar(
                                 radius: 90,
-                                backgroundImage: AssetImage('assets/images/dog-7694676_1280.jpg'),
+                                backgroundImage: AssetImage(
+                                    'assets/images/dog-7694676_1280.jpg'),
                               ),
                               const SizedBox(height: 12),
                               Text(
@@ -119,15 +122,26 @@ class _PetScreen4State extends State<PetScreen4> {
                               const SizedBox(height: 20),
 
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 40),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 40),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    InfoRow(label: 'Raza', value: mascota!['Raza'] ?? ''),
-                                    InfoRow(label: 'Peso', value: "${mascota!['Peso']} kg"),
-                                    InfoRow(label: 'Altura', value: "${mascota!['Altura']} cm"),
-                                    InfoRow(label: 'Edad', value: "${mascota!['Edad']} años"),
-                                    InfoRow(label: 'Descripción', value: mascota!['Descripcion'] ?? ''),
+                                    InfoRow(
+                                        label: 'Raza',
+                                        value: mascota!['Raza'] ?? ''),
+                                    InfoRow(
+                                        label: 'Peso',
+                                        value: "${mascota!['Peso']} kg"),
+                                    InfoRow(
+                                        label: 'Altura',
+                                        value: "${mascota!['Altura']} cm"),
+                                    InfoRow(
+                                        label: 'Edad',
+                                        value: "${mascota!['Edad']} años"),
+                                    InfoRow(
+                                        label: 'Descripción',
+                                        value: mascota!['Descripcion'] ?? ''),
                                   ],
                                 ),
                               ),
@@ -135,6 +149,7 @@ class _PetScreen4State extends State<PetScreen4> {
                               const SizedBox(height: 20),
 
                               // Botones editar y borrar
+                              // Dentro del Row de botones en PetScreen4:
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -143,16 +158,22 @@ class _PetScreen4State extends State<PetScreen4> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (_) => const PetScreen2(), // ⚠️ luego pasa datos
+                                          builder: (_) => PetScreen2(
+                                              mascota:
+                                                  mascota), // ✅ pasamos datos
                                         ),
-                                      );
+                                      ).then((_) {
+                                        _cargarMascota(); // 🔄 refrescamos al volver
+                                      });
                                     },
-                                    child: Image.asset('assets/editar.png', width: 35, height: 35),
+                                    child: Image.asset('assets/editar.png',
+                                        width: 35, height: 35),
                                   ),
                                   const SizedBox(width: 20),
                                   GestureDetector(
                                     onTap: _eliminarMascota,
-                                    child: Image.asset('assets/borrar.png', width: 35, height: 35),
+                                    child: Image.asset('assets/borrar.png',
+                                        width: 35, height: 35),
                                   ),
                                 ],
                               ),
@@ -165,7 +186,8 @@ class _PetScreen4State extends State<PetScreen4> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea( // ✅ Barra protegida
+      bottomNavigationBar: SafeArea(
+        // ✅ Barra protegida
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildBottomNavBar(context),
@@ -187,25 +209,29 @@ class _PetScreen4State extends State<PetScreen4> {
         children: [
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => GpsScreen()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => GpsScreen()));
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => VacunaScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => VacunaScreen1()));
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PetScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => PetScreen1()));
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => UserScreen1()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
