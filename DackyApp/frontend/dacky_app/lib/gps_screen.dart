@@ -1,31 +1,36 @@
+// Screen con la API de Google Maps 
+// Proximamente integrada con la API de GPS
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';// libreria de google maps
+import 'package:shared_preferences/shared_preferences.dart';// libreria para guardar datos localmente
 
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
+// widget principal de la screen
 class GpsScreen extends StatefulWidget {
   const GpsScreen({Key? key}) : super(key: key);
 
   @override
   _GpsScreenState createState() => _GpsScreenState();
 }
-
+// widget de estado para manejar el mapa 
 class _GpsScreenState extends State<GpsScreen> {
   late GoogleMapController mapController;
-  final LatLng _initialPosition = const LatLng(19.432608, -99.133209);
+  final LatLng _initialPosition = const LatLng(19.432608, -99.133209);// posicion inicial 
 
-  String? _currentEmail;
-  int? _currentId;
+  String? _currentEmail;//variable que almacena el email del usuario
+  int? _currentId;// variable que almacena el id del usuario
 
+// el override inicia el estado y carga los datos del usuario
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
 
+//metodo que carga los datos del usuario desde el almacenamiento local
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -34,16 +39,18 @@ class _GpsScreenState extends State<GpsScreen> {
     });
   }
 
+// y este es el metodo que crea el mapa
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
 
+// este es el widget que construye la pantalla con el mapa y la barra inferior
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // 🔹 Mapa
+          //  se muestra el mapa
           GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
@@ -52,7 +59,7 @@ class _GpsScreenState extends State<GpsScreen> {
             ),
           ),
 
-          // 🔹 Encabezado protegido
+          //  Encabezado 
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -73,11 +80,12 @@ class _GpsScreenState extends State<GpsScreen> {
                         color: Colors.black.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      // para que muestre el email y id del usuario 
                       child: Text(
                         _currentEmail != null && _currentId != null
                             ? 'Usuario: $_currentEmail\nID: $_currentId'
                             : 'Cargando usuario...',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        style: const TextStyle(color: Colors.white, fontSize: 12),// esto es temporal solo para visulaizar el email y id para mis pruebas
                       ),
                     ),
                   ],
@@ -86,10 +94,10 @@ class _GpsScreenState extends State<GpsScreen> {
             ),
           ),
 
-          // 🔹 Panel inferior con botones + barra navegación
+          //  botones de rastreo gps y la  barra navegacion 
           Align(
             alignment: Alignment.bottomCenter,
-            child: SafeArea( //  protegemos para que no choque con los gestos del sistema
+            child: SafeArea( 
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFF11120D),
@@ -124,6 +132,7 @@ class _GpsScreenState extends State<GpsScreen> {
     );
   }
 
+// este widget construye los botones redondos con iconos y texto
   Widget _buildButton(String imagePath, String label) {
     return Column(
       children: [
@@ -146,6 +155,7 @@ class _GpsScreenState extends State<GpsScreen> {
     );
   }
 
+// este widget construye la barra de navegacion inferior con iconos
   Widget _buildBottomNavBar() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
