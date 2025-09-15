@@ -14,10 +14,12 @@ def create_app():
     from app.routes.auth import auth_bp
     from app.routes.perfil import perfil_bp
     from app.routes.pet import pet_bp 
+    from app.routes.vacunas import vacunas_bp
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(perfil_bp, url_prefix="/perfil")
-    app.register_blueprint(pet_bp, url_prefix="/pet")  
+    app.register_blueprint(pet_bp, url_prefix="/pet")
+    app.register_blueprint(vacunas_bp, url_prefix="/vacunas")  
 
     return app
  

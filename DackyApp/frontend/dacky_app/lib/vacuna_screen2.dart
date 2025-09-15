@@ -1,12 +1,67 @@
+// Screen del listado de mascotas para seleccionar y ver/agregar vacunas
 import 'package:flutter/material.dart';
-import 'vacuna_screen4.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'vacuna_screen1.dart';
+import 'vacuna_screen4.dart';
 import 'gps_screen.dart';
 import 'pet_screen1.dart';
+import 'pet_screen2.dart';
 import 'user_screen1.dart';
 
-class VacunaScreen2 extends StatelessWidget {
+class VacunaScreen2 extends StatefulWidget {
   const VacunaScreen2({super.key});
+
+  @override
+  State<VacunaScreen2> createState() => _VacunaScreen2State();
+}
+
+class _VacunaScreen2State extends State<VacunaScreen2> {
+  List<dynamic> mascotas = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarMascotas();
+  }
+
+  Future<void> _cargarMascotas() async {
+  final prefs = await SharedPreferences.getInstance();
+  final idUsuario = prefs.getInt('id');
+
+  if (idUsuario == null) {
+    setState(() => isLoading = false);
+    return;
+  }
+
+  final url = Uri.parse("http://192.168.0.12:5000/pet/$idUsuario");
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+
+    if (data.isEmpty) {
+      // ✅ No tiene mascotas → redirigir a VacunaScreen1
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const VacunaScreen1()),
+        );
+      });
+    } else {
+      setState(() {
+        mascotas = data;
+        isLoading = false;
+      });
+    }
+  } else {
+    setState(() => isLoading = false);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +70,7 @@ class VacunaScreen2 extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Encabezado
+            // 🔹 Encabezado
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -42,93 +97,98 @@ class VacunaScreen2 extends StatelessWidget {
               ),
             ),
 
-            // Lista de mascotas
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildMascotaCard(
-                    context,
-                    imagePath: 'assets/images/dog-7694676_1280.jpg',
-                    nombre: 'Mascota 1',
-                  ),
-                  const SizedBox(width: 16),
-                  _buildMascotaCard(
-                    context,
-                    imagePath: 'assets/images/cat-5162540_1280.jpg',
-                    nombre: 'Mascota 2',
-                  ),
-                ],
+            // 🔹 Lista de mascotas
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: mascotas.length,
+                      itemBuilder: (context, index) {
+                        final mascota = mascotas[index];
+                        return _buildMascotaCard(
+                          context,
+                          idMascota: mascota['IdMascota'],
+                          nombre: mascota['NomMascota'] ?? 'Sin nombre',
+                          imagePath: 'assets/images/dog-7694676_1280.jpg', // ✅ luego se puede hacer dinámico
+                        );
+                      },
+                    ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // 🔹 Botón Agregar mascota
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PetScreen2()),
+                );
+              },
+              child: Image.asset(
+                'assets/agregar.png',
+                width: 65,
+                height: 65,
+                fit: BoxFit.contain,
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
 
-            // Botón Agregar
-            GestureDetector(
-              onTap: () {
-                // Aquí puedes poner la lógica para agregar una nueva mascota
-              },
+      // 🔹 Barra de navegación inferior
+      bottomNavigationBar: SafeArea(child: _buildBottomNavBar(context)),
+    );
+  }
+
+  // 🔹 Tarjeta de mascota
+  Widget _buildMascotaCard(BuildContext context,
+      {required int idMascota, required String nombre, required String imagePath}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VacunaScreen4(idMascota: idMascota),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFD8CFBC),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
               child: Image.asset(
-                    'assets/agregar.png',
-                    width: 65, // o el tamaño que prefieras
-                    height: 65,
-                    fit: BoxFit.contain,
-                  ),
+                imagePath,
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+              ),
             ),
-
-            const Spacer(),
-
-            // Barra de navegación inferior
-            _buildBottomNavBar(context),
+            const SizedBox(width: 16),
+            Text(
+              nombre,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  // Widget para cada tarjeta de mascota
-  Widget _buildMascotaCard(BuildContext context, {required String imagePath, required String nombre}) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  VacunaScreen4()),
-        );
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFD8CFBC),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: Image.asset(
-                imagePath,
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            nombre,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Barra inferior
+  // 🔹 Barra inferior
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -143,36 +203,27 @@ class VacunaScreen2 extends StatelessWidget {
           InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => GpsScreen()),
-              );
+                  context, MaterialPageRoute(builder: (context) => const GpsScreen()));
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const VacunaScreen1()),
-              );
+              // Ya estamos en VacunaScreen2
             },
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PetScreen1()),
-              );
+                  context, MaterialPageRoute(builder: (context) => const PetScreen1()));
             },
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserScreen1()),
-              );
+                  context, MaterialPageRoute(builder: (context) =>  UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
