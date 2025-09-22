@@ -68,7 +68,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
 
     if (widget.vacuna == null) {
       // ✅ Crear vacuna nueva
-      final String url = "http://192.168.0.12:5000/vacunas/${widget.idMascota}";
+      final String url = "http://10.1.114.19:5000/vacunas/${widget.idMascota}";
       response = await http.post(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},
@@ -77,7 +77,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     } else {
       // ✅ Editar vacuna existente
       final int idVacunaMascota = widget.vacuna!['IdVacunasMascota'];
-      final String url = "http://192.168.0.12:5000/vacunas/detalle/$idVacunaMascota";
+      final String url = "http://10.1.114.19:5000/vacunas/detalle/$idVacunaMascota";
       response = await http.put(
         Uri.parse(url),
         headers: {"Content-Type": "application/json"},

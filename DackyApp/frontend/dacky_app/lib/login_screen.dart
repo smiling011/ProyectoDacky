@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try { // el try es para hacer la peticion que hace el login al servidor
       // peticion POST al servidor
       final response = await http.post(
-        Uri.parse('http://192.168.0.12:5000/auth/login'),// la url del servidor se usa la ip del wifi para que funcione en el emulador
+        Uri.parse('http://10.1.114.19:5000/auth/login'),// la url del servidor se usa la ip del wifi para que funcione en el emulador
         headers: {'Content-Type': 'application/json'},// el header es para decirle que se envia json
         body: jsonEncode({'email': email, 'contrasena': contrasena}),// el body de email y password se convierte a json para enviarlo al servidor y de ahi a la Bd
       );

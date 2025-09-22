@@ -6,7 +6,7 @@ from datetime import datetime
 vacunas_bp = Blueprint("vacunas", __name__)
 
 
-# 🔹 Obtener todas las vacunas de una mascota
+#  Obtener todas las vacunas de una mascota
 @vacunas_bp.route("/<int:id_mascota>", methods=["GET"])
 def obtener_vacunas_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
@@ -31,7 +31,7 @@ def obtener_vacunas_mascota(id_mascota):
     return jsonify(resultado), 200
 
 
-# 🔹 Registrar vacuna a una mascota
+#  Registrar vacuna a una mascota
 @vacunas_bp.route("/<int:id_mascota>", methods=["POST"])
 def agregar_vacuna_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
@@ -87,7 +87,7 @@ def agregar_vacuna_mascota(id_mascota):
     }), 201
 
 
-# 🔹 Obtener detalle de una vacuna aplicada
+#  Obtener detalle de una vacuna aplicada
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["GET"])
 def obtener_vacuna_detalle(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)

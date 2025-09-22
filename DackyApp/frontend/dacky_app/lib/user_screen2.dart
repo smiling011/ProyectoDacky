@@ -38,7 +38,7 @@ class _UserScreen2State extends State<UserScreen2> {
       idUsuario = id;
     });
 
-    final url = Uri.parse("http://192.168.0.12:5000/perfil/$id");
+    final url = Uri.parse("http://10.1.114.19:5000/perfil/$id");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -58,7 +58,7 @@ class _UserScreen2State extends State<UserScreen2> {
   Future<void> _guardarPerfil() async {
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://192.168.0.12:5000/perfil/$idUsuario");
+    final url = Uri.parse("http://10.1.114.19:5000/perfil/$idUsuario");
 
     final response = await http.put(
       url,
