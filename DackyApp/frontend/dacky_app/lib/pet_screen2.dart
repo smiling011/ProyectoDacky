@@ -65,7 +65,7 @@ class _PetScreen2State extends State<PetScreen2> {
 
     if (widget.mascota == null) {
       // ✅ Registrar mascota (POST)
-      final url = Uri.parse("http://10.1.114.19:5000/pet/$idUsuario");
+      final url = Uri.parse("http://192.168.0.19:5000/pet/$idUsuario");
       response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -82,7 +82,7 @@ class _PetScreen2State extends State<PetScreen2> {
     } else {
       // ✅ Editar mascota (PUT)
       final idMascota = widget.mascota!['IdMascota'];
-      final url = Uri.parse("http://10.1.114.19:5000/pet/detalle/$idMascota");
+      final url = Uri.parse("http://192.168.0.19:5000/pet/detalle/$idMascota");
       response = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
