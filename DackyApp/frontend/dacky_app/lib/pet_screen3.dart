@@ -109,7 +109,7 @@ class _PetScreen3State extends State<PetScreen3> {
                               context,
                               idMascota: mascota['IdMascota'],
                               name: mascota['NomMascota'],
-                              imagePath: 'assets/images/dog-7694676_1280.jpg',
+                              imagePath: 'assets/images/Perfil_Perro_Gato.png',
                             ),
                             const SizedBox(height: 16),
                           ]

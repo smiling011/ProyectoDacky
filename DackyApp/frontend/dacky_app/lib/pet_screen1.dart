@@ -119,8 +119,8 @@ class _PetScreen1State extends State<PetScreen1> {
                   },
                   child: Image.asset(
                     'assets/agregar.png',
-                    width: 65,
-                    height: 65,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.contain,
                   ),
                 ),

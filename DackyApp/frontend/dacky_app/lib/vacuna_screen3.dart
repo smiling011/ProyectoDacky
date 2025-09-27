@@ -37,32 +37,36 @@ class VacunaScreen3 extends StatelessWidget {
 
             const SizedBox(height: 80),
 
-            // 🔹 Botón para agregar la primera vacuna
+            // 🔹 Botón + mensaje centrados
             Expanded(
               child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => VacunaScreen5(idMascota: idMascota)),
-                    );
-                  },
-                  child: Image.asset(
-                    'assets/agregar.png',
-                    width: 65,
-                    height: 65,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // 🔹 ajusta al contenido
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => VacunaScreen5(idMascota: idMascota)),
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/agregar.png',
+                        width: 50,
+                        height: 50,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      "Agrega la primera vacuna para tu mascota",
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 30),
-            const Text(
-              "Agrega la primera vacuna para tu mascota",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-
-            const Spacer(),
             _buildBottomNavBar(context),
           ],
         ),

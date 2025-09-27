@@ -1,4 +1,4 @@
-// Screen que muestra las vacunas de la mascota seleccionada
+/// Screen que muestra las vacunas de la mascota seleccionada
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -52,27 +52,46 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
     }
   }
 
-  Widget _buildVaccineCard(String nombre, String fecha) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Image.asset('assets/ampolla.png', width: 40, height: 40),
-          const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Vacuna: $nombre", style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text("Fecha: $fecha"),
-            ],
+  Widget _buildVaccineCard(Map<String, dynamic> vacuna) {
+    return GestureDetector(
+      onTap: () async {
+        // 👉 Abrir el formulario en modo edición
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VacunaScreen5(
+              idMascota: widget.idMascota,
+              vacuna: vacuna,
+            ),
           ),
-        ],
+        );
+
+        if (result == true) {
+          _cargarVacunas(); // 🔄 refrescar lista al volver
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Image.asset('assets/ampolla.png', width: 40, height: 40),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Vacuna: ${vacuna['NomVacuna'] ?? 'Sin nombre'}",
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text("Fecha: ${vacuna['FechaVac'] ?? 'Sin fecha'}"),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -100,36 +119,44 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
               ),
             ),
 
-            // 🔹 Lista de vacunas
+            // 🔹 Lista de vacunas + botón agregar al final
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                      itemCount: vacunas.length,
+                      itemCount: vacunas.length + 1, // 👈 suma 1 para el botón
                       itemBuilder: (context, index) {
-                        final v = vacunas[index];
-                        return _buildVaccineCard(
-                          v['NomVacuna'] ?? 'Sin nombre',
-                          v['FechaVac'] ?? 'Sin fecha',
-                        );
+                        if (index == vacunas.length) {
+                          // 👉 último ítem = botón agregar
+                          return Center(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => VacunaScreen5(idMascota: widget.idMascota),
+                                  ),
+                                );
+                                if (result == true) {
+                                  _cargarVacunas(); // 🔄 refrescar después de guardar
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                child: Image.asset(
+                                  'assets/agregar.png',
+                                  width: 45,
+                                  height: 45,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return _buildVaccineCard(vacunas[index]);
                       },
                     ),
             ),
-
-            const SizedBox(height: 10),
-
-            // 🔹 Botón para agregar nueva vacuna
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => VacunaScreen5(idMascota: widget.idMascota)),
-                );
-              },
-              child: Image.asset('assets/agregar.png', width: 55, height: 55),
-            ),
-
-            const SizedBox(height: 20),
           ],
         ),
       ),

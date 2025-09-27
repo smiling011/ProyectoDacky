@@ -109,7 +109,7 @@ class _PetScreen4State extends State<PetScreen4> {
                               const CircleAvatar(
                                 radius: 90,
                                 backgroundImage: AssetImage(
-                                    'assets/images/dog-7694676_1280.jpg'),
+                                    'assets/images/Perfil_Perro_Gato.png'),
                               ),
                               const SizedBox(height: 12),
                               Text(

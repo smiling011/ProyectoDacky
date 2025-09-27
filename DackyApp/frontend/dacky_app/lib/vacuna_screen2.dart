@@ -118,8 +118,8 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
                                 padding: const EdgeInsets.symmetric(vertical: 20),
                                 child: Image.asset(
                                   'assets/agregar.png',
-                                  width: 55,
-                                  height: 55,
+                                  width: 45,
+                                  height: 45,
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -132,7 +132,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
                           context,
                           idMascota: mascota['IdMascota'],
                           nombre: mascota['NomMascota'] ?? 'Sin nombre',
-                          imagePath: 'assets/images/dog-7694676_1280.jpg', // ✅ luego dinámico
+                          imagePath: 'assets/images/Perfil_Perro_Gato.png', // ✅ luego dinámico
                         );
                       },
                     ),
