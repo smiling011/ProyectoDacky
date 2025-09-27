@@ -22,46 +22,44 @@ class _UserScreen1State extends State<UserScreen1> {
     _cargarPerfil();
   }
 
- Future<void> _cargarPerfil() async {
-  final prefs = await SharedPreferences.getInstance();
-  final idUsuario = prefs.getInt('id'); // guardado en login.dart
+  Future<void> _cargarPerfil() async {
+    final prefs = await SharedPreferences.getInstance();
+    final idUsuario = prefs.getInt('id'); // guardado en login.dart
 
-  if (idUsuario == null) return;
+    if (idUsuario == null) return;
 
-  final url = Uri.parse("http://192.168.0.17:5000/perfil/$idUsuario");
-  final response = await http.get(url);
+    final url = Uri.parse("http://192.168.0.17:5000/perfil/$idUsuario");
+    final response = await http.get(url);
 
-  if (response.statusCode == 200) {
-    setState(() {
-      perfil = json.decode(response.body);
-    });
-  } else {
-    print("Error al cargar perfil: ${response.body}");
+    if (response.statusCode == 200) {
+      setState(() {
+        perfil = json.decode(response.body);
+      });
+    } else {
+      print("Error al cargar perfil: ${response.body}");
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
+      backgroundColor: const Color(0xFFFFFBF4),
       body: SafeArea(
         child: perfil == null
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
                   // Encabezado
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Image.asset('assets/atras.png', width: 28, height: 28),
-                        Text('Mi Perfil',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Mi Perfil',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                         Image.asset('assets/menu.png', width: 28, height: 28),
                       ],
                     ),
@@ -71,8 +69,8 @@ class _UserScreen1State extends State<UserScreen1> {
                   Expanded(
                     child: Center(
                       child: Container(
-                        padding: EdgeInsets.all(20),
-                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.all(20),
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
@@ -80,25 +78,23 @@ class _UserScreen1State extends State<UserScreen1> {
                         child: Column(
                           children: [
                             CircleAvatar(
-                              radius: 45,
-                              backgroundImage: AssetImage('assets/usuario.png'),
+                              radius: 50,
+                              backgroundImage: const AssetImage('assets/perfil_user.png'),
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 70), // 🔹 más espacio debajo del avatar
                             _buildInfoRow('Nombre', perfil!['NomDueño']),
                             _buildInfoRow('Apellidos', perfil!['Apell']),
                             _buildInfoRow('Correo', perfil!['Email']),
                             _buildInfoRow('Celular', perfil!['NumCel']),
                             _buildInfoRow('Teléfono', perfil!['NumTelf']),
                             _buildInfoRow('Dirección', perfil!['Direccion']),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 25),
                             IconButton(
-                              icon: Image.asset('assets/editar.png',
-                                  width: 24, height: 24),
+                              icon: Image.asset('assets/editar.png', width: 28, height: 28),
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) => UserScreen2()),
+                                  MaterialPageRoute(builder: (context) => UserScreen2()),
                                 );
                               },
                             ),
@@ -121,12 +117,12 @@ class _UserScreen1State extends State<UserScreen1> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 10), // 🔹 antes era 4 → más separación
       child: Row(
         children: [
           Expanded(
-              child:
-                  Text(label, style: TextStyle(fontWeight: FontWeight.bold))),
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
           Expanded(child: Text(value)),
         ],
       ),
@@ -135,7 +131,7 @@ class _UserScreen1State extends State<UserScreen1> {
 
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.grey[300],
@@ -146,22 +142,22 @@ class _UserScreen1State extends State<UserScreen1> {
         children: [
           InkWell(
             onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => GpsScreen())),
+              context, MaterialPageRoute(builder: (context) => GpsScreen())),
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => VacunaScreen1())),
+            onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => VacunaScreen1())),
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
             onTap: () => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => PetScreen1())),
+              context, MaterialPageRoute(builder: (context) => PetScreen1())),
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => UserScreen1())),
+            onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => UserScreen1())),
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
         ],
@@ -169,4 +165,3 @@ class _UserScreen1State extends State<UserScreen1> {
     );
   }
 }
-
