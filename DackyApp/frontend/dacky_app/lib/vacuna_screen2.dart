@@ -29,39 +29,38 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
   }
 
   Future<void> _cargarMascotas() async {
-  final prefs = await SharedPreferences.getInstance();
-  final idUsuario = prefs.getInt('id');
+    final prefs = await SharedPreferences.getInstance();
+    final idUsuario = prefs.getInt('id');
 
-  if (idUsuario == null) {
-    setState(() => isLoading = false);
-    return;
-  }
-
-  final url = Uri.parse("http://10.1.117.38:5000/pet/$idUsuario");
-  final response = await http.get(url);
-
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-
-    if (data.isEmpty) {
-      // ✅ No tiene mascotas → redirigir a VacunaScreen1
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const VacunaScreen1()),
-        );
-      });
-    } else {
-      setState(() {
-        mascotas = data;
-        isLoading = false;
-      });
+    if (idUsuario == null) {
+      setState(() => isLoading = false);
+      return;
     }
-  } else {
-    setState(() => isLoading = false);
-  }
-}
 
+    final url = Uri.parse("http://192.168.0.17:5000/pet/$idUsuario");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data.isEmpty) {
+        // ✅ No tiene mascotas → redirigir a VacunaScreen1
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const VacunaScreen1()),
+          );
+        });
+      } else {
+        setState(() {
+          mascotas = data;
+          isLoading = false;
+        });
+      }
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,44 +96,47 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
               ),
             ),
 
-            // 🔹 Lista de mascotas
+            // 🔹 Lista de mascotas + botón agregar al final
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: mascotas.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      itemCount: mascotas.length + 1, // 👈 Se suma 1 para el botón
                       itemBuilder: (context, index) {
+                        if (index == mascotas.length) {
+                          // 👇 Último ítem → botón agregar
+                          return Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const PetScreen2()),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                child: Image.asset(
+                                  'assets/agregar.png',
+                                  width: 55,
+                                  height: 55,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
                         final mascota = mascotas[index];
                         return _buildMascotaCard(
                           context,
                           idMascota: mascota['IdMascota'],
                           nombre: mascota['NomMascota'] ?? 'Sin nombre',
-                          imagePath: 'assets/images/dog-7694676_1280.jpg', // ✅ luego se puede hacer dinámico
+                          imagePath: 'assets/images/dog-7694676_1280.jpg', // ✅ luego dinámico
                         );
                       },
                     ),
             ),
-
-            const SizedBox(height: 10),
-
-            // 🔹 Botón Agregar mascota
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PetScreen2()),
-                );
-              },
-              child: Image.asset(
-                'assets/agregar.png',
-                width: 65,
-                height: 65,
-                fit: BoxFit.contain,
-              ),
-            ),
-
-            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -223,7 +225,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
           InkWell(
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) =>  UserScreen1()));
+                  context, MaterialPageRoute(builder: (context) => UserScreen1()));
             },
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
