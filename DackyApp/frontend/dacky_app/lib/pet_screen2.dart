@@ -11,8 +11,7 @@ import 'pet_screen3.dart';
 import 'user_screen1.dart';
 
 class PetScreen2 extends StatefulWidget {
-  final Map<String, dynamic>?
-      mascota; //  si viene null = crear, si no = editar
+  final Map<String, dynamic>? mascota;
 
   const PetScreen2({super.key, this.mascota});
 
@@ -34,8 +33,6 @@ class _PetScreen2State extends State<PetScreen2> {
   @override
   void initState() {
     super.initState();
-
-    // ✅ Si estamos en modo edición, precargamos datos
     if (widget.mascota != null) {
       nombreController.text = widget.mascota!['NomMascota'] ?? '';
       razaController.text = widget.mascota!['Raza'] ?? '';
@@ -47,16 +44,88 @@ class _PetScreen2State extends State<PetScreen2> {
     }
   }
 
+  // ✅ Mostrar alerta personalizada
+  void _mostrarAlerta(String mensaje, {bool exito = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFD8CFBC),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    exito ? "assets/comprobado.png" : "assets/advertencia.png",
+                    width: 50,
+                    height: 50,
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    mensaje,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF11120D),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset("assets/cruz.png", width: 22, height: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✅ Validaciones
+  bool _validarCampos() {
+    if (nombreController.text.trim().isEmpty ||
+        razaController.text.trim().isEmpty ||
+        edadController.text.trim().isEmpty ||
+        generoController.text.trim().isEmpty) {
+      _mostrarAlerta("Todos los campos obligatorios deben llenarse.");
+      return false;
+    }
+
+    final edad = int.tryParse(edadController.text) ?? -1;
+    final peso = int.tryParse(pesoController.text) ?? -1;
+    final altura = int.tryParse(alturaController.text) ?? -1;
+
+    if (edad <= 0 || peso <= 0 || altura < 0) {
+      _mostrarAlerta("Edad y peso deben ser mayores a 0.\nAltura no puede ser negativa.");
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> _guardarMascota() async {
+    if (!_validarCampos()) return;
+
     setState(() => _loading = true);
 
     final prefs = await SharedPreferences.getInstance();
     final idUsuario = prefs.getInt('id');
 
     if (idUsuario == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No se encontró el usuario.")),
-      );
+      _mostrarAlerta("No se encontró el usuario.");
       setState(() => _loading = false);
       return;
     }
@@ -64,53 +133,58 @@ class _PetScreen2State extends State<PetScreen2> {
     http.Response response;
 
     if (widget.mascota == null) {
-      // ✅ Registrar mascota (POST)
+      // POST → Crear mascota
       final url = Uri.parse("http://192.168.0.17:5000/pet/$idUsuario");
       response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: json.encode({
-          "NomMascota": nombreController.text,
-          "Raza": razaController.text,
+          "NomMascota": nombreController.text.trim(),
+          "Raza": razaController.text.trim(),
           "Peso": int.tryParse(pesoController.text) ?? 0,
           "Altura": int.tryParse(alturaController.text) ?? 0,
           "Edad": int.tryParse(edadController.text) ?? 0,
-          "Genero": generoController.text,
-          "Descripcion": descripcionController.text,
+          "Genero": generoController.text.trim(),
+          "Descripcion": descripcionController.text.trim(),
         }),
       );
     } else {
-      // ✅ Editar mascota (PUT)
+      // PUT → Editar mascota
       final idMascota = widget.mascota!['IdMascota'];
       final url = Uri.parse("http://192.168.0.17:5000/pet/detalle/$idMascota");
       response = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
         body: json.encode({
-          "NomMascota": nombreController.text,
-          "Raza": razaController.text,
+          "NomMascota": nombreController.text.trim(),
+          "Raza": razaController.text.trim(),
           "Peso": int.tryParse(pesoController.text) ?? 0,
           "Altura": int.tryParse(alturaController.text) ?? 0,
           "Edad": int.tryParse(edadController.text) ?? 0,
-          "Genero": generoController.text,
-          "Descripcion": descripcionController.text,
+          "Genero": generoController.text.trim(),
+          "Descripcion": descripcionController.text.trim(),
         }),
       );
     }
 
     setState(() => _loading = false);
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const PetScreen3()),
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      _mostrarAlerta(
+        widget.mascota == null
+            ? "Mascota registrada con éxito."
+            : "Perfil de mascota actualizado.",
+        exito: true,
       );
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PetScreen3()),
+        );
+      });
     } else {
       final data = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Error: ${data['mensaje'] ?? 'No se pudo guardar'}")),
-      );
+      _mostrarAlerta("Error: ${data['mensaje'] ?? 'No se pudo guardar'}");
     }
   }
 
@@ -139,31 +213,25 @@ class _PetScreen2State extends State<PetScreen2> {
                         children: [
                           const CircleAvatar(
                             radius: 55,
-                            backgroundImage:
-                                AssetImage('assets/images/Perfil_Perro_Gato.png'),
+                            backgroundImage: AssetImage('assets/images/Perfil_Perro_Gato.png'),
                           ),
                           const SizedBox(height: 24),
+                          _buildTextField(label: 'Nombre *', controller: nombreController),
+                          _buildTextField(label: 'Raza *', controller: razaController),
                           _buildTextField(
-                              label: 'Nombre', controller: nombreController),
-                          _buildTextField(
-                              label: 'Raza', controller: razaController),
-                          _buildTextField(
-                              label: 'Peso',
+                              label: 'Peso (kg) *',
                               controller: pesoController,
                               keyboardType: TextInputType.number),
                           _buildTextField(
-                              label: 'Altura',
+                              label: 'Altura (cm)',
                               controller: alturaController,
                               keyboardType: TextInputType.number),
                           _buildTextField(
-                              label: 'Edad',
+                              label: 'Edad (años) *',
                               controller: edadController,
                               keyboardType: TextInputType.number),
-                          _buildTextField(
-                              label: 'Género', controller: generoController),
-                          _buildDescriptionField(
-                              label: 'Descripción',
-                              controller: descripcionController),
+                          _buildTextField(label: 'Género *', controller: generoController),
+                          _buildDescriptionField(label: 'Descripción', controller: descripcionController),
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _loading ? null : _guardarMascota,
@@ -172,17 +240,12 @@ class _PetScreen2State extends State<PetScreen2> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 40, vertical: 14),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                             ),
                             child: _loading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : Text(
-                                    isEditing ? 'Actualizar' : 'Guardar',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
+                                ? const CircularProgressIndicator(color: Colors.white)
+                                : Text(isEditing ? 'Actualizar' : 'Guardar',
+                                    style: const TextStyle(color: Colors.white, fontSize: 16)),
                           ),
                         ],
                       ),
@@ -198,30 +261,18 @@ class _PetScreen2State extends State<PetScreen2> {
               left: 0,
               right: 0,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 color: const Color(0xFFFFFBF4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: Image.asset(
-                        'assets/atras.png',
-                        width: 28,
-                        height: 28,
-                      ),
+                      child: Image.asset('assets/atras.png', width: 28, height: 28),
                     ),
-                    Text(
-                      isEditing ? 'Editar Mascota' : 'Nueva Mascota',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Image.asset(
-                      'assets/Minilogo dacky.png',
-                      width: 50,
-                      height: 50,
-                    ),
+                    Text(isEditing ? 'Editar Mascota' : 'Nueva Mascota',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Image.asset('assets/Minilogo dacky.png', width: 50, height: 50),
                   ],
                 ),
               ),
@@ -240,7 +291,7 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  // Campo de texto común
+  // Campos comunes
   Widget _buildTextField(
       {required String label,
       required TextEditingController controller,
@@ -258,8 +309,7 @@ class _PetScreen2State extends State<PetScreen2> {
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFFFFFBF4),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
@@ -271,7 +321,6 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  // Campo de descripción
   Widget _buildDescriptionField(
       {required String label, required TextEditingController controller}) {
     return Padding(
@@ -287,8 +336,7 @@ class _PetScreen2State extends State<PetScreen2> {
             decoration: InputDecoration(
               filled: true,
               fillColor: const Color(0xFFFFFBF4),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
@@ -300,7 +348,6 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  // Barra de navegación inferior
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -313,31 +360,19 @@ class _PetScreen2State extends State<PetScreen2> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           InkWell(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => GpsScreen()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => GpsScreen())),
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VacunaScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VacunaScreen1())),
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PetScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PetScreen1())),
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => UserScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserScreen1())),
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
         ],

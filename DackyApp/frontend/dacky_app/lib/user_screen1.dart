@@ -88,7 +88,7 @@ class _UserScreen1State extends State<UserScreen1> {
                             _buildInfoRow('Celular', perfil!['NumCel']),
                             _buildInfoRow('Teléfono', perfil!['NumTelf']),
                             _buildInfoRow('Dirección', perfil!['Direccion']),
-                            const SizedBox(height: 25),
+                            const SizedBox(height: 30),
                             IconButton(
                               icon: Image.asset('assets/editar.png', width: 28, height: 28),
                               onPressed: () {
