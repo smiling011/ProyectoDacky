@@ -19,13 +19,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController contrasenaController = TextEditingController();
   final TextEditingController repetirController = TextEditingController();
 
-  Future<void> registrarUsuario() async {
-    if (contrasenaController.text != repetirController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden')),
-      );
-      return;
+  //  Función de alerta personalizada
+  // ✅ Función de alerta personalizada con color de fondo Dacky-3
+  void _mostrarAlerta(String mensaje) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFD8CFBC), // Fondo Dacky-3
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset("assets/advertencia.png", width: 50, height: 50),
+                  const SizedBox(height: 15),
+                  Text(
+                    mensaje,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF11120D), // Texto oscuro Dacky-1
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset("assets/cruz.png", width: 22, height: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✅ Validaciones antes de enviar al backend
+  bool _validarCampos() {
+    if (correoController.text.trim().isEmpty ||
+        nombreController.text.trim().isEmpty ||
+        apellidoController.text.trim().isEmpty ||
+        contrasenaController.text.isEmpty ||
+        repetirController.text.isEmpty) {
+      _mostrarAlerta("Todos los campos son obligatorios");
+      return false;
     }
+
+    // Correo válido con regex
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    if (!emailRegex.hasMatch(correoController.text.trim())) {
+      _mostrarAlerta("El correo no es válido");
+      return false;
+    }
+
+    if (contrasenaController.text.length < 6) {
+      _mostrarAlerta("La contraseña debe tener al menos 6 caracteres");
+      return false;
+    }
+
+    if (contrasenaController.text != repetirController.text) {
+      _mostrarAlerta("Las contraseñas no coinciden");
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> registrarUsuario() async {
+    if (!_validarCampos()) return;
 
     try {
       final response = await http.post(
@@ -36,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "Apell": apellidoController.text.trim(),
           "Email": correoController.text.trim(),
           "Contrasena": contrasenaController.text.trim(),
-          "NumCel": "", 
+          "NumCel": "",
           "NumTelf": "",
           "Direccion": ""
         }),
@@ -51,23 +124,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await prefs.setString('email', data['email']);
         await prefs.setInt('id', data['id']);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Registro exitoso')),
-        );
+        _mostrarAlerta("✅ ${data['message'] ?? 'Registro exitoso'}");
 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const GpsScreen()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'] ?? 'Error al registrarse')),
-        );
+        _mostrarAlerta(data['message'] ?? 'Error al registrarse');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: $e')),
-      );
+      _mostrarAlerta("Error de conexión: $e");
     }
   }
 
