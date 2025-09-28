@@ -1,11 +1,11 @@
 name: dacky_app
 environment:
   sdk: '>=3.5.0 <4.0.0'
-dev_dependencies:
-  flutter_native_splash: ^2.3.6
+
 dependencies:
   flutter:
     sdk: flutter
+
   google_fonts: ^6.2.1
   http: ^1.2.2
   google_maps_flutter: ^2.5.0
@@ -18,13 +18,19 @@ dependencies:
   string_scanner: ^1.3.0
   font_awesome_flutter: ^10.1.0
   shared_preferences: ^2.2.0  # o la última versión estable
-  
-fonts:
-  - family: Montserrat
-    fonts:
-      - asset: fonts/Montserrat-Regular.ttf
-      - asset: fonts/Montserrat-Bold.ttf
+
+dev_dependencies:
+  flutter_native_splash: ^2.3.6
+
 flutter:
+  uses-material-design: true   # 👈 Aquí es donde debe ir
+
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: fonts/Montserrat-Regular.ttf
+        - asset: fonts/Montserrat-Bold.ttf
+
   assets:
     - assets/Minilogo dacky.png
     - assets/google.png
@@ -55,7 +61,6 @@ flutter:
     - assets/perfil_user.png
     - assets/advertencia.png
     - assets/cruz.png
-
 
 
 # description: "A new Flutter project."

@@ -309,44 +309,56 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   }
 
   Widget _buildDateField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          readOnly: true,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFFFEF9F2),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Image.asset('assets/calendario.png', width: 20, height: 20),
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(30),
-            ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label),
+      const SizedBox(height: 8),
+      TextField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xFFFEF9F2),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Image.asset('assets/calendario.png', width: 20, height: 20),
           ),
-          onTap: () async {
-            final DateTime? pickedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (pickedDate != null) {
-              setState(() {
-                controller.text = "${pickedDate.toLocal()}".split(' ')[0];
-              });
-            }
-          },
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(30),
+          ),
         ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
+        onTap: () async {
+          final DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(2000),
+            lastDate: DateTime(2100),
+            locale: const Locale("es", "ES"), // ✅ Forzar español
+            builder: (context, child) {
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  textTheme: const TextTheme(
+                    bodyMedium: TextStyle(fontFamily: "Montserrat"),
+                  ),
+                ),
+                child: child!,
+              );
+            },
+          );
+          if (pickedDate != null) {
+            setState(() {
+              controller.text = "${pickedDate.toLocal()}".split(' ')[0];
+            });
+          }
+        },
+      ),
+      const SizedBox(height: 16),
+    ],
+  );
+}
+
 
   // 🔹 Barra de navegación inferior
   Widget _buildBottomNavBar(BuildContext context) {
