@@ -72,7 +72,6 @@ class _PetScreen2State extends State<PetScreen2> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
                       fontFamily: 'Montserrat',
                       color: Color(0xFF11120D),
                     ),
