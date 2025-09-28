@@ -116,6 +116,7 @@ class _PetScreen4State extends State<PetScreen4> {
                                 mascota!['NomMascota'] ?? 'Sin nombre',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontFamily: 'Montserrat',
                                   fontSize: 18,
                                 ),
                               ),
@@ -257,10 +258,10 @@ class InfoRow extends StatelessWidget {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+            
           ),
-          Expanded(
-            child: Text(value),
+          Expanded(child: Text( value, style: const TextStyle(fontFamily: 'Montserrat')),
           ),
         ],
       ),

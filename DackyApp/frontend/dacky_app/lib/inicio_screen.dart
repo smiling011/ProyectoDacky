@@ -31,9 +31,9 @@ class InicioScreen extends StatelessWidget {
                   Text(
                     'DACKY',
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 35,
                       color: Color(0xFFFFFBF4), 
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat'
                     ),
                   ),
                   const SizedBox(height: 20), // espacio entre el titulo y el logo
@@ -68,10 +68,10 @@ class InicioScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22,
                       color: Color(0xFFFFFBF4),
-                      fontWeight: FontWeight.bold,// para que sea negrita
+                      fontFamily: 'Montserrat'// para que sea negrita
                     ),
                   ),
-                  const SizedBox(height: 30),// espacio entre el texto y los botones
+                  const SizedBox(height: 40),// espacio entre el texto y los botones
                   // botones de inicio de sesion y registro
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -87,7 +87,7 @@ class InicioScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(context, '/login'); // Navega a LoginScreen
                     },
-                    child: const Text('Inicio Sesión'),// el child es para el texto del boton
+                    child: const Text('Inicio Sesión', style: TextStyle(fontFamily: 'Montserrat')),// el child es para el texto del boton
                   ),
                   const SizedBox(height: 15),
                   // boton de registro
@@ -104,7 +104,7 @@ class InicioScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(context, '/register'); // Navega a RegisterScreen
                     },
-                    child: const Text('Registro'),
+                    child: const Text('Registro', style: TextStyle(fontFamily: 'Montserrat')),
                   ),
                   const SizedBox(height: 30),
                   //iconos del inicio y el login con mis img

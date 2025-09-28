@@ -73,6 +73,7 @@ class _PetScreen2State extends State<PetScreen2> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                       color: Color(0xFF11120D),
                     ),
                   ),
@@ -245,7 +246,7 @@ class _PetScreen2State extends State<PetScreen2> {
                             child: _loading
                                 ? const CircularProgressIndicator(color: Colors.white)
                                 : Text(isEditing ? 'Actualizar' : 'Guardar',
-                                    style: const TextStyle(color: Colors.white, fontSize: 16)),
+                                    style: const TextStyle(fontFamily: 'Montserrat', color: Colors.white, fontSize: 16)),
                           ),
                         ],
                       ),
@@ -271,7 +272,7 @@ class _PetScreen2State extends State<PetScreen2> {
                       child: Image.asset('assets/atras.png', width: 28, height: 28),
                     ),
                     Text(isEditing ? 'Editar Mascota' : 'Nueva Mascota',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontSize: 18, fontFamily: 'Montserrat', fontWeight: FontWeight.bold)),
                     Image.asset('assets/Minilogo dacky.png', width: 50, height: 50),
                   ],
                 ),
@@ -301,7 +302,7 @@ class _PetScreen2State extends State<PetScreen2> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
           const SizedBox(height: 6),
           TextField(
             controller: controller,
@@ -328,7 +329,7 @@ class _PetScreen2State extends State<PetScreen2> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
           const SizedBox(height: 6),
           TextField(
             controller: controller,

@@ -59,7 +59,7 @@ class VacunaScreen3 extends StatelessWidget {
                     const SizedBox(height: 14),
                     const Text(
                       "Agrega la primera vacuna para tu mascota",
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(fontSize: 14, fontFamily: 'Montserrat'),
                       textAlign: TextAlign.center,
                     ),
                   ],

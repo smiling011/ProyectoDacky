@@ -83,7 +83,7 @@ class _UserScreen2State extends State<UserScreen2> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                       color: Color(0xFF11120D), // Texto oscuro
                     ),
                   ),
@@ -147,7 +147,7 @@ class _UserScreen2State extends State<UserScreen2> {
                   Image.asset('assets/atras.png', width: 28, height: 28),
                   const Text('Mi Perfil',
                       style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
                   Image.asset('assets/menu.png', width: 28, height: 28),
                 ],
               ),
@@ -183,7 +183,7 @@ class _UserScreen2State extends State<UserScreen2> {
                         ),
                         onPressed: _guardarPerfil,
                         child: const Text('Guardar',
-                            style: TextStyle(color: Colors.white)),
+                            style: TextStyle(color: Colors.white, fontFamily: 'Montserrat',)),
                       )
                     ],
                   ),
@@ -208,7 +208,7 @@ class _UserScreen2State extends State<UserScreen2> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label),
+          Text(style: TextStyle(fontFamily: 'Montserrat'), label),
           const SizedBox(height: 6),
           TextField(
             controller: controller,

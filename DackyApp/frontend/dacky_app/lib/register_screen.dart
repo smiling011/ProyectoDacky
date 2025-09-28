@@ -44,8 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      // fontWeight: FontWeight.w600,
                       color: Color(0xFF11120D), // Texto oscuro Dacky-1
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -201,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Center(
                         child: Text(
                           'Registrarse',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, fontFamily: 'Montserrat'),
                         ),
                       ),
                     ),
@@ -221,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(
                       color: Color(0xFFFFFBF4),
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat'
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -246,7 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+        hintStyle: const TextStyle(color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
         filled: true,
         fillColor: const Color(0xFFFFFBF4),
         border: OutlineInputBorder(

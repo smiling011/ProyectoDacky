@@ -85,7 +85,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
                   ),
                   const Text(
                     'Tarjeta de Vacunas',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat',),
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
@@ -180,7 +180,8 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
             Text(
               nombre,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
+                fontFamily: 'Montserrat',
+                // fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             )

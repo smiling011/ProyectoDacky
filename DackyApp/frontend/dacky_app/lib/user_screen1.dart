@@ -58,7 +58,7 @@ class _UserScreen1State extends State<UserScreen1> {
                         Image.asset('assets/atras.png', width: 28, height: 28),
                         const Text(
                           'Mi Perfil',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat',),
                         ),
                         Image.asset('assets/menu.png', width: 28, height: 28),
                       ],
@@ -121,9 +121,10 @@ class _UserScreen1State extends State<UserScreen1> {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
           ),
-          Expanded(child: Text(value)),
+          Expanded(child: Text( value, style: const TextStyle(fontFamily: 'Montserrat')),
+          ),
         ],
       ),
     );

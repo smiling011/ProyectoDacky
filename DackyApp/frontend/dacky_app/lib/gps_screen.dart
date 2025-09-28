@@ -150,7 +150,7 @@ class _GpsScreenState extends State<GpsScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: const TextStyle(color: Colors.white)),
+        Text(label, style: const TextStyle(color: Colors.white, fontFamily: 'Montserrat')),
       ],
     );
   }

@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                       color: Color(0xFF11120D), // Texto oscuro
                     ),
                   ),
@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       color: Color(0xFFFFFBF4),
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat',
                     ),
                   ),
                 ],
@@ -180,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         hintText: 'Correo',
-                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
                         filled: true,// 
                         fillColor: const Color(0xFFFFFBF4),
                         border: OutlineInputBorder(
@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         hintText: 'Contraseña',
-                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC)),
+                        hintStyle: const TextStyle(color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
                         filled: true,
                         fillColor: const Color(0xFFFFFBF4),
                         border: OutlineInputBorder(
@@ -226,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: const Center(
                         child: Text('Iniciar Sesión',
-                            style: TextStyle(fontSize: 16)),
+                            style: TextStyle(fontSize: 16, fontFamily: 'Montserrat')),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -247,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text('¿No tienes cuenta?',
-                            style: TextStyle(color: Color(0xFFFFFBF4))),
+                            style: TextStyle(color: Color(0xFFFFFBF4), fontFamily: 'Montserrat')),
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');// navega al formulario de registro
@@ -257,6 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               color: Color(0xFFD8CFBC),
                               fontWeight: FontWeight.bold,// para que sea negrita
+                              fontFamily: 'Montserrat',
                             ),
                           ),
                         ),

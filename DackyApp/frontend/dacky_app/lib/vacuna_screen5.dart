@@ -77,7 +77,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Montserrat',
                       color: Color(0xFF11120D),
                     ),
                   ),
@@ -191,7 +191,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                   ),
                   Text(
                     widget.vacuna == null ? 'Nueva Vacuna' : 'Editar Vacuna',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat'),
                   ),
                   Image.asset('assets/Minilogo dacky.png', width: 50, height: 50),
                 ],
@@ -216,7 +216,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                       _buildDateField('Fecha de Vencimiento', fechaVencimientoController),
 
                       const SizedBox(height: 16),
-                      const Text('Número de dosis *'),
+                      const Text('Número de dosis *', style: TextStyle(fontFamily: 'Montserrat')),
                       const SizedBox(height: 8),
                       Row(
                         children: List.generate(5, (index) {
@@ -243,7 +243,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                       ),
 
                       const SizedBox(height: 16),
-                      const Text('Nota'),
+                      const Text('Nota', style: TextStyle(fontFamily: 'Montserrat')),
                       const SizedBox(height: 8),
                       TextField(
                         controller: notaController,
@@ -269,7 +269,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
                           ),
                           onPressed: _guardarVacuna,
-                          child: const Text('Guardar', style: TextStyle(color: Colors.white)),
+                          child: const Text('Guardar', style: TextStyle(color: Colors.white, fontFamily: 'Montserrat')),
                         ),
                       ),
                     ],
@@ -289,7 +289,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
+        Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -312,7 +312,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label),
+      Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
       const SizedBox(height: 8),
       TextField(
         controller: controller,
