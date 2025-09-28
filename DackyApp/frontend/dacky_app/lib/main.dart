@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'inicio_screen.dart';
 import 'login_screen.dart';
-import 'register_screen.dart'; 
+import 'register_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-//inicia la app con el widget principal
+// inicia la app con el widget principal
 void main() {
   runApp(MyApp());
 }
@@ -16,10 +17,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      // 🔹 Configuración para internacionalización
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', ''), // Español
+        Locale('en', ''), // Inglés
+      ],
+      locale: const Locale('es', ''), // Fuerza español
+
       home: SplashScreen(), // la pantalla de carga
       routes: {
-        '/login': (context) => LoginScreen(), //ruta de loginscreen
-        '/register': (context) => RegisterScreen(), //ruta de register
+        '/login': (context) => LoginScreen(), // ruta de loginscreen
+        '/register': (context) => RegisterScreen(), // ruta de register
       },
     );
   }
@@ -36,23 +50,24 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () { // duracion de la pantalla de carga
+    Timer(const Duration(seconds: 3), () {
+      // duracion de la pantalla de carga
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => InicioScreen()),// aca va la pantalla de inicio
+        MaterialPageRoute(builder: (context) => InicioScreen()),
       );
     });
   }
 
-//este es el widget de la screen de carga con lo logo
+  // este es el widget de la screen de carga con el logo
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF11120D), // color de fondo
+      backgroundColor: const Color(0xFF11120D), // color de fondo
       body: Center(
         child: Image.asset(
-          'assets/Minilogo dacky.png', //  ruta del logito
-          width: 150, // cambie el tamaño porque estaba muy chiquito
+          'assets/Minilogo dacky.png', // ruta del logito
+          width: 150,
         ),
       ),
     );
