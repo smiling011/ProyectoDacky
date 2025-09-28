@@ -1,3 +1,4 @@
+// Pantalla para crear o editar una vacuna
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,8 +9,8 @@ import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
 class VacunaScreen5 extends StatefulWidget {
-  final int idMascota; // 🐶 ID de la mascota a la que pertenece la vacuna
-  final Map<String, dynamic>? vacuna; // 📌 Si viene null → crear, si no → editar
+  final int idMascota;
+  final Map<String, dynamic>? vacuna;
 
   const VacunaScreen5({
     super.key,
@@ -33,8 +34,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   @override
   void initState() {
     super.initState();
-
-    // 📌 Si viene vacuna en widget.vacuna → prellenar campos
     if (widget.vacuna != null) {
       final vacuna = widget.vacuna!;
       nombreController.text = vacuna['NomVacuna'] ?? '';
@@ -42,8 +41,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       edadController.text = vacuna['Edad']?.toString() ?? '';
       fechaVencimientoController.text = vacuna['FechaVenVac'] ?? '';
       notaController.text = vacuna['Nota'] ?? '';
-
-      // Marcar dosis (simplemente la primera hasta NumDosis)
       if (vacuna['NumDosis'] != null && vacuna['NumDosis'] > 0) {
         for (int i = 0; i < vacuna['NumDosis']; i++) {
           dosisSeleccionadas[i] = true;
@@ -52,22 +49,97 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     }
   }
 
+  // ✅ Mostrar alerta personalizada
+  void _mostrarAlerta(String mensaje, {bool exito = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFD8CFBC),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    exito ? "assets/comprobado.png" : "assets/advertencia.png",
+                    width: 50,
+                    height: 50,
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    mensaje,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF11120D),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset("assets/cruz.png", width: 22, height: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✅ Validaciones
+  bool _validarCampos() {
+    if (nombreController.text.trim().isEmpty ||
+        fechaAplicacionController.text.trim().isEmpty ||
+        edadController.text.trim().isEmpty) {
+      _mostrarAlerta("Todos los campos obligatorios deben completarse.");
+      return false;
+    }
+
+    final edad = int.tryParse(edadController.text) ?? -1;
+    if (edad <= 0) {
+      _mostrarAlerta("La edad debe ser mayor a 0.");
+      return false;
+    }
+
+    final numDosis = dosisSeleccionadas.lastIndexWhere((e) => e) + 1;
+    if (numDosis == 0) {
+      _mostrarAlerta("Debes seleccionar al menos una dosis.");
+      return false;
+    }
+
+    return true;
+  }
+
   Future<void> _guardarVacuna() async {
+    if (!_validarCampos()) return;
+
     final int numDosis = dosisSeleccionadas.lastIndexWhere((e) => e) + 1;
 
     final vacunaData = {
-      "NomVacuna": nombreController.text,
-      "FechaVac": fechaAplicacionController.text,
+      "NomVacuna": nombreController.text.trim(),
+      "FechaVac": fechaAplicacionController.text.trim(),
       "Edad": int.tryParse(edadController.text) ?? 0,
-      "FechaVenVac": fechaVencimientoController.text,
+      "FechaVenVac": fechaVencimientoController.text.trim(),
       "NumDosis": numDosis,
-      "Nota": notaController.text,
+      "Nota": notaController.text.trim(),
     };
 
     http.Response response;
 
     if (widget.vacuna == null) {
-      // ✅ Crear vacuna nueva
       final String url = "http://192.168.0.17:5000/vacunas/${widget.idMascota}";
       response = await http.post(
         Uri.parse(url),
@@ -75,7 +147,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
         body: json.encode(vacunaData),
       );
     } else {
-      // ✅ Editar vacuna existente
       final int idVacunaMascota = widget.vacuna!['IdVacunasMascota'];
       final String url = "http://192.168.0.17:5000/vacunas/detalle/$idVacunaMascota";
       response = await http.put(
@@ -86,12 +157,18 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     }
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      Navigator.pop(context, true); // ✅ volver con éxito
-    } else {
-      print("Error: ${response.body}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al guardar vacuna")),
+      _mostrarAlerta(
+        widget.vacuna == null
+            ? "Vacuna registrada con éxito."
+            : "Vacuna actualizada correctamente.",
+        exito: true,
       );
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pop(context, true);
+      });
+    } else {
+      final data = json.decode(response.body);
+      _mostrarAlerta("Error: ${data['mensaje'] ?? 'No se pudo guardar la vacuna'}");
     }
   }
 
@@ -133,16 +210,15 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildInputField('Nombre', nombreController),
-                      _buildDateField('Fecha de aplicación', fechaAplicacionController),
-                      _buildInputField('Edad', edadController),
+                      _buildInputField('Nombre *', nombreController),
+                      _buildDateField('Fecha de aplicación *', fechaAplicacionController),
+                      _buildInputField('Edad *', edadController, number: true),
                       _buildDateField('Fecha de Vencimiento', fechaVencimientoController),
 
                       const SizedBox(height: 16),
-                      const Text('Número de dosis'),
+                      const Text('Número de dosis *'),
                       const SizedBox(height: 8),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(5, (index) {
                           return GestureDetector(
                             onTap: () {
@@ -209,7 +285,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller) {
+  Widget _buildInputField(String label, TextEditingController controller, {bool number = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -217,6 +293,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
+          keyboardType: number ? TextInputType.number : TextInputType.text,
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFFFEF9F2),
@@ -284,27 +361,19 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => GpsScreen()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => GpsScreen())),
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => VacunaScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VacunaScreen1())),
             child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => PetScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PetScreen1())),
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
           InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => UserScreen1()));
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => UserScreen1())),
             child: Image.asset('assets/user_icon.png', width: 30, height: 30),
           ),
         ],
