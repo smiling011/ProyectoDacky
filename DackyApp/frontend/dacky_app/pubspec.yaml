@@ -23,13 +23,13 @@ dev_dependencies:
   flutter_native_splash: ^2.3.6
 
 flutter:
-  uses-material-design: true   # 👈 Aquí es donde debe ir
+  uses-material-design: true   #  Aquí es donde debe ir
 
   fonts:
     - family: Montserrat
       fonts:
-        - asset: fonts/Montserrat-Regular.ttf
-        - asset: fonts/Montserrat-Bold.ttf
+        - asset: assets/fonts/Montserrat-Regular.ttf # ¡Ruta Corregida!
+        - asset: assets/fonts/Montserrat-Bold.ttf  
 
   assets:
     - assets/Minilogo dacky.png
