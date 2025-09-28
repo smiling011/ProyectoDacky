@@ -55,6 +55,56 @@ class _UserScreen2State extends State<UserScreen2> {
     }
   }
 
+  //  alerta personalizada (éxito o error)
+  void _mostrarAlerta(String mensaje, {bool exito = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFD8CFBC), // Fondo Dacky-3
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    exito ? "assets/comprobado.png" : "assets/advertencia.png",
+                    width: 50,
+                    height: 50,
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    mensaje,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF11120D), // Texto oscuro
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset("assets/cruz.png", width: 22, height: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _guardarPerfil() async {
     if (idUsuario == null) return;
 
@@ -75,20 +125,16 @@ class _UserScreen2State extends State<UserScreen2> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data["message"] ?? "Perfil actualizado")),
-      );
+      _mostrarAlerta(data["message"] ?? "Perfil actualizado", exito: true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al actualizar perfil")),
-      );
+      _mostrarAlerta("Error al actualizar perfil");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFBF4),
+      backgroundColor: const Color(0xFFFFFBF4),
       body: SafeArea(
         child: Column(
           children: [
@@ -99,7 +145,7 @@ class _UserScreen2State extends State<UserScreen2> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset('assets/atras.png', width: 28, height: 28),
-                  Text('Mi Perfil',
+                  const Text('Mi Perfil',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Image.asset('assets/menu.png', width: 28, height: 28),
@@ -125,18 +171,18 @@ class _UserScreen2State extends State<UserScreen2> {
                       _buildTextField('Celular', celularController),
                       _buildTextField('Telefono', telefonoController),
                       _buildTextField('Direccion', direccionController),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF11120D),
+                          backgroundColor: const Color(0xFF11120D),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 40, vertical: 14),
                         ),
                         onPressed: _guardarPerfil,
-                        child: Text('Guardar',
+                        child: const Text('Guardar',
                             style: TextStyle(color: Colors.white)),
                       )
                     ],
@@ -163,18 +209,18 @@ class _UserScreen2State extends State<UserScreen2> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           TextField(
             controller: controller,
             decoration: InputDecoration(
               filled: true,
-              fillColor: Color(0xFFFFFBF4),
+              fillColor: const Color(0xFFFFFBF4),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
               ),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             ),
           ),
         ],
@@ -184,7 +230,7 @@ class _UserScreen2State extends State<UserScreen2> {
 
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.grey[300],
