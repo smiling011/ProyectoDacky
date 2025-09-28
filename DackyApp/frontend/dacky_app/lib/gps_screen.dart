@@ -18,7 +18,7 @@ class GpsScreen extends StatefulWidget {
 // widget de estado para manejar el mapa 
 class _GpsScreenState extends State<GpsScreen> {
   late GoogleMapController mapController;
-  final LatLng _initialPosition = const LatLng(19.432608, -99.133209);// posicion inicial 
+  final LatLng _initialPosition = const LatLng(6.2442, -75.5812); // Medellín, Colombia // posicion inicial 
 
   String? _currentEmail;//variable que almacena el email del usuario
   int? _currentId;// variable que almacena el id del usuario
