@@ -21,16 +21,60 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-// controladores para manejar el texto de los campos de email y contraseña
+  //  método de alerta personalizada
+  void _mostrarAlerta(String mensaje) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFD8CFBC), // Fondo Dacky-3
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset("assets/advertencia.png", width: 50, height: 50),
+                  const SizedBox(height: 15),
+                  Text(
+                    mensaje,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF11120D), // Texto oscuro
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Image.asset("assets/cruz.png", width: 22, height: 22),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // controladores para manejar el texto de los campos de email y contraseña
   Future<void> _login() async {// el future es para manejar operaciones asincronas
     final email = _emailController.text.trim();// los final son para que no cambien y el trim es para quitar espacios
     final contrasena = _passwordController.text.trim();
 
-// el if es para validar que los campos no esten vacios
+    // el if es para validar que los campos no esten vacios
     if (email.isEmpty || contrasena.isEmpty) {// valida que el correo y la password no esten vacios
-      ScaffoldMessenger.of(context).showSnackBar(// el scaffold es para mostrar el mensaje
-        const SnackBar(content: Text('Por favor, completa todos los campos')),
-      );
+      _mostrarAlerta("Por favor, completa todos los campos"); // ✅ alerta personalizada
       return;// 
     }
 
@@ -63,18 +107,15 @@ class _LoginScreenState extends State<LoginScreen> {
         // else para decir que el login no fue exitoso
       } else {
         final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(mensaje)),
-        );
+        _mostrarAlerta(mensaje); // ✅ alerta personalizada
       }
       // el cath es para errores de http, servidor o de conexion
     } catch (e) {
       print('Error al iniciar sesión: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al iniciar sesión')),
-      );
+      _mostrarAlerta("Error al iniciar sesión"); // ✅ alerta personalizada
     }
   }
+
   // here el widget build es para la pantalla de login
   @override
   Widget build(BuildContext context) {
