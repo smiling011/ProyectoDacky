@@ -90,7 +90,7 @@ class _VacunaScreen1State extends State<VacunaScreen1> {
                   ),
                   const Text(
                     'Tarjeta de Vacunas',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat'),
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
@@ -116,8 +116,8 @@ class _VacunaScreen1State extends State<VacunaScreen1> {
                   },
                   child: Image.asset(
                     'assets/agregar.png',
-                    width: 65,
-                    height: 65,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -125,14 +125,14 @@ class _VacunaScreen1State extends State<VacunaScreen1> {
             ),
 
             const SizedBox(height: 40),
-            const Text(
-              "Agrega tu primera mascota para\nactivar la tarjeta de vacunas",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            // const Text(
+            //   "Agrega tu primera mascota para\nactivar la tarjeta de vacunas",
+            //   textAlign: TextAlign.center,
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //     fontWeight: FontWeight.w500,
+            //   ),
+            // ),
           ],
         ),
       ),

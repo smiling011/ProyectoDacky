@@ -58,7 +58,7 @@ class _UserScreen1State extends State<UserScreen1> {
                         Image.asset('assets/atras.png', width: 28, height: 28),
                         const Text(
                           'Mi Perfil',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat',),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat'),
                         ),
                         Image.asset('assets/menu.png', width: 28, height: 28),
                       ],
@@ -70,7 +70,7 @@ class _UserScreen1State extends State<UserScreen1> {
                     child: Center(
                       child: Container(
                         padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        margin: const EdgeInsets.symmetric(horizontal: 15),
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(20),
@@ -106,7 +106,7 @@ class _UserScreen1State extends State<UserScreen1> {
 
                   // Barra de navegación inferior
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: 10),
                     child: _buildBottomNavBar(context),
                   ),
                 ],

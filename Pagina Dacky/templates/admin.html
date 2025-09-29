@@ -1,465 +1,301 @@
+<!-- templates/admin.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Lista de registros DACKY" />
-    <meta name="author" content="@tory_vielma" />
-    <title>DACKY - Admin</title>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/Minilogo dacky.png') }}" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DACKY - Admin</title>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/Minilogo dacky.png') }}" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Montserrat', sans-serif; background-color:#FFFBF4; margin:0; overflow:hidden; }
+    .wrapper { display:flex; height:100vh; }
+    .sidebar { width:240px; background:#11120D; color:#FFFBF4; transition: all 0.3s; overflow-y:auto; }
+    .sidebar h3 { color:#D8CFBC; text-align:center; margin:20px 0; }
+    .sidebar a { display:block; padding:12px 20px; color:#FFFBF4; text-decoration:none; transition:background .2s; }
+    .sidebar a:hover, .sidebar a.active { background:#565449; border-radius:6px; }
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    .sidebar.collapsed { width:60px; }
+    .sidebar.collapsed h3, .sidebar.collapsed a span { display:none; }
+    .sidebar.collapsed a i { margin-right:0; text-align:center; width:100%; }
 
-    <style>
-        body {
-            background-color: #EFEBE6; /* Un fondo general ligeramente diferente para contraste */
-            /* background-color: #f5f5f5; */ /* Fondo gris si prefieres el anterior */
-            font-family: sans-serif; /* Fuente simple por defecto */
-        }
+    .content { flex:1; padding:20px; overflow:hidden; display:flex; flex-direction:column; transition: margin-left 0.3s; }
+    .content-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .btn-dacky { background:#565449; color:#FFFBF4; border:none;}
+    .btn-dacky:hover { background:#33322c; }
 
-        /* Contenedor principal que simula la imagen */
-        .crud-container {
-            margin: 40px auto;
-            padding: 25px;
-            background-color: #F8F5F0; /* Beige muy claro */
-            border-radius: 8px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            max-width: 1100px; /* Ancho máximo */
-        }
+    /* Tabla scroll interno */
+    .table-container { flex:1; overflow:auto; }
+    .table thead { background:#D8CFBC; color:#11120D; position:sticky; top:0; z-index:2; }
+    .table tbody tr:hover { background:#f4f2ec; }
 
-        /* Sección del encabezado (Botón + Título) */
-        .crud-header {
-            display: flex;
-            align-items: center;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #DDDDDD; /* Línea separadora */
-        }
-
-        /* Botón Añadir específico */
-        .btn-add-custom {
-            background-color: #E0E0E0; /* Fondo gris claro */
-            border: 1px solid #BDBDBD; /* Borde gris */
-            color: #424242; /* Icono gris oscuro */
-            width: 38px; /* Ancho fijo */
-            height: 38px; /* Alto fijo */
-            border-radius: 5px; /* Ligeramente redondeado */
-            display: inline-flex; /* Para centrar icono */
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            margin-right: 15px; /* Espacio a la derecha */
-            font-size: 1.1em; /* Tamaño del icono '+' */
-        }
-        .btn-add-custom:hover {
-            background-color: #D5D5D5; /* Más oscuro al pasar el mouse */
-            color: #333333;
-        }
-
-        .crud-header h2 {
-            margin: 0; /* Quitar margen por defecto */
-            font-size: 24px;
-            font-weight: bold;
-            color: #333333; /* Color de texto oscuro */
-        }
-
-        /* Estilos de la tabla */
-        .table {
-            background-color: #FFFFFF; /* Fondo blanco para la tabla */
-            border: 1px solid #DDDDDD; /* Borde alrededor de la tabla */
-            margin-bottom: 0; /* Quitar margen inferior por defecto */
-            color: #333333; /* Color de texto general */
-        }
-
-        /* Cabecera de la tabla */
-        .table thead th {
-            background-color: #EAE0D5; /* Beige/Canela oscuro */
-            color: #333333; /* Texto oscuro */
-            border-bottom: 2px solid #DDDDDD; /* Borde inferior más grueso */
-            border-right: 1px solid #DDDDDD; /* Borde derecho */
-            padding: 10px 12px; /* Relleno */
-            text-align: left; /* Alineación */
-            font-weight: bold; /* Negrita */
-            vertical-align: middle;
-        }
-        .table thead th:last-child {
-             border-right: none; /* Quitar borde derecho en la última celda header */
-        }
-
-
-        /* Celdas del cuerpo de la tabla */
-        .table tbody td {
-            padding: 10px 12px;
-            border-right: 1px solid #DDDDDD; /* Borde derecho */
-            border-top: 1px solid #DDDDDD; /* Borde superior */
-            vertical-align: middle; /* Centrar verticalmente */
-        }
-         .table tbody tr:first-child td {
-             border-top: none; /* Quitar borde superior de la primera fila */
-         }
-        .table tbody td:last-child {
-            border-right: none; /* Quitar borde derecho en la última celda */
-            text-align: center; /* Centrar iconos de acción */
-        }
-
-        /* Iconos de acción */
-        .action-icon {
-            font-size: 1.2em; /* Tamaño de iconos */
-            text-decoration: none;
-            margin: 0 6px; /* Espacio entre iconos */
-            cursor: pointer;
-        }
-        .action-icon.edit {
-            color: #28a745; /* Verde */
-        }
-        .action-icon.edit:hover {
-            color: #218838; /* Verde más oscuro */
-        }
-        .action-icon.delete {
-            color: #dc3545; /* Rojo */
-        }
-        .action-icon.delete:hover {
-            color: #c82333; /* Rojo más oscuro */
-        }
-
-        /* Para responsividad en tablas */
-        .table-responsive {
-            /* Bootstrap ya maneja esto, pero puedes añadir estilos si es necesario */
-        }
-
-        footer {
-          margin-top: 30px;
-          text-align: center;
-          color: #6c757d;
-        }
-
-    </style>
+    /* Botón hamburguesa */
+    .toggle-btn { background:none; border:none; font-size:1.5rem; color:#11120D; margin-right:15px; }
+  </style>
 </head>
 <body>
-    <div id="alert-container" class="alert-popup"></div>
 
-    <div class="crud-container">
-        <div class="crud-header">
-             <div class="header-left"> <a href="#addModal" class="btn-add-custom" title="Añadir Nuevo" data-bs-toggle="modal">
-                    <i class="fas fa-plus"></i>
-                </a>
-                <h2>LISTA DE REGISTROS</h2>
-            </div>
-            <div class="header-right"> <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-secondary btn-logout">Cerrar Sesión ({{ admin_name | default('Admin') }})</a>
-            </div>
+<div class="wrapper">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h3>DACKY Admin</h3>
+    <a href="{{ url_for('admin_dashboard', view='iniciosesion') }}" class="{% if active=='iniciosesion' %}active{% endif %}">
+      <i class="fa-solid fa-users"></i> <span>Inicio Sesión</span>
+    </a>
+    <a href="{{ url_for('admin_dashboard', view='perfildueno') }}" class="{% if active=='perfildueno' %}active{% endif %}">
+      <i class="fa-solid fa-user"></i> <span>Dueños</span>
+    </a>
+    <a href="{{ url_for('admin_dashboard', view='perfilmascota') }}" class="{% if active=='perfilmascota' %}active{% endif %}">
+      <i class="fa-solid fa-id-card"></i> <span>Perfil Mascota</span>
+    </a>
+    <a href="{{ url_for('admin_dashboard', view='mascota') }}" class="{% if active=='mascota' %}active{% endif %}">
+      <i class="fa-solid fa-dog"></i> <span>Mascotas</span>
+    </a>
+    <a href="{{ url_for('admin_dashboard', view='vacunasmascota') }}" class="{% if active=='vacunasmascota' %}active{% endif %}">
+      <i class="fa-solid fa-syringe"></i> <span>Vacunas</span>
+    </a>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="content-header">
+      <div>
+        <button class="toggle-btn" id="toggleSidebar"><i class="fa-solid fa-bars"></i></button>
+        <h2 style="display:inline-block">{{ titulo }}</h2>
+      </div>
+      <div>
+        <button class="btn btn-dacky" id="btnNuevo"><i class="fa fa-plus"></i> Nuevo</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('logout') }}">Cerrar sesión</a>
+      </div>
+    </div>
+
+    <!-- Tabla con scroll interno -->
+    <div class="table-container">
+      <table class="table table-bordered align-middle">
+        <thead>
+          <tr>
+            {% for col in columnas %}
+              <th>{{ col }}</th>
+            {% endfor %}
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in datos %}
+          <tr>
+            {% for col in columnas %}
+              <td>{{ fila[col] }}</td>
+            {% endfor %}
+            <td class="action-icons">
+              <a class="edit" href="#" data-id="{{ (fila[columnas[0]]) }}"><i class="fa fa-pencil"></i></a>
+              <a class="delete" href="#" data-id="{{ (fila[columnas[0]]) }}"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal CRUD -->
+<div class="modal fade" id="crudModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="crudForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="crudTitle">Nuevo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>NOMBRE</th>
-                        <th>APELLIDO</th>
-                        <th>CORREO</th>
-                        <th>CONTRASEÑA</th> <th>TELÉFONO</th> <th>DIRECCIÓN</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if users %} {% for user in users %}
-                        <tr id="user-row-{{ user.IdInicioSesion }}"> <td>{{ user.IdInicioSesion }}</td>
-                            <td>{{ user.Nom | default('N/A') }}</td>
-                            <td>{{ user.Apell | default('N/A') }}</td>
-                            <td>{{ user.Email | default('N/A') }}</td>
-                            <td>******</td> <td>{{ user.NumTelf | default('N/A') }}</td>
-                            <td>{{ user.Direccion | default('N/A') }}</td>
-                            <td>
-                                <a href="#editModal" class="action-icon edit" title="Editar" data-bs-toggle="modal" data-id="{{ user.IdInicioSesion }}">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </a>
-                                <a href="#deleteModal" class="action-icon delete" title="Borrar" data-bs-toggle="modal" data-id="{{ user.IdInicioSesion }}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="8" class="text-center">No hay usuarios registrados para mostrar.</td> </tr>
-                    {% endif %}
-                    </tbody>
-            </table>
+        <div class="modal-body" id="crudBody">
+          <!-- Campos dinámicos -->
         </div>
-
-        <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="addModalLabel">Añadir Nuevo Registro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form id="addForm">
-                  <div class="mb-3">
-                    <label for="addNombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="addNombre" name="userName" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="addApellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="addApellido" name="userLastName" required>
-                  </div>
-                   <div class="mb-3">
-                    <label for="addEmail" class="form-label">Correo</label>
-                    <input type="email" class="form-control" id="addEmail" name="userEmail" required>
-                  </div>
-                   <div class="mb-3">
-                    <label for="addPassword" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="addPassword" name="userPassword" required>
-                  </div>
-                   <div class="mb-3">
-                    <label for="addTelefono" class="form-label">Teléfono</label>
-                    <input type="tel" class="form-control" id="addTelefono" name="userPhone" required> </div>
-                   <div class="mb-3">
-                    <label for="addDireccion" class="form-label">Dirección</label>
-                    <input type="text" class="form-control" id="addDireccion" name="userAddress" required>
-                  </div>
-                  </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="addForm" class="btn btn-primary">Guardar Registro</button>
-              </div>
-            </div>
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-dacky">Guardar</button>
         </div>
-        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Editar Registro</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <form id="editForm">
-                  <input type="hidden" id="editUserId" name="userId"> <div class="mb-3">
-                    <label for="editNombre" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" id="editNombre" name="userName" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="editApellido" class="form-label">Apellido</label>
-                    <input type="text" class="form-control" id="editApellido" name="userLastName" required>
-                  </div>
-                   <div class="mb-3">
-                    <label for="editEmail" class="form-label">Correo</label>
-                    <input type="email" class="form-control" id="editEmail" name="userEmail" required>
-                  </div>
-                   <div class="mb-3">
-                    <label for="editPassword" class="form-label">Nueva Contraseña (opcional)</label>
-                    <input type="password" class="form-control" id="editPassword" name="userPassword" placeholder="Dejar en blanco para no cambiar">
-                  </div>
-                   <div class="mb-3">
-                    <label for="editTelefono" class="form-label">Teléfono</label>
-                    <input type="tel" class="form-control" id="editTelefono" name="userPhone" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="editDireccion" class="form-label">Dirección</label>
-                    <input type="text" class="form-control" id="editDireccion" name="userAddress" required>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="editForm" class="btn btn-primary">Guardar Cambios</button>
-              </div>
-            </div>
-          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirm Delete -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Confirmar eliminación</h5></div>
+      <div class="modal-body"><p id="deleteText"></p></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Variables desde server
+  const activeView = "{{ active }}";
+  const columnas = {{ columnas|tojson }};
+
+  function renderFormFields(view, data = {}) {
+    if (view === 'iniciosesion') {
+      return `
+        <input type="hidden" name="IdInicioSesion" value="${data.IdInicioSesion||''}">
+        <div class="mb-3"><label>Nombre</label><input name="Nom" class="form-control" value="${data.Nom||''}" required></div>
+        <div class="mb-3"><label>Apellido</label><input name="Apell" class="form-control" value="${data.Apell||''}" required></div>
+        <div class="mb-3"><label>Email</label><input name="Email" type="email" class="form-control" value="${data.Email||''}" required></div>
+        <div class="mb-3"><label>Contraseña (dejar vacío para no cambiar)</label><input name="Contrasena" type="password" class="form-control"></div>
+        <div class="mb-3"><label>Teléfono</label><input name="NumTelf" class="form-control" value="${data.NumTelf||''}"></div>
+        <div class="mb-3"><label>Dirección</label><input name="Direccion" class="form-control" value="${data.Direccion||''}"></div>
+        <div class="mb-3"><label>Rol</label>
+          <select name="rol" class="form-control">
+            <option value="usuario" ${data.rol==='usuario'?'selected':''}>usuario</option>
+            <option value="admin" ${data.rol==='admin'?'selected':''}>admin</option>
+          </select>
         </div>
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar este registro?</p>
-                <p class="text-danger">Esta acción no se puede deshacer.</p>
-                <input type="hidden" id="recordIdToDelete">
-                <p><small>ID del registro: <span id="recordInfo"></span></small></p> </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar Registro</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div> 
+      `;
+    }
+    if (view === 'perfildueno') {
+      return `
+        <input type="hidden" name="IdPerfilDueño" value="${data.IdPerfilDueño||''}">
+        <div class="mb-3"><label>Nombre Dueño</label><input name="NomDueño" class="form-control" value="${data.NomDueño||''}" required></div>
+        <div class="mb-3"><label>Apellido</label><input name="Apell" class="form-control" value="${data.Apell||''}" required></div>
+        <div class="mb-3"><label>Email</label><input name="Email" type="email" class="form-control" value="${data.Email||''}"></div>
+        <div class="mb-3"><label>Teléfono</label><input name="NumTelf" class="form-control" value="${data.NumTelf||''}"></div>
+        <div class="mb-3"><label>Celular</label><input name="NumCel" class="form-control" value="${data.NumCel||''}"></div>
+        <div class="mb-3"><label>Dirección</label><input name="Direccion" class="form-control" value="${data.Direccion||''}"></div>
+        <div class="mb-3"><label>IdInicioSesion (opcional)</label><input name="IdInicioSesion" class="form-control" value="${data.IdInicioSesion||''}"></div>
+      `;
+    }
+    if (view === 'perfilmascota') {
+      return `
+        <input type="hidden" name="IdPerfilMascota" value="${data.IdPerfilMascota||''}">
+        <div class="mb-3"><label>Nombre Mascota</label><input name="NomMascota" class="form-control" value="${data.NomMascota||''}" required></div>
+        <div class="mb-3"><label>Raza</label><input name="Raza" class="form-control" value="${data.Raza||''}" required></div>
+        <div class="mb-3"><label>Peso</label><input name="Peso" class="form-control" value="${data.Peso||''}" required></div>
+        <div class="mb-3"><label>Altura</label><input name="Altura" class="form-control" value="${data.Altura||''}" required></div>
+        <div class="mb-3"><label>Edad</label><input name="Edad" class="form-control" value="${data.Edad||''}" required></div>
+        <div class="mb-3"><label>Descripción</label><textarea name="Descripcion" class="form-control">${data.Descripcion||''}</textarea></div>
+        <div class="mb-3"><label>PerfilDueño_IdPerfilDueño</label><input name="PerfilDueño_IdPerfilDueño" class="form-control" value="${data.PerfilDueño_IdPerfilDueño||''}"></div>
+      `;
+    }
+    if (view === 'mascota') {
+      return `
+        <input type="hidden" name="IdMascota" value="${data.IdMascota||''}">
+        <div class="mb-3"><label>NumMascota</label><input name="NumMascota" class="form-control" value="${data.NumMascota||''}" required></div>
+        <div class="mb-3"><label>PerfilDueño_IdPerfilDueño</label><input name="PerfilDueño_IdPerfilDueño" class="form-control" value="${data.PerfilDueño_IdPerfilDueño||''}" required></div>
+        <div class="mb-3"><label>PerfilMascota_IdPerfilMascota</label><input name="PerfilMascota_IdPerfilMascota" class="form-control" value="${data.PerfilMascota_IdPerfilMascota||''}" required></div>
+      `;
+    }
+    if (view === 'vacunasmascota') {
+      return `
+        <input type="hidden" name="IdVacunasMascota" value="${data.IdVacunasMascota||''}">
+        <div class="mb-3"><label>NomVacuna</label><input name="NomVacuna" class="form-control" value="${data.NomVacuna||''}" required></div>
+        <div class="mb-3"><label>Mascota_IdMascota</label><input name="Mascota_IdMascota" class="form-control" value="${data.Mascota_IdMascota||''}" required></div>
+        <div class="mb-3"><label>FechaVac</label><input name="FechaVac" type="date" class="form-control" value="${data.FechaVac||''}"></div>
+        <div class="mb-3"><label>Edad</label><input name="Edad" class="form-control" value="${data.Edad||''}"></div>
+        <div class="mb-3"><label>FechaVenVac</label><input name="FechaVenVac" type="date" class="form-control" value="${data.FechaVenVac||''}"></div>
+        <div class="mb-3"><label>NumDosis</label><input name="NumDosis" class="form-control" value="${data.NumDosis||''}"></div>
+        <div class="mb-3"><label>Nota</label><textarea name="Nota" class="form-control">${data.Nota||''}</textarea></div>
+      `;
+    }
+    return '<p>Formulario no implementado para esta vista</p>';
+  }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  // DOM modal
+  const crudModalEl = document.getElementById('crudModal');
+  const crudModal = new bootstrap.Modal(crudModalEl);
+  const crudForm = document.getElementById('crudForm');
+  const crudBody = document.getElementById('crudBody');
+  const crudTitle = document.getElementById('crudTitle');
+  let editingId = null;
+  let currentView = activeView;
 
-    <script>
-        // --- Función para mostrar Alertas Flotantes ---
-        function showAlert(message, type = 'success') {
-            const alertContainer = document.getElementById('alert-container');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.role = 'alert';
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            alertContainer.appendChild(alertDiv);
+  // Nuevo
+  document.getElementById('btnNuevo').addEventListener('click', () => {
+    editingId = null;
+    crudTitle.innerText = 'Nuevo - ' + (document.querySelector('.sidebar a.active')?.textContent.trim() || currentView);
+    crudBody.innerHTML = renderFormFields(currentView, {});
+    crudModal.show();
+  });
 
-            // Auto-cerrar la alerta después de 5 segundos
-            setTimeout(() => {
-                const bootstrapAlert = new bootstrap.Alert(alertDiv);
-                bootstrapAlert.close();
-            }, 5000);
-        }
+  // Edit buttons
+  document.querySelectorAll('.edit').forEach(el => {
+    el.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const id = el.getAttribute('data-id');
+      const res = await fetch(`/admin/get/${currentView}/${id}`);
+      const json = await res.json();
+      editingId = id;
+      crudTitle.innerText = 'Editar - ' + (document.querySelector('.sidebar a.active')?.textContent.trim() || currentView);
+      crudBody.innerHTML = renderFormFields(currentView, json);
+      crudModal.show();
+    });
+  });
 
+  // Delete buttons
+  let deleteTargetId = null;
+  const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+  document.querySelectorAll('.delete').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      deleteTargetId = el.getAttribute('data-id');
+      document.getElementById('deleteText').innerText = `¿Eliminar registro ID ${deleteTargetId}? Esta acción no se puede deshacer.`;
+      confirmDeleteModal.show();
+    });
+  });
 
-        // --- Inicializar Tooltips ---
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!deleteTargetId) return;
+    const res = await fetch(`/admin/delete/${currentView}/${deleteTargetId}`, { method: 'DELETE' });
+    const j = await res.json();
+    if (res.ok && j.success) {
+      location.reload();
+    } else {
+      alert(j.message || 'Error al eliminar');
+    }
+  });
 
-        // --- Lógica para Modal de Borrado ---
-        const deleteModal = document.getElementById('deleteModal');
-        const recordIdInput = document.getElementById('recordIdToDelete');
-        const recordInfoSpan = document.getElementById('recordInfo');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-        if (deleteModal) {
-            deleteModal.addEventListener('show.bs.modal', function (event) {
-              const button = event.relatedTarget; // Botón que abrió el modal
-              const recordId = button.getAttribute('data-id'); // Obtener el ID del atributo data-id
-
-              // Poner el ID en el input oculto y en el texto informativo
-              if(recordIdInput) recordIdInput.value = recordId;
-              if(recordInfoSpan) recordInfoSpan.textContent = recordId;
-            });
-        }
-
-        // Listener para el botón de confirmar borrado
-        if (confirmDeleteBtn) {
-            confirmDeleteBtn.addEventListener('click', async () => {
-                const userId = recordIdInput.value; // Obtener ID del input oculto
-                if (!userId) {
-                    showAlert('No se pudo obtener el ID del usuario a eliminar.', 'danger');
-                    return;
-                }
-
-                // Deshabilitar botón para evitar doble click
-                confirmDeleteBtn.disabled = true;
-                confirmDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Eliminando...';
-
-
-                try {
-                    const response = await fetch(`/admin/delete_user/${userId}`, {
-                        method: 'DELETE',
-                        headers: {
-                             // Podrías necesitar cabeceras adicionales para CSRF protection en el futuro
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    const result = await response.json(); // Leer respuesta JSON del backend
-
-                    if (response.ok && result.success) {
-                        showAlert(result.message || 'Usuario eliminado correctamente.', 'success');
-                        // Cerrar el modal
-                        const modalInstance = bootstrap.Modal.getInstance(deleteModal);
-                        if(modalInstance) modalInstance.hide();
-
-                        // Eliminar la fila de la tabla dinámicamente
-                        const rowToDelete = document.getElementById(`user-row-${userId}`);
-                        if (rowToDelete) {
-                            rowToDelete.remove();
-                        } else {
-                            // Si no se puede eliminar la fila, recargar la página es una alternativa
-                             window.location.reload();
-                        }
-
-                    } else {
-                         showAlert(result.message || `Error al eliminar (HTTP ${response.status})`, 'danger');
-                    }
-
-                } catch (error) {
-                    console.error('Error en fetch delete:', error);
-                    showAlert('Error de conexión al intentar eliminar.', 'danger');
-                } finally {
-                     // Rehabilitar botón
-                    confirmDeleteBtn.disabled = false;
-                    confirmDeleteBtn.textContent = 'Eliminar Registro';
-                }
-            });
-        }
-
-        // --- Lógica para Modal de Añadir (Pendiente) ---
-        const addForm = document.getElementById('addForm');
-        if (addForm) {
-            addForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                // Aquí iría la lógica fetch para enviar datos a /admin/add_user (POST)
-                // Similar al delete, usar FormData, manejar respuesta, mostrar alerta, recargar.
-                 showAlert('Funcionalidad Añadir Pendiente', 'info');
-            });
-        }
-
-
-        // --- Lógica para Modal de Editar (Pendiente) ---
-         const editModal = document.getElementById('editModal');
-         const editForm = document.getElementById('editForm');
-
-         if(editModal) {
-             editModal.addEventListener('show.bs.modal', async (event) => {
-                 const button = event.relatedTarget;
-                 const userId = button.getAttribute('data-id');
-                 document.getElementById('editUserId').value = userId; // Guardar ID en hidden input
-
-                 // Limpiar formulario previo
-                 editForm.reset();
-
-                 // --- Fetch para obtener datos del usuario ---
-                 try {
-                    const response = await fetch(`/admin/get_user/${userId}`); // Necesitas crear esta ruta en app.py
-                    if(!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const userData = await response.json();
-
-                    // --- Poblar el formulario ---
-                    if(userData) {
-                         document.getElementById('editNombre').value = userData.Nom || '';
-                         document.getElementById('editApellido').value = userData.Apell || '';
-                         document.getElementById('editEmail').value = userData.Email || '';
-                         document.getElementById('editTelefono').value = userData.NumTelf || '';
-                         document.getElementById('editDireccion').value = userData.Direccion || '';
-                         // No poblar contraseña
-                    } else {
-                         showAlert('No se pudieron cargar los datos para editar.', 'warning');
-                    }
-
-                 } catch(error) {
-                     console.error("Error fetching user data for edit:", error);
-                     showAlert('Error al cargar datos del usuario.', 'danger');
-                      // Cerrar modal si falla la carga?
-                      // const modalInstance = bootstrap.Modal.getInstance(editModal);
-                      // if(modalInstance) modalInstance.hide();
-                 }
-             });
-         }
-
-         if(editForm) {
-             editForm.addEventListener('submit', async (event) => {
-                 event.preventDefault();
-                 const userId = document.getElementById('editUserId').value;
-                 // Aquí iría la lógica fetch para enviar datos a /admin/update_user/<userId> (POST/PUT)
-                 // Similar a add/delete, usar FormData, manejar password opcional, manejar respuesta.
-                  showAlert('Funcionalidad Editar Pendiente', 'info');
-             });
-         }
-
-    </script>
-
+  // Submit (create/update)
+  crudForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(crudForm);
+    const obj = {};
+    formData.forEach((v,k) => obj[k] = v);
+    if (editingId) {
+      const res = await fetch(`/admin/update/${currentView}/${editingId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj)
+      });
+      const j = await res.json();
+      if (res.ok && j.success) {
+        crudModal.hide();
+        location.reload();
+      } else {
+        alert(j.message || 'Error al actualizar');
+      }
+    } else {
+      const res = await fetch(`/admin/add/${currentView}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj)
+      });
+      const j = await res.json();
+      if (res.ok && j.success) {
+        crudModal.hide();
+        location.reload();
+      } else {
+        alert(j.message || 'Error al crear');
+      }
+    }
+  });
+</script>
 </body>
 </html>

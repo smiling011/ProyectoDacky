@@ -49,34 +49,59 @@
         </nav>
 
 
-        <section class="page-section about-heading">
-            <div class="container">
-                <div class="about-heading-content">
-                    <div class="row">
-                        <div class="col-xl-9 col-lg-10 mx-auto">
-                            <div class="bg-faded rounded p-5">
-                                <div class="profile-container">
-                                    <div class="profile-image">
-                                        <img src="{{ url_for('static', filename='assets/img/perfil.png') }}" alt="Foto de perfil">
-                                    </div>
-                                    <div class="profile-details">
-                                        <h2>Bienvenido {{ user_profile.NomDueño | default('Usuario') }}</h2>
-        
-                                        <p><span class="profile-label">Nombre:</span> {{ user_profile.NomDueño | default('No disponible') }}</p>
-                                        <p><span class="profile-label">Apellido:</span> {{ user_profile.Apell | default('No disponible') }}</p>
-                                        <p><span class="profile-label">Correo:</span> {{ user_profile.Email | default('No disponible') }}</p>
-                                        <p><span class="profile-label">Celular:</span> {{ user_profile.NumCel | default('No disponible') }}</p>
-                                        <p><span class="profile-label">Teléfono:</span> {{ user_profile.NumTelf | default('No disponible') }}</p>
-                                        <p><span class="profile-label">Dirección:</span> {{ user_profile.Direccion | default('No disponible') }}</p>
-                                    </div>
-                                     <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">Cerrar Sesión</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Perfil -->
+<section class="page-section perfil-section">
+  <div class="container">
+    <div class="perfil-card shadow-lg rounded p-4">
+      <div class="row align-items-center">
+        <!-- Foto -->
+        <div class="col-md-4 text-center mb-3 mb-md-0">
+          <img src="{{ url_for('static', filename='assets/img/perfil_user.png') }}" 
+               alt="Foto de perfil" 
+               class="img-fluid rounded-circle shadow" 
+               style="max-width: 180px;">
+        </div>
+        <!-- Datos -->
+        <div class="col-md-8">
+          <h2 class="mb-4">Bienvenido, {{ user_profile.NomDueño | default('Usuario') }}</h2>
+          <ul class="list-unstyled">
+            <li><strong>Nombre:</strong> {{ user_profile.NomDueño | default('No disponible') }}</li>
+            <li><strong>Apellido:</strong> {{ user_profile.Apell | default('No disponible') }}</li>
+            <li><strong>Correo:</strong> {{ user_profile.Email | default('No disponible') }}</li>
+            <li><strong>Celular:</strong> {{ user_profile.NumCel | default('No disponible') }}</li>
+            <li><strong>Teléfono:</strong> {{ user_profile.NumTelf | default('No disponible') }}</li>
+            <li><strong>Dirección:</strong> {{ user_profile.Direccion | default('No disponible') }}</li>
+          </ul>
+          <a href="{{ url_for('logout') }}" class="btn btn-danger mt-3">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .perfil-section {
+    margin-top: 80px; /* separación del header */
+    margin-bottom: 60px;
+    font-family: 'Montserrat', sans-serif;
+
+  }
+  .perfil-card {
+    background: #fff;
+  }
+  .perfil-card h2 {
+    color: #11120D; /* Dacky-1 */
+    font-weight: 700;
+  }
+  .perfil-card ul li {
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #333;
+  }
+</style>
+
         
 
         <footer>
