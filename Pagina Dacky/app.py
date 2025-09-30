@@ -178,10 +178,83 @@ def login():
             db.close()
     return render_template('login.html')
 
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     # Mantén tu implementación actual o la que ya tenías.
+#     return render_template('login.html')
+
+
+# ==============================
+# 📌 Ruta de Registro
+# ==============================
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # Mantén tu implementación actual o la que ya tenías.
-    return render_template('login.html')
+    if request.method == 'POST':
+        Nom = request.form['userName']
+        Apell = request.form['userLastName']
+        Email = request.form['userEmail']
+        Contrasena = request.form['userPassword']   # <-- Contraseña en texto plano del form
+        NumTelf = request.form['userPhone']
+        Direccion = request.form['userAddress']
+
+        # --- GENERAR HASH DE LA CONTRASEÑA ---
+        hashed_password = generate_password_hash(
+            Contrasena,
+            method='pbkdf2:sha256'
+        )
+        # --------------------------------------
+
+        db = None
+        cursor = None
+        try:
+            db = conectar_db()
+            if db is None:
+                return jsonify({'message': 'Error interno del servidor (DB Connection)'}), 500
+
+            cursor = db.cursor()
+
+            # 1. Verificar si el usuario ya existe
+            cursor.execute("SELECT IdInicioSesion FROM iniciosesion WHERE Email = %s", (Email,))
+            if cursor.fetchone():
+                return jsonify({'message': 'El correo electrónico ya está registrado'}), 409
+
+            # 2. Insertar en perfildueño (si es necesario)
+            cursor.execute(
+                "INSERT INTO perfildueño (NomDueño, Apell, Email, NumTelf) VALUES (%s, %s, %s, %s)",
+                (Nom, Apell, Email, NumTelf)
+            )
+            perfil_dueno_id = cursor.lastrowid
+
+            # 3. Insertar en iniciosesion con contraseña hasheada
+            cursor.execute(
+                """
+                INSERT INTO iniciosesion 
+                (Nom, Apell, Email, Contrasena, NumTelf, Direccion, PerfilDueño_IdPerfilDueño, rol)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (Nom, Apell, Email, hashed_password, NumTelf, Direccion, perfil_dueno_id, 'usuario')
+            )
+
+            db.commit()
+            return jsonify({'message': 'Usuario registrado con éxito'}), 201
+
+        except mysql.connector.Error as err:
+            if db:
+                db.rollback()
+            print(f"Error en la base de datos durante el registro: {err}")
+            return jsonify({'message': f'Error al registrar el usuario: {err}'}), 500
+
+        finally:
+            if cursor:
+                cursor.close()
+            if db and db.is_connected():
+                db.close()
+
+    else:
+        # GET -> Renderiza el formulario
+        return render_template('login.html')
+
+
 
 # @app.route('/perfil')
 # def perfil():
