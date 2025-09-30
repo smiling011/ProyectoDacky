@@ -19,7 +19,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController contrasenaController = TextEditingController();
   final TextEditingController repetirController = TextEditingController();
 
-  //  Función de alerta personalizada
   // ✅ Función de alerta personalizada con color de fondo Dacky-3
   void _mostrarAlerta(String mensaje) {
     showDialog(
@@ -44,7 +43,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 16,
-                      // fontWeight: FontWeight.w600,
                       color: Color(0xFF11120D), // Texto oscuro Dacky-1
                       fontFamily: 'Montserrat',
                     ),
@@ -78,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return false;
     }
 
-    // Correo válido con regex
+    // Regex de correo
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     if (!emailRegex.hasMatch(correoController.text.trim())) {
       _mostrarAlerta("El correo no es válido");
@@ -103,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.1.112.18:5000/auth/registro'),
+        Uri.parse('http://192.168.0.17:5000/auth/registro'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "Nom": nombreController.text.trim(),
@@ -142,42 +140,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF11120D),
+      backgroundColor: const Color(0xFF11120D), // Dacky-1
       appBar: AppBar(
         backgroundColor: const Color(0xFF11120D),
         elevation: 0,
         leading: IconButton(
-          icon: Image.asset(
-            'assets/atras_blanco.png',
-            width: 24,
-            height: 24,
-          ),
+          icon: Image.asset('assets/atras_blanco.png', width: 24, height: 24),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned(
-              top: 120.0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
+        child: SingleChildScrollView( // ✅ scroll para evitar overflow con el teclado
+          child: Column(
+            children: [
+              // 🔹 Encabezado con logo y título
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.30,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'REGISTRO',
+                      style: TextStyle(
+                        color: Color(0xFFFFFBF4), // Dacky-4
+                        fontSize: 24,
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Image.asset(
+                      'assets/Minilogo dacky.png',
+                      width: 150,
+                      height: 150,
+                    ),
+                  ],
+                ),
+              ),
+
+              // 🔹 Caja del formulario
+              Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF565449),
+                  color: Color(0xFF565449), // Dacky-2
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 80),
                     _buildTextField('Correo', false, correoController),
                     const SizedBox(height: 15),
                     _buildTextField('Nombre', false, nombreController),
@@ -186,9 +199,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 15),
                     _buildTextField('Contraseña', true, contrasenaController),
                     const SizedBox(height: 15),
-                    _buildTextField(
-                        'Repita Contraseña', true, repetirController),
+                    _buildTextField('Repita Contraseña', true, repetirController),
                     const SizedBox(height: 20),
+
                     ElevatedButton(
                       onPressed: registrarUsuario,
                       style: ElevatedButton.styleFrom(
@@ -202,44 +215,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Center(
                         child: Text(
                           'Registrarse',
-                          style: TextStyle(fontSize: 16, fontFamily: 'Montserrat'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Montserrat',
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            Positioned(
-              top: 0.0,
-              left: 0,
-              right: 0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'REGISTRO',
-                    style: TextStyle(
-                      color: Color(0xFFFFFBF4),
-                      fontSize: 24,
-                      fontFamily: 'Montserrat'
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Image.asset(
-                    'assets/Minilogo dacky.png',
-                    width: 190,
-                    height: 190,
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // ✅ Método reutilizable para crear TextFields
   Widget _buildTextField(
       String hintText, bool isPassword, TextEditingController controller) {
     return TextField(
@@ -247,9 +240,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
+        hintStyle: const TextStyle(
+            color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
         filled: true,
-        fillColor: const Color(0xFFFFFBF4),
+        fillColor: const Color(0xFFFFFBF4), // Dacky-4
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide.none,
