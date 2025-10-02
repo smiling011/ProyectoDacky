@@ -36,7 +36,7 @@ class _PetScreen1State extends State<PetScreen1> {
       return;
     }
 
-    final url = Uri.parse("http://10.1.113.31:5000/pet/$idUsuario");
+    final url = Uri.parse("http://10.1.112.181:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
