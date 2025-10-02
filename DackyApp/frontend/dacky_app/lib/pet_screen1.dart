@@ -36,13 +36,13 @@ class _PetScreen1State extends State<PetScreen1> {
       return;
     }
 
-    final url = Uri.parse("http://10.1.112.181:5000/pet/$idUsuario");
+    final url = Uri.parse("http://10.1.116.139:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final List pets = json.decode(response.body);
       if (pets.isNotEmpty) {
-        // ✅ Si ya tiene mascotas, redirigimos a la lista
+        //  Si ya tiene mascotas se redirige a la lista
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,
@@ -70,7 +70,7 @@ class _PetScreen1State extends State<PetScreen1> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: SafeArea(   // ✅ Protegemos encabezado
+      body: SafeArea(  
         child: Column(
           children: [
             // Encabezado
@@ -129,7 +129,7 @@ class _PetScreen1State extends State<PetScreen1> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(   // ✅ Barra protegida
+      bottomNavigationBar: SafeArea(   
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildBottomNavBar(context),

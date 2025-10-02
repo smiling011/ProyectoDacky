@@ -25,7 +25,7 @@ class _PetScreen2State extends State<PetScreen2> {
   final TextEditingController pesoController = TextEditingController();
   final TextEditingController alturaController = TextEditingController();
   final TextEditingController edadController = TextEditingController();
-  final TextEditingController generoController = TextEditingController();
+  // final TextEditingController generoController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
   bool _loading = false;
@@ -39,13 +39,13 @@ class _PetScreen2State extends State<PetScreen2> {
       pesoController.text = (widget.mascota!['Peso'] ?? '').toString();
       alturaController.text = (widget.mascota!['Altura'] ?? '').toString();
       edadController.text = (widget.mascota!['Edad'] ?? '').toString();
-      generoController.text = widget.mascota!['Genero'] ?? '';
+      // generoController.text = widget.mascota!['Genero'] ?? '';
       descripcionController.text = widget.mascota!['Descripcion'] ?? '';
     }
   }
 
-  // ✅ Mostrar alerta personalizada
-  void _mostrarAlerta(String mensaje, {bool exito = false}) {
+  // apra Mostrar alerta 
+  void _mostrarAlerta(String mensaje, {bool exito = false}) { // validacion de si esta bien o mal
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -94,12 +94,11 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  // ✅ Validaciones
+  //  Validaciones en los campo de texto
   bool _validarCampos() {
     if (nombreController.text.trim().isEmpty ||
         razaController.text.trim().isEmpty ||
-        edadController.text.trim().isEmpty ||
-        generoController.text.trim().isEmpty) {
+        edadController.text.trim().isEmpty) {
       _mostrarAlerta("Todos los campos obligatorios deben llenarse.");
       return false;
     }
@@ -134,7 +133,7 @@ class _PetScreen2State extends State<PetScreen2> {
 
     if (widget.mascota == null) {
       // POST → Crear mascota
-      final url = Uri.parse("http://10.1.112.181:5000/pet/$idUsuario");
+      final url = Uri.parse("http://10.1.116.139:5000/pet/$idUsuario");
       response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -144,14 +143,14 @@ class _PetScreen2State extends State<PetScreen2> {
           "Peso": int.tryParse(pesoController.text) ?? 0,
           "Altura": int.tryParse(alturaController.text) ?? 0,
           "Edad": int.tryParse(edadController.text) ?? 0,
-          "Genero": generoController.text.trim(),
+          // "Genero": generoController.text.trim(),
           "Descripcion": descripcionController.text.trim(),
         }),
       );
     } else {
       // PUT → Editar mascota
       final idMascota = widget.mascota!['IdMascota'];
-      final url = Uri.parse("http://10.1.112.181:5000/pet/detalle/$idMascota");
+      final url = Uri.parse("http://10.1.116.139:5000/pet/detalle/$idMascota");
       response = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
@@ -161,7 +160,7 @@ class _PetScreen2State extends State<PetScreen2> {
           "Peso": int.tryParse(pesoController.text) ?? 0,
           "Altura": int.tryParse(alturaController.text) ?? 0,
           "Edad": int.tryParse(edadController.text) ?? 0,
-          "Genero": generoController.text.trim(),
+          // "Genero": generoController.text.trim(),
           "Descripcion": descripcionController.text.trim(),
         }),
       );
@@ -230,7 +229,7 @@ class _PetScreen2State extends State<PetScreen2> {
                               label: 'Edad (años) *',
                               controller: edadController,
                               keyboardType: TextInputType.number),
-                          _buildTextField(label: 'Género *', controller: generoController),
+                          // _buildTextField(label: 'Género *', controller: generoController),
                           _buildDescriptionField(label: 'Descripción', controller: descripcionController),
                           const SizedBox(height: 20),
                           ElevatedButton(

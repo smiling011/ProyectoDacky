@@ -34,7 +34,7 @@ class _PetScreen3State extends State<PetScreen3> {
 
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://10.1.112.181:5000/pet/$idUsuario");
+    final url = Uri.parse("http://10.1.116.139:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -53,7 +53,7 @@ class _PetScreen3State extends State<PetScreen3> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: SafeArea(   // ✅ Esto protege encabezado y barra inferior
+      body: SafeArea(   //  Esto protege encabezado y barra inferior
         child: Column(
           children: [
             // 🔹 Encabezado fijo
@@ -86,7 +86,7 @@ class _PetScreen3State extends State<PetScreen3> {
               ),
             ),
 
-            // 🔹 Contenido principal con scroll
+            // Contenido principalc
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -138,9 +138,9 @@ class _PetScreen3State extends State<PetScreen3> {
                     ),
             ),
 
-            // 🔹 Barra de navegación inferior
+            // Barra de navegación inferior
             Padding(
-              padding: const EdgeInsets.only(bottom: 12), // ✅ Igual que en UserScreen1
+              padding: const EdgeInsets.only(bottom: 12), //  Igual que en UserScreen1
               child: _buildBottomNavBar(context),
             ),
           ],
@@ -149,7 +149,7 @@ class _PetScreen3State extends State<PetScreen3> {
     );
   }
 
-  // 🔹 Tarjeta de mascota
+  // Tarjeta de mascota
   Widget _buildPetCard(BuildContext context,
       {required int idMascota,
       required String name,
@@ -159,7 +159,7 @@ class _PetScreen3State extends State<PetScreen3> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => PetScreen4(idMascota: idMascota)), // 🔑 Pasamos ID
+              builder: (_) => PetScreen4(idMascota: idMascota)), //  ID
         );
       },
       child: Container(
@@ -193,7 +193,7 @@ class _PetScreen3State extends State<PetScreen3> {
     );
   }
 
-  // 🔹 Barra de navegación inferior
+  // Barra de navegación inferior
   static Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

@@ -31,14 +31,14 @@ class _UserScreen2State extends State<UserScreen2> {
 
   Future<void> _cargarUsuario() async {
     final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getInt("id"); // 👈 se guardó en el login
+    final id = prefs.getInt("id"); //  se guarda id del login
     if (id == null) return;
 
     setState(() {
       idUsuario = id;
     });
 
-    final url = Uri.parse("http://192.168.0.17:5000/perfil/$id");
+    final url = Uri.parse("http://192.168.0.15:5000/perfil/$id");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -108,7 +108,7 @@ class _UserScreen2State extends State<UserScreen2> {
   Future<void> _guardarPerfil() async {
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://10.1.112.181:5000/perfil/$idUsuario");
+    final url = Uri.parse("http://10.1.116.139:5000/perfil/$idUsuario");
 
     final response = await http.put(
       url,
