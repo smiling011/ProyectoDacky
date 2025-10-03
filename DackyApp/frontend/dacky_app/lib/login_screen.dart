@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // validación de campos vacíos
     if (email.isEmpty || contrasena.isEmpty) {
-      _mostrarAlerta("Por favor, completa todos los campos"); // ✅ alerta personalizada
+      _mostrarAlerta("Por favor, completa todos los campos"); // alerta personalizada
       return;
     }
 

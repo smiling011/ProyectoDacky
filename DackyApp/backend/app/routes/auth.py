@@ -64,7 +64,7 @@ def login():
     if not user:
         return jsonify({'success': False, 'message': 'Correo no registrado'}), 401
 
-    if not check_password_hash(user.Contrasena, contrasena):  # 🔑 verificación segura
+    if not check_password_hash(user.Contrasena, contrasena):  # verificación segura
         return jsonify({'success': False, 'message': 'Contraseña incorrecta'}), 401
 
     perfil = user.perfil  # gracias a la relación en models.py

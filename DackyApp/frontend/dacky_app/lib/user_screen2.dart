@@ -38,7 +38,7 @@ class _UserScreen2State extends State<UserScreen2> {
       idUsuario = id;
     });
 
-    final url = Uri.parse("http://192.168.0.15:5000/perfil/$id");
+    final url = Uri.parse("http://10.1.116.139:5000/perfil/$id");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

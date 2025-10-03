@@ -4,7 +4,7 @@ from app.utils.models import PerfilDueño, PerfilMascota, Mascota, Raza, RazaMas
 
 pet_bp = Blueprint("pet", __name__)
 
-# ✅ Obtener todas las mascotas de un dueño
+#  Obtener todas las mascotas de un dueño
 @pet_bp.route('/<int:id_perfil>', methods=['GET'])
 def obtener_mascotas(id_perfil):
     mascotas = Mascota.query.filter_by(PerfilDueño_IdPerfilDueño=id_perfil).all()
@@ -28,7 +28,7 @@ def obtener_mascotas(id_perfil):
     return jsonify(resultado), 200
 
 
-# ✅ Crear una nueva mascota
+# Crear una nueva mascota
 @pet_bp.route('/<int:id_perfil>', methods=['POST'])
 def crear_mascota(id_perfil):
     data = request.get_json()
@@ -64,7 +64,7 @@ def crear_mascota(id_perfil):
     return jsonify({'mensaje': 'Mascota registrada correctamente'}), 201
 
 
-# ✅ Obtener detalles de una mascota
+#  Obtener detalles de una mascota
 @pet_bp.route('/detalle/<int:id_mascota>', methods=['GET'])
 def obtener_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
