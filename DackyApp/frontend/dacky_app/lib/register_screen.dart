@@ -19,7 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController contrasenaController = TextEditingController();
   final TextEditingController repetirController = TextEditingController();
 
-  // ✅ Función de alerta personalizada con color de fondo Dacky-3
+  //  Función de alerta personalizada con color de fondo Dacky-3
   void _mostrarAlerta(String mensaje) {
     showDialog(
       context: context,
@@ -65,7 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ✅ Validaciones antes de enviar al backend
+  //  Validaciones antes de enviar al backend
   bool _validarCampos() {
     if (correoController.text.trim().isEmpty ||
         nombreController.text.trim().isEmpty ||
@@ -101,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.1.118.248:5000/auth/registro'),
+        Uri.parse('http://10.1.118.93:5000/auth/registro'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "Nom": nombreController.text.trim(),
@@ -123,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await prefs.setString('email', data['email']);
         await prefs.setInt('id', data['id']);
 
-        _mostrarAlerta("✅ ${data['message'] ?? 'Registro exitoso'}");
+        _mostrarAlerta(" ${data['message'] ?? 'Registro exitoso'}");
 
         Navigator.pushReplacement(
           context,
@@ -152,7 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView( // ✅ scroll para evitar overflow con el teclado
+        child: SingleChildScrollView( //  scroll para evitar overflow con el teclado
           child: Column(
             children: [
               // 🔹 Encabezado con logo y título

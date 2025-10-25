@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // petición POST al servidor
       final response = await http.post(
-        Uri.parse('http://10.1.118.248:5000/auth/login'), // la url del backend
+        Uri.parse('http://10.1.118.93:5000/auth/login'), // la url del backend
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'contrasena': contrasena}),
       );
@@ -105,11 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';
-        _mostrarAlerta(mensaje); // ✅ alerta personalizada
+        _mostrarAlerta(mensaje); //  alerta personalizada
       }
     } catch (e) {
       print('Error al iniciar sesión: $e');
-      _mostrarAlerta("Error al iniciar sesión"); // ✅ alerta personalizada
+      _mostrarAlerta("Error al iniciar sesión"); //  alerta personalizada
     }
   }
 

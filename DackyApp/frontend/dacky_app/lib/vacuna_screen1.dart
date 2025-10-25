@@ -36,14 +36,14 @@ class _VacunaScreen1State extends State<VacunaScreen1> {
       return;
     }
 
-    final url = Uri.parse("http://10.1.118.248:5000/pet/$idUsuario");
+    final url = Uri.parse("http://10.1.118.93:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       final List mascotas = json.decode(response.body);
 
       if (mascotas.isNotEmpty) {
-        // ✅ Si ya tiene mascotas → ir directo a VacunaScreen2
+        //  Si ya tiene mascotas → ir directo a VacunaScreen2
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,

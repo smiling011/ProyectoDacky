@@ -105,7 +105,7 @@ def obtener_vacuna_detalle(id_vacuna_mascota):
     }), 200
 
 
-# 🔹 Editar vacuna aplicada
+#  Editar vacuna aplicada
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["PUT"])
 def editar_vacuna(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)
@@ -148,7 +148,7 @@ def editar_vacuna(id_vacuna_mascota):
     }), 200
 
 
-# 🔹 Eliminar vacuna aplicada
+#  Eliminar vacuna aplicada
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["DELETE"])
 def eliminar_vacuna(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)

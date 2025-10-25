@@ -84,7 +84,7 @@ def obtener_mascota(id_mascota):
     }), 200
 
 
-# ✅ Editar mascota
+#  Editar mascota
 @pet_bp.route('/detalle/<int:id_mascota>', methods=['PUT'])
 def editar_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
@@ -106,7 +106,7 @@ def editar_mascota(id_mascota):
     return jsonify({'mensaje': 'Mascota actualizada correctamente'}), 200
 
 
-# ✅ Eliminar mascota
+#  Eliminar mascota
 @pet_bp.route('/detalle/<int:id_mascota>', methods=['DELETE'])
 def eliminar_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
