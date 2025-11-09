@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // petición POST al servidor
       final response = await http.post(
-        Uri.parse('http://10.1.118.93:5000/auth/login'), // la url del backend
+        Uri.parse('http://10.1.118.184:5000/auth/login'), // la url del backend
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'contrasena': contrasena}),
       );
