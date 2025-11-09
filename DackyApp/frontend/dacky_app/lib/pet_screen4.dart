@@ -30,7 +30,7 @@ class _PetScreen4State extends State<PetScreen4> {
 
   Future<void> _cargarMascota() async {
     final url =
-        Uri.parse("http://172.30.128.1:5000/pet/detalle/${widget.idMascota}");
+        Uri.parse("http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -47,7 +47,7 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 
   Future<void> _eliminarMascota() async {
-    final url = Uri.parse("http://172.30.128.1:5000/pet/${widget.idMascota}");
+    final url = Uri.parse("http://192.168.0.15:5000/pet/${widget.idMascota}");
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
@@ -62,10 +62,10 @@ class _PetScreen4State extends State<PetScreen4> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
       body: SafeArea(
-        // ✅ Protegemos encabezado
+        //  Protegemos encabezado
         child: Column(
           children: [
-            // 🔹 Encabezado
+            //  Encabezado
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -96,7 +96,7 @@ class _PetScreen4State extends State<PetScreen4> {
               ),
             ),
 
-            // 🔹 Contenido
+            //  Contenido
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
