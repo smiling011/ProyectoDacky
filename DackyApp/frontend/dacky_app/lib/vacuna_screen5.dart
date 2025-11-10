@@ -2,6 +2,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 import 'vacuna_screen1.dart';
 import 'gps_screen.dart';
@@ -28,6 +30,9 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   final TextEditingController edadController = TextEditingController();
   final TextEditingController fechaVencimientoController = TextEditingController();
   final TextEditingController notaController = TextEditingController();
+
+  File? archivoSeleccionado;
+  String? nombreArchivo;
 
   List<bool> dosisSeleccionadas = List.generate(5, (_) => false);
 
@@ -123,38 +128,51 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     return true;
   }
 
+  // ✅ Seleccionar archivo (imagen o documento)
+  Future<void> _seleccionarArchivo() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        archivoSeleccionado = File(result.files.single.path!);
+        nombreArchivo = result.files.single.name;
+      });
+    }
+  }
+
+  // ✅ Guardar vacuna con posible archivo adjunto
   Future<void> _guardarVacuna() async {
     if (!_validarCampos()) return;
 
     final int numDosis = dosisSeleccionadas.lastIndexWhere((e) => e) + 1;
 
-    final vacunaData = {
-      "NomVacuna": nombreController.text.trim(),
-      "FechaVac": fechaAplicacionController.text.trim(),
-      "Edad": int.tryParse(edadController.text) ?? 0,
-      "FechaVenVac": fechaVencimientoController.text.trim(),
-      "NumDosis": numDosis,
-      "Nota": notaController.text.trim(),
-    };
+    var uri = widget.vacuna == null
+        ? Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}")
+        : Uri.parse("http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}");
 
-    http.Response response;
+    var request = http.MultipartRequest(
+      widget.vacuna == null ? 'POST' : 'PUT',
+      uri,
+    );
 
-    if (widget.vacuna == null) {
-      final String url = "http://192.168.0.15:5000/vacunas/${widget.idMascota}";
-      response = await http.post(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(vacunaData),
-      );
-    } else {
-      final int idVacunaMascota = widget.vacuna!['IdVacunasMascota'];
-      final String url = "http://192.168.0.15:5000/vacunas/detalle/$idVacunaMascota";
-      response = await http.put(
-        Uri.parse(url),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(vacunaData),
-      );
+    request.fields['NomVacuna'] = nombreController.text.trim();
+    request.fields['FechaVac'] = fechaAplicacionController.text.trim();
+    request.fields['Edad'] = (int.tryParse(edadController.text) ?? 0).toString();
+    request.fields['FechaVenVac'] = fechaVencimientoController.text.trim();
+    request.fields['NumDosis'] = numDosis.toString();
+    request.fields['Nota'] = notaController.text.trim();
+
+    if (archivoSeleccionado != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        archivoSeleccionado!.path,
+      ));
     }
+
+    var response = await request.send();
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       _mostrarAlerta(
@@ -167,8 +185,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
         Navigator.pop(context, true);
       });
     } else {
-      final data = json.decode(response.body);
-      _mostrarAlerta("Error: ${data['mensaje'] ?? 'No se pudo guardar la vacuna'}");
+      _mostrarAlerta("Error al guardar la vacuna.");
     }
   }
 
@@ -243,6 +260,31 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                       ),
 
                       const SizedBox(height: 16),
+
+                      // 🔹 Nuevo campo: importar archivo
+                      const Text('Archivo adjunto (opcional)', style: TextStyle(fontFamily: 'Montserrat')),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: _seleccionarArchivo,
+                            child: Image.asset(
+                              'assets/importar.png',
+                              width: 40,
+                              height: 40,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              nombreArchivo ?? 'Ningún archivo seleccionado',
+                              style: const TextStyle(fontFamily: 'Montserrat'),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
                       const Text('Nota', style: TextStyle(fontFamily: 'Montserrat')),
                       const SizedBox(height: 8),
                       TextField(
@@ -309,56 +351,55 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   }
 
   Widget _buildDateField(String label, TextEditingController controller) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
-      const SizedBox(height: 8),
-      TextField(
-        controller: controller,
-        readOnly: true,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xFFFEF9F2),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Image.asset('assets/calendario.png', width: 20, height: 20),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFFEF9F2),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Image.asset('assets/calendario.png', width: 20, height: 20),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(30),
+            ),
           ),
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        onTap: () async {
-          final DateTime? pickedDate = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2000),
-            lastDate: DateTime(2100),
-            locale: const Locale("es", "ES"), // ✅ Forzar español
-            builder: (context, child) {
-              return Theme(
-                data: Theme.of(context).copyWith(
-                  textTheme: const TextTheme(
-                    bodyMedium: TextStyle(fontFamily: "Montserrat"),
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+              locale: const Locale("es", "ES"),
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    textTheme: const TextTheme(
+                      bodyMedium: TextStyle(fontFamily: "Montserrat"),
+                    ),
                   ),
-                ),
-                child: child!,
-              );
-            },
-          );
-          if (pickedDate != null) {
-            setState(() {
-              controller.text = "${pickedDate.toLocal()}".split(' ')[0];
-            });
-          }
-        },
-      ),
-      const SizedBox(height: 16),
-    ],
-  );
-}
-
+                  child: child!,
+                );
+              },
+            );
+            if (pickedDate != null) {
+              setState(() {
+                controller.text = "${pickedDate.toLocal()}".split(' ')[0];
+              });
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
 
   // 🔹 Barra de navegación inferior
   Widget _buildBottomNavBar(BuildContext context) {

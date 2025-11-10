@@ -103,7 +103,7 @@ class VacunasMascota(db.Model):
     FechaVenVac = db.Column(db.Date)
     NumDosis = db.Column(db.Integer, nullable=False)
     Nota = db.Column(db.Text)
-    Img = db.Column(db.LargeBinary)
+    archivo = db.Column(db.String(255), nullable=True)
 
     vacuna = db.relationship('Vacunas', backref='vacunas_mascota', lazy=True)
     mascota = db.relationship('Mascota', backref='vacunas_mascota', lazy=True)

@@ -2,11 +2,24 @@ from flask import Blueprint, request, jsonify
 from app import db
 from app.utils.models import Mascota, Vacunas, VacunasMascota
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
 
 vacunas_bp = Blueprint("vacunas", __name__)
 
+# Carpeta donde se guardarán los archivos subidos
+UPLOAD_FOLDER = "uploads/vacunas"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "pdf"}
 
-#  Obtener todas las vacunas de una mascota
+# Aseguramos que la carpeta exista
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# 🟢 Obtener todas las vacunas de una mascota
 @vacunas_bp.route("/<int:id_mascota>", methods=["GET"])
 def obtener_vacunas_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
@@ -31,14 +44,18 @@ def obtener_vacunas_mascota(id_mascota):
     return jsonify(resultado), 200
 
 
-#  Registrar vacuna a una mascota
+# 🟢 Registrar vacuna a una mascota
 @vacunas_bp.route("/<int:id_mascota>", methods=["POST"])
 def agregar_vacuna_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
     if not mascota:
         return jsonify({"mensaje": "Mascota no encontrada"}), 404
 
-    data = request.get_json()
+    # 🔹 Aceptar JSON o multipart
+    if request.content_type and request.content_type.startswith("multipart/form-data"):
+        data = request.form
+    else:
+        data = request.get_json() or {}
 
     if not all(k in data for k in ("NomVacuna", "Edad", "NumDosis")):
         return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
@@ -64,11 +81,20 @@ def agregar_vacuna_mascota(id_mascota):
         Mascota_IdMascota=id_mascota,
         Vacunas_IdVacunas=vacuna.IdVacunas,
         FechaVac=fecha_vac,
-        Edad=data["Edad"],
+        Edad=int(data["Edad"]),
         FechaVenVac=fecha_ven,
-        NumDosis=data["NumDosis"],
+        NumDosis=int(data["NumDosis"]),
         Nota=data.get("Nota")
     )
+
+    # Si hay archivo adjunto
+    if "file" in request.files:
+        file = request.files["file"]
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(path)
+            vacuna_mascota.archivo = path
 
     db.session.add(vacuna_mascota)
     db.session.commit()
@@ -87,7 +113,7 @@ def agregar_vacuna_mascota(id_mascota):
     }), 201
 
 
-#  Obtener detalle de una vacuna aplicada
+# 🟢 Obtener detalle de una vacuna aplicada
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["GET"])
 def obtener_vacuna_detalle(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)
@@ -105,16 +131,20 @@ def obtener_vacuna_detalle(id_vacuna_mascota):
     }), 200
 
 
-#  Editar vacuna aplicada
+# 🟢 Editar vacuna aplicada (aquí está la mejora)
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["PUT"])
 def editar_vacuna(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)
     if not vacuna:
         return jsonify({"mensaje": "Vacuna no encontrada"}), 404
 
-    data = request.get_json()
+    # 🔹 Aceptar JSON o multipart
+    if request.content_type and request.content_type.startswith("multipart/form-data"):
+        data = request.form
+    else:
+        data = request.get_json() or {}
 
-    # Si envían un nombre de vacuna diferente, la buscamos o la creamos
+    # Si envían un nombre de vacuna diferente
     if "NomVacuna" in data:
         vacuna_catalogo = Vacunas.query.filter_by(NomVacuna=data["NomVacuna"]).first()
         if not vacuna_catalogo:
@@ -129,9 +159,18 @@ def editar_vacuna(id_vacuna_mascota):
     if data.get("FechaVenVac"):
         vacuna.FechaVenVac = datetime.strptime(data["FechaVenVac"], "%Y-%m-%d").date()
 
-    vacuna.Edad = data.get("Edad", vacuna.Edad)
-    vacuna.NumDosis = data.get("NumDosis", vacuna.NumDosis)
+    vacuna.Edad = int(data.get("Edad", vacuna.Edad))
+    vacuna.NumDosis = int(data.get("NumDosis", vacuna.NumDosis))
     vacuna.Nota = data.get("Nota", vacuna.Nota)
+
+    # Si hay archivo adjunto (solo si se envía multipart)
+    if "file" in request.files:
+        file = request.files["file"]
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(path)
+            vacuna.archivo = path
 
     db.session.commit()
     return jsonify({
@@ -148,7 +187,7 @@ def editar_vacuna(id_vacuna_mascota):
     }), 200
 
 
-#  Eliminar vacuna aplicada
+# 🟢 Eliminar vacuna aplicada
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["DELETE"])
 def eliminar_vacuna(id_vacuna_mascota):
     vacuna = VacunasMascota.query.get(id_vacuna_mascota)
@@ -159,3 +198,35 @@ def eliminar_vacuna(id_vacuna_mascota):
     db.session.commit()
 
     return jsonify({"mensaje": "Vacuna eliminada correctamente"}), 200
+
+
+# 🟢 Subir imagen o documento a una vacuna específica
+@vacunas_bp.route("/detalle/<int:id_vacuna_mascota>/upload", methods=["POST"])
+def subir_archivo_vacuna(id_vacuna_mascota):
+    vacuna = VacunasMascota.query.get(id_vacuna_mascota)
+    if not vacuna:
+        return jsonify({"mensaje": "Vacuna no encontrada"}), 404
+
+    if "file" not in request.files:
+        return jsonify({"mensaje": "No se encontró archivo"}), 400
+
+    file = request.files["file"]
+
+    if file.filename == "":
+        return jsonify({"mensaje": "No se seleccionó ningún archivo"}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({"mensaje": "Formato de archivo no permitido (solo jpg, png, pdf)"}), 400
+
+    filename = secure_filename(file.filename)
+    path = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(path)
+
+    # Guardamos la ruta en la base de datos
+    vacuna.archivo = path
+    db.session.commit()
+
+    return jsonify({
+        "mensaje": "Archivo subido correctamente",
+        "archivo": path
+    }), 200

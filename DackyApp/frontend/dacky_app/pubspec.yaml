@@ -18,6 +18,8 @@ dependencies:
   string_scanner: ^1.3.0
   font_awesome_flutter: ^10.1.0
   shared_preferences: ^2.2.0  # o la última versión estable
+  file_picker: ^10.3.3
+  open_file: ^3.3.2
 
 dev_dependencies:
   flutter_native_splash: ^2.3.6
@@ -61,6 +63,7 @@ flutter:
     - assets/perfil_user.png
     - assets/advertencia.png
     - assets/cruz.png
+    - assets/importar.png
 
 
 # description: "A new Flutter project."

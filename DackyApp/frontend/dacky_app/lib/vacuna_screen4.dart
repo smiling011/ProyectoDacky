@@ -28,7 +28,8 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
   }
 
   Future<void> _cargarVacunas() async {
-    final url = Uri.parse("http://1192.168.0.15:5000/vacunas/${widget.idMascota}");
+    final url =
+        Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -38,7 +39,8 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => VacunaScreen3(idMascota: widget.idMascota)),
+            MaterialPageRoute(
+                builder: (_) => VacunaScreen3(idMascota: widget.idMascota)),
           );
         });
       } else {
@@ -85,9 +87,10 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Vacuna: ${vacuna['NomVacuna'] ?? 'Sin nombre'}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
                 const SizedBox(height: 4),
-                Text("Fecha: ${vacuna['FechaVac'] ?? 'Sin fecha'}", 
+                Text("Fecha: ${vacuna['FechaVac'] ?? 'Sin fecha'}",
                     style: const TextStyle(fontFamily: 'Montserrat')),
               ],
             ),
@@ -110,12 +113,18 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(onTap: () => Navigator.pop(context),
-                    child: Image.asset('assets/atras.png', width: 28, height: 28),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child:
+                        Image.asset('assets/atras.png', width: 28, height: 28),
                   ),
                   const Text('Tarjeta de Vacunas',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
-                  Image.asset('assets/Minilogo dacky.png', width: 50, height: 50),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Montserrat')),
+                  Image.asset('assets/Minilogo dacky.png',
+                      width: 50, height: 50),
                 ],
               ),
             ),
@@ -135,7 +144,8 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => VacunaScreen5(idMascota: widget.idMascota),
+                                    builder: (_) => VacunaScreen5(
+                                        idMascota: widget.idMascota),
                                   ),
                                 );
                                 if (result == true) {
@@ -143,7 +153,8 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
                                 }
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 child: Image.asset(
                                   'assets/agregar.png',
                                   width: 45,
@@ -177,16 +188,28 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          InkWell(onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const GpsScreen()));
-          }, child: Image.asset('assets/gps_icon.png', width: 30, height: 30)),
-          Image.asset('assets/vacuna_icon.png', width: 30, height: 30), // ya estamos en vacunas
-          InkWell(onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PetScreen1()));
-          }, child: Image.asset('assets/huella_icon.png', width: 30, height: 30)),
-          InkWell(onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => UserScreen1()));
-          }, child: Image.asset('assets/user_icon.png', width: 30, height: 30)),
+          InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const GpsScreen()));
+              },
+              child: Image.asset('assets/gps_icon.png', width: 30, height: 30)),
+          Image.asset('assets/vacuna_icon.png',
+              width: 30, height: 30), // ya estamos en vacunas
+          InkWell(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const PetScreen1()));
+              },
+              child:
+                  Image.asset('assets/huella_icon.png', width: 30, height: 30)),
+          InkWell(
+              onTap: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => UserScreen1()));
+              },
+              child:
+                  Image.asset('assets/user_icon.png', width: 30, height: 30)),
         ],
       ),
     );
