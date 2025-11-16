@@ -150,8 +150,8 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     final int numDosis = dosisSeleccionadas.lastIndexWhere((e) => e) + 1;
 
     var uri = widget.vacuna == null
-        ? Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}")
-        : Uri.parse("http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}");
+        ? Uri.parse("http://10.1.116.239:5000/vacunas/${widget.idMascota}")
+        : Uri.parse("http://10.1.116.239:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}");
 
     var request = http.MultipartRequest(
       widget.vacuna == null ? 'POST' : 'PUT',

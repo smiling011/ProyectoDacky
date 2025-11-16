@@ -37,7 +37,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
       return;
     }
 
-    final url = Uri.parse("http://192.168.0.15:5000/pet/$idUsuario");
+    final url = Uri.parse("http://10.1.116.239:5000/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
