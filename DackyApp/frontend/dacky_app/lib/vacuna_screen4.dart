@@ -29,7 +29,7 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
 
   Future<void> _cargarVacunas() async {
     final url =
-        Uri.parse("http://10.1.116.239:5000/vacunas/${widget.idMascota}");
+        Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
