@@ -1,9 +1,11 @@
-// Pantalla para crear o editar una vacuna
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'vacuna_screen1.dart';
 import 'gps_screen.dart';
@@ -33,6 +35,12 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
 
   File? archivoSeleccionado;
   String? nombreArchivo;
+  
+  // Variables para archivo existente
+  bool tieneArchivoExistente = false;
+  String? nombreArchivoExistente;
+  String? tipoArchivoExistente;
+  bool archivoEliminado = false;
 
   List<bool> dosisSeleccionadas = List.generate(5, (_) => false);
 
@@ -46,6 +54,12 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       edadController.text = vacuna['Edad']?.toString() ?? '';
       fechaVencimientoController.text = vacuna['FechaVenVac'] ?? '';
       notaController.text = vacuna['Nota'] ?? '';
+      
+      // Cargar información del archivo existente
+      tieneArchivoExistente = vacuna['tieneArchivo'] == true;
+      nombreArchivoExistente = vacuna['nombreArchivo'];
+      tipoArchivoExistente = vacuna['tipoArchivo'];
+      
       if (vacuna['NumDosis'] != null && vacuna['NumDosis'] > 0) {
         for (int i = 0; i < vacuna['NumDosis']; i++) {
           dosisSeleccionadas[i] = true;
@@ -54,7 +68,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     }
   }
 
-  // ✅ Mostrar alerta personalizada
   void _mostrarAlerta(String mensaje, {bool exito = false}) {
     showDialog(
       context: context,
@@ -104,7 +117,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     );
   }
 
-  // ✅ Validaciones
   bool _validarCampos() {
     if (nombreController.text.trim().isEmpty ||
         fechaAplicacionController.text.trim().isEmpty ||
@@ -128,7 +140,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     return true;
   }
 
-  // ✅ Seleccionar archivo (imagen o documento)
   Future<void> _seleccionarArchivo() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -139,11 +150,100 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       setState(() {
         archivoSeleccionado = File(result.files.single.path!);
         nombreArchivo = result.files.single.name;
+        archivoEliminado = false;
       });
     }
   }
 
-  // ✅ Guardar vacuna con posible archivo adjunto
+  // Descargar y abrir archivo existente
+  Future<void> _descargarYAbrirArchivo() async {
+    if (widget.vacuna == null) return;
+
+    try {
+      _mostrarAlerta("Descargando archivo...", exito: true);
+
+      final url = Uri.parse(
+        "http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
+      );
+      
+      final response = await http.get(url);
+      
+      if (response.statusCode == 200) {
+        // Guardar en directorio de descargas
+        final dir = await getApplicationDocumentsDirectory();
+        final filePath = '${dir.path}/$nombreArchivoExistente';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        Navigator.pop(context); // Cerrar diálogo de descarga
+
+        // Abrir con aplicación externa
+        final result = await OpenFile.open(filePath);
+        
+        if (result.type != ResultType.done) {
+          _mostrarAlerta("No se pudo abrir el archivo. Guardado en: $filePath");
+        }
+      } else {
+        Navigator.pop(context);
+        _mostrarAlerta("Error al descargar el archivo.");
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      _mostrarAlerta("Error: $e");
+    }
+  }
+
+  // Eliminar archivo existente
+  Future<void> _eliminarArchivoExistente() async {
+    if (widget.vacuna == null) return;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: const Color(0xFFD8CFBC),
+        title: const Text('Confirmar', style: TextStyle(fontFamily: 'Montserrat')),
+        content: const Text(
+          '¿Deseas eliminar este archivo?',
+          style: TextStyle(fontFamily: 'Montserrat'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', style: TextStyle(fontFamily: 'Montserrat', color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      final url = Uri.parse(
+        "http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
+      );
+      
+      final response = await http.delete(url);
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          tieneArchivoExistente = false;
+          nombreArchivoExistente = null;
+          archivoEliminado = true;
+        });
+        _mostrarAlerta("Archivo eliminado correctamente.", exito: true);
+      } else {
+        _mostrarAlerta("Error al eliminar el archivo.");
+      }
+    } catch (e) {
+      _mostrarAlerta("Error: $e");
+    }
+  }
+
   Future<void> _guardarVacuna() async {
     if (!_validarCampos()) return;
 
@@ -196,7 +296,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Encabezado
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -261,28 +360,121 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
 
                       const SizedBox(height: 16),
 
-                      // 🔹 Nuevo campo: importar archivo
-                      const Text('Archivo adjunto (opcional)', style: TextStyle(fontFamily: 'Montserrat')),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: _seleccionarArchivo,
-                            child: Image.asset(
-                              'assets/importar.png',
-                              width: 40,
-                              height: 40,
+                      // SECCIÓN DE ARCHIVOS SIMPLIFICADA
+                      const Text('Archivo adjunto (opcional)', style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 12),
+
+                      // Mostrar archivo existente
+                      if (widget.vacuna != null && tieneArchivoExistente && !archivoEliminado) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF9F2),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade400),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    tipoArchivoExistente == 'pdf' ? Icons.picture_as_pdf : Icons.image,
+                                    color: const Color(0xFF11120D),
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      nombreArchivoExistente ?? 'Archivo adjunto',
+                                      style: const TextStyle(fontFamily: 'Montserrat', fontSize: 14),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildFileActionButton(
+                                    icon: Icons.download,
+                                    label: 'Descargar',
+                                    onTap: _descargarYAbrirArchivo,
+                                  ),
+                                  _buildFileActionButton(
+                                    icon: Icons.edit,
+                                    label: 'Reemplazar',
+                                    onTap: _seleccionarArchivo,
+                                  ),
+                                  _buildFileActionButton(
+                                    icon: Icons.delete,
+                                    label: 'Eliminar',
+                                    onTap: _eliminarArchivoExistente,
+                                    color: Colors.red,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+
+                      // Mostrar nuevo archivo seleccionado
+                      if (archivoSeleccionado != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.green.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.attach_file, color: Colors.green, size: 24),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  nombreArchivo ?? 'Archivo seleccionado',
+                                  style: const TextStyle(fontFamily: 'Montserrat', fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.red),
+                                onPressed: () => setState(() {
+                                  archivoSeleccionado = null;
+                                  nombreArchivo = null;
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (!tieneArchivoExistente || archivoEliminado) ...[
+                        GestureDetector(
+                          onTap: _seleccionarArchivo,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF9F2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.grey.shade400, style: BorderStyle.solid),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset('assets/importar.png', width: 30, height: 30),
+                                const SizedBox(width: 10),
+                                const Text(
+                                  'Seleccionar archivo',
+                                  style: TextStyle(fontFamily: 'Montserrat', fontSize: 14),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              nombreArchivo ?? 'Ningún archivo seleccionado',
-                              style: const TextStyle(fontFamily: 'Montserrat'),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
 
                       const SizedBox(height: 16),
                       const Text('Nota', style: TextStyle(fontFamily: 'Montserrat')),
@@ -323,6 +515,31 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
             _buildBottomNavBar(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFileActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, color: color ?? const Color(0xFF11120D), size: 28),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 12,
+              color: color ?? const Color(0xFF11120D),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -401,7 +618,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     );
   }
 
-  // 🔹 Barra de navegación inferior
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
