@@ -342,54 +342,86 @@ def subir_archivo_vacuna(id_vacuna_mascota):
         "archivo": path
     }), 200
     
-    # 🆕 NUEVO: Exportar tarjeta de vacunas a PDF
+  # 🆕 NUEVO: Exportar tarjeta de vacunas a PDF
 @vacunas_bp.route("/<int:id_mascota>/exportar-pdf", methods=["GET"])
 def exportar_pdf_vacunas(id_mascota):
-    from app.utils.pdf_generator import generar_pdf_vacunas
-    from app.utils.models import PerfilMascota
-    
-    mascota = Mascota.query.get(id_mascota)
-    if not mascota:
-        return jsonify({"mensaje": "Mascota no encontrada"}), 404
-    
-    # Obtener perfil de la mascota
-    perfil = PerfilMascota.query.get(mascota.PerfilMascota_IdPerfilMascota)
-    
-    # Obtener vacunas
-    vacunas = VacunasMascota.query.filter_by(Mascota_IdMascota=id_mascota).all()
-    
-    # Preparar datos
-    datos_mascota = {
-        'NomMascota': perfil.NomMascota if perfil else 'N/A',
-        'Raza': perfil.Raza if perfil else 'N/A',
-        'Edad': perfil.Edad if perfil else 'N/A',
-        'Peso': perfil.Peso if perfil else 'N/A',
-        'Altura': perfil.Altura if perfil else 'N/A',
-    }
-    
-    lista_vacunas = []
-    for v in vacunas:
-        lista_vacunas.append({
-            'NomVacuna': v.vacuna.NomVacuna if v.vacuna else 'Desconocida',
-            'FechaVac': v.FechaVac.strftime('%d/%m/%Y') if v.FechaVac else 'N/A',
-            'Edad': v.Edad,
-            'NumDosis': v.NumDosis,
-            'FechaVenVac': v.FechaVenVac.strftime('%d/%m/%Y') if v.FechaVenVac else None,
-            'Nota': v.Nota
-        })
-    
-    # Generar PDF
-    pdf_folder = "uploads/pdfs"
-    if not os.path.exists(pdf_folder):
-        os.makedirs(pdf_folder)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nombre_mascota = datos_mascota['NomMascota'].replace(' ', '_')
-    pdf_filename = f"vacunas_{nombre_mascota}_{timestamp}.pdf"
-    pdf_path = os.path.join(pdf_folder, pdf_filename)
-    
     try:
+        from app.utils.pdf_generator import generar_pdf_vacunas
+        from app.utils.models import PerfilMascota
+        
+        print(f"Buscando mascota con ID: {id_mascota}")
+        mascota = Mascota.query.get(id_mascota)
+        if not mascota:
+            print("Mascota no encontrada")
+            return jsonify({"mensaje": "Mascota no encontrada"}), 404
+        
+        print(f"Mascota encontrada: {mascota.IdMascota}")
+        
+        # Obtener perfil de la mascota
+        perfil = PerfilMascota.query.get(mascota.PerfilMascota_IdPerfilMascota)
+        print(f"Perfil encontrado: {perfil.NomMascota if perfil else 'No hay perfil'}")
+        
+        # Obtener vacunas
+        vacunas = VacunasMascota.query.filter_by(Mascota_IdMascota=id_mascota).all()
+        print(f"Vacunas encontradas: {len(vacunas)}")
+        
+        # Preparar datos
+        datos_mascota = {
+            'NomMascota': perfil.NomMascota if perfil else 'Mascota sin nombre',
+            'Raza': perfil.Raza if perfil else 'N/A',
+            'Edad': perfil.Edad if perfil else 0,
+            'Peso': float(perfil.Peso) if perfil and perfil.Peso else 0,
+            'Altura': float(perfil.Altura) if perfil and perfil.Altura else 0,
+        }
+        
+        print(f"Datos mascota: {datos_mascota}")
+        
+        lista_vacunas = []
+        for v in vacunas:
+            vacuna_data = {
+                'NomVacuna': v.vacuna.NomVacuna if v.vacuna else 'Desconocida',
+                'FechaVac': v.FechaVac.strftime('%d/%m/%Y') if v.FechaVac else 'N/A',
+                'Edad': v.Edad,
+                'NumDosis': v.NumDosis,
+                'FechaVenVac': v.FechaVenVac.strftime('%d/%m/%Y') if v.FechaVenVac else 'N/A',
+                'Nota': v.Nota if v.Nota else ''
+            }
+            lista_vacunas.append(vacuna_data)
+            print(f"Vacuna agregada: {vacuna_data['NomVacuna']}")
+        
+        # 🔹 CORRECCIÓN: Generar PDF con ruta absoluta
+        pdf_folder = os.path.join(os.getcwd(), "uploads", "pdfs")
+        if not os.path.exists(pdf_folder):
+            os.makedirs(pdf_folder)
+            print(f"Carpeta creada: {pdf_folder}")
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        nombre_mascota = datos_mascota['NomMascota'].replace(' ', '_')
+        pdf_filename = f"vacunas_{nombre_mascota}_{timestamp}.pdf"
+        pdf_path = os.path.join(pdf_folder, pdf_filename)
+        
+        print(f"Generando PDF en: {pdf_path}")
+        
         generar_pdf_vacunas(datos_mascota, lista_vacunas, pdf_path)
+        
+        # 🔹 VERIFICAR que el archivo existe antes de enviarlo
+        if not os.path.exists(pdf_path):
+            print(f"ERROR: El PDF no se generó en {pdf_path}")
+            return jsonify({"mensaje": "Error: PDF no se generó correctamente"}), 500
+        
+        print(f"PDF generado exitosamente en: {pdf_path}")
+        print(f"Tamaño del archivo: {os.path.getsize(pdf_path)} bytes")
+        
         return send_file(pdf_path, as_attachment=True, download_name=pdf_filename)
+        
     except Exception as e:
-        return jsonify({"mensaje": f"Error al generar PDF: {str(e)}"}), 500
+        import traceback
+        error_detail = traceback.format_exc()
+        print("=" * 80)
+        print("ERROR AL GENERAR PDF:")
+        print(error_detail)
+        print("=" * 80)
+        return jsonify({
+            "mensaje": f"Error al generar PDF: {str(e)}",
+            "tipo_error": type(e).__name__
+        }), 500
