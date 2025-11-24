@@ -30,7 +30,7 @@ class _PetScreen3State extends State<PetScreen3> {
 
   Future<void> _cargarMascotas() async {
     final prefs = await SharedPreferences.getInstance();
-    final idUsuario = prefs.getInt('id'); //  El ID guardado en login
+    final idUsuario = prefs.getInt('id');
 
     if (idUsuario == null) return;
 
@@ -53,10 +53,10 @@ class _PetScreen3State extends State<PetScreen3> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
-      body: SafeArea(   //  Esto protege encabezado y barra inferior
+      body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Encabezado fijo
+            // Encabezado fijo
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -86,7 +86,7 @@ class _PetScreen3State extends State<PetScreen3> {
               ),
             ),
 
-            // Contenido principalc
+            // Contenido principal
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -100,22 +100,22 @@ class _PetScreen3State extends State<PetScreen3> {
                             "No tienes mascotas registradas",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                                fontSize: 18, 
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Montserrat'),
                           ),
                           const SizedBox(height: 20),
                         ] else ...[
                           for (var mascota in mascotas) ...[
                             _buildPetCard(
                               context,
-                              idMascota: mascota['IdMascota'],
-                              name: mascota['NomMascota'],
-                              imagePath: 'assets/images/Perfil_Perro_Gato.png',
+                              mascota: mascota,
                             ),
                             const SizedBox(height: 16),
                           ]
                         ],
 
-                        // 🔹 Botón agregar SIEMPRE al final
+                        // Botón agregar SIEMPRE al final
                         Center(
                           child: GestureDetector(
                             onTap: () {
@@ -140,7 +140,7 @@ class _PetScreen3State extends State<PetScreen3> {
 
             // Barra de navegación inferior
             Padding(
-              padding: const EdgeInsets.only(bottom: 12), //  Igual que en UserScreen1
+              padding: const EdgeInsets.only(bottom: 12),
               child: _buildBottomNavBar(context),
             ),
           ],
@@ -149,18 +149,19 @@ class _PetScreen3State extends State<PetScreen3> {
     );
   }
 
-  // Tarjeta de mascota
-  Widget _buildPetCard(BuildContext context,
-      {required int idMascota,
-      required String name,
-      required String imagePath}) {
+  // 🆕 Tarjeta de mascota mejorada con imagen dinámica
+  Widget _buildPetCard(BuildContext context, {required Map<String, dynamic> mascota}) {
+    final idMascota = mascota['IdMascota'];
+    final nombre = mascota['NomMascota'] ?? 'Sin nombre';
+    final tieneImagen = mascota['tieneImagen'] == true;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (_) => PetScreen4(idMascota: idMascota)), //  ID
-        );
+              builder: (_) => PetScreen4(idMascota: idMascota)),
+        ).then((_) => _cargarMascotas()); // Recargar al volver
       },
       child: Container(
         decoration: BoxDecoration(
@@ -170,22 +171,82 @@ class _PetScreen3State extends State<PetScreen3> {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
+            // 🆕 Avatar con imagen dinámica
             ClipOval(
-              child: Image.asset(
-                imagePath,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-              ),
+              child: tieneImagen
+                  ? Image.network(
+                      "http://192.168.0.15:5000/pet/detalle/$idMascota/imagen",
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Si falla la carga, mostrar imagen por defecto
+                        return Image.asset(
+                          'assets/images/Perfil_Perro_Gato.png',
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          width: 70,
+                          height: 70,
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      'assets/images/Perfil_Perro_Gato.png',
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                    ),
             ),
             const SizedBox(width: 16),
-            Text(
-              name,
-              style: const TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 18,
-                color: Colors.white,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nombre,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    mascota['Raza'] ?? 'Sin raza',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
+            ),
+            // Icono de flecha
+            const Icon(
+              Icons.chevron_right,
+              color: Colors.white,
+              size: 28,
             ),
           ],
         ),

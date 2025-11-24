@@ -23,11 +23,29 @@ class VacunaScreen4 extends StatefulWidget {
 class _VacunaScreen4State extends State<VacunaScreen4> {
   List<dynamic> vacunas = [];
   bool isLoading = true;
+  Map<String, dynamic>? mascota;
 
   @override
   void initState() {
     super.initState();
     _cargarVacunas();
+    _cargarMascota();
+  }
+
+  Future<void> _cargarMascota() async {
+    try {
+      final url = Uri.parse(
+          "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          mascota = json.decode(response.body);
+        });
+      }
+    } catch (e) {
+      print('Error al cargar mascota: $e');
+    }
   }
 
   Future<void> _cargarVacunas() async {
@@ -113,6 +131,92 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
       Navigator.pop(context); // Cerrar diálogo si está abierto
       _mostrarAlerta('Error: $e');
     }
+  }
+
+  // 🆕 Widget para mostrar encabezado con imagen de mascota
+  Widget _buildMascotaHeader() {
+    if (mascota == null) {
+      return const Text(
+        'Tarjeta de Vacunas',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Montserrat',
+        ),
+      );
+    }
+
+    final tieneImagen = mascota!['tieneImagen'] == true;
+    final nombre = mascota!['NomMascota'] ?? 'Mascota';
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFD8CFBC),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Imagen de la mascota
+          ClipOval(
+            child: tieneImagen
+                ? Image.network(
+                    "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}/imagen",
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/Perfil_Perro_Gato.png',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )
+                : Image.asset(
+                    'assets/images/Perfil_Perro_Gato.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nombre,
+                  style: const TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Tarjeta de Vacunas',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _mostrarAlerta(String mensaje, {bool exito = false}) {
@@ -222,56 +326,53 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Encabezado mejorado con botón de exportar
+            // 🔹 Encabezado con imagen de mascota
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Image.asset('assets/atras.png', width: 28, height: 28),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Tarjeta de Vacunas',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Montserrat',
+                  // Fila superior: botón atrás y botón PDF
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Image.asset('assets/atras.png', width: 28, height: 28),
                       ),
-                    ),
-                  ),
-                  // 🆕 Botón exportar PDF
-                  GestureDetector(
-                    onTap: vacunas.isEmpty ? null : _exportarPDF,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: vacunas.isEmpty
-                            ? Colors.grey[300]
-                            : const Color(0xFF11120D),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.picture_as_pdf,
-                              color: Colors.white, size: 20),
-                          SizedBox(width: 4),
-                          Text(
-                            'PDF',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'Montserrat',
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      // 🆕 Botón exportar PDF
+                      GestureDetector(
+                        onTap: vacunas.isEmpty ? null : _exportarPDF,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: vacunas.isEmpty
+                                ? Colors.grey[300]
+                                : const Color(0xFF11120D),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ],
+                          child: Row(
+                            children: const [
+                              Icon(Icons.picture_as_pdf,
+                                  color: Colors.white, size: 20),
+                              SizedBox(width: 4),
+                              Text(
+                                'PDF',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+                  // 🆕 Sección con imagen y nombre de mascota
+                  _buildMascotaHeader(),
                 ],
               ),
             ),

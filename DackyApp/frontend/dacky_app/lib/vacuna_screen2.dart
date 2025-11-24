@@ -1,4 +1,4 @@
-// Screen del listado de mascotas para seleccionar y ver/agregar vacunas
+  // Screen del listado de mascotas para seleccionar y ver/agregar vacunas
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -44,7 +44,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
       final data = json.decode(response.body);
 
       if (data.isEmpty) {
-        //  No tiene mascotas → redirigir a VacunaScreen1
+        // No tiene mascotas → redirigir a VacunaScreen1
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Navigator.pushReplacement(
             context,
@@ -69,7 +69,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Encabezado
+            // Encabezado
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -85,7 +85,11 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
                   ),
                   const Text(
                     'Tarjeta de Vacunas',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat',),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Montserrat',
+                    ),
                   ),
                   Image.asset(
                     'assets/Minilogo dacky.png',
@@ -96,23 +100,24 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
               ),
             ),
 
-            // 🔹 Lista de mascotas + botón agregar al final
+            // Lista de mascotas + botón agregar
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      itemCount: mascotas.length + 1, // 👈 Se suma 1 para el botón
+                      itemCount: mascotas.length + 1,
                       itemBuilder: (context, index) {
                         if (index == mascotas.length) {
-                          // 👇 Último ítem → botón agregar
+                          // Último ítem → botón agregar
                           return Center(
                             child: GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const PetScreen2()),
-                                );
+                                  MaterialPageRoute(
+                                      builder: (context) => const PetScreen2()),
+                                ).then((_) => _cargarMascotas()); // Recargar al volver
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
@@ -128,12 +133,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
                         }
 
                         final mascota = mascotas[index];
-                        return _buildMascotaCard(
-                          context,
-                          idMascota: mascota['IdMascota'],
-                          nombre: mascota['NomMascota'] ?? 'Sin nombre',
-                          imagePath: 'assets/images/Perfil_Perro_Gato.png', // ✅ luego dinámico
-                        );
+                        return _buildMascotaCard(context, mascota: mascota);
                       },
                     ),
             ),
@@ -141,14 +141,18 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
         ),
       ),
 
-      // 🔹 Barra de navegación inferior
+      // Barra de navegación inferior
       bottomNavigationBar: SafeArea(child: _buildBottomNavBar(context)),
     );
   }
 
-  // 🔹 Tarjeta de mascota
-  Widget _buildMascotaCard(BuildContext context,
-      {required int idMascota, required String nombre, required String imagePath}) {
+  // 🆕 Tarjeta de mascota mejorada con imagen dinámica
+  Widget _buildMascotaCard(BuildContext context, {required Map<String, dynamic> mascota}) {
+    final idMascota = mascota['IdMascota'];
+    final nombre = mascota['NomMascota'] ?? 'Sin nombre';
+    final raza = mascota['Raza'] ?? 'Sin raza';
+    final tieneImagen = mascota['tieneImagen'] == true;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -164,34 +168,100 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
         decoration: BoxDecoration(
           color: const Color(0xFFD8CFBC),
           borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
+            // 🆕 Avatar con imagen dinámica
             ClipRRect(
               borderRadius: BorderRadius.circular(50),
-              child: Image.asset(
-                imagePath,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-              ),
+              child: tieneImagen
+                  ? Image.network(
+                      "http://192.168.0.15:5000/pet/detalle/$idMascota/imagen",
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Si falla la carga, mostrar imagen por defecto
+                        return Image.asset(
+                          'assets/images/Perfil_Perro_Gato.png',
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          width: 70,
+                          height: 70,
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                              strokeWidth: 2,
+                              color: const Color(0xFF11120D),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      'assets/images/Perfil_Perro_Gato.png',
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                    ),
             ),
             const SizedBox(width: 16),
-            Text(
-              nombre,
-              style: const TextStyle(
-                fontFamily: 'Montserrat',
-                // fontWeight: FontWeight.bold,
-                fontSize: 16,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nombre,
+                    style: const TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    raza,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            )
+            ),
+            // Icono de flecha
+            const Icon(
+              Icons.chevron_right,
+              color: Color(0xFF11120D),
+              size: 28,
+            ),
           ],
         ),
       ),
     );
   }
 
-  // 🔹 Barra inferior
+  // Barra inferior
   Widget _buildBottomNavBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -210,12 +280,7 @@ class _VacunaScreen2State extends State<VacunaScreen2> {
             },
             child: Image.asset('assets/gps_icon.png', width: 30, height: 30),
           ),
-          InkWell(
-            onTap: () {
-              // Ya estamos en VacunaScreen2
-            },
-            child: Image.asset('assets/vacuna_icon.png', width: 30, height: 30),
-          ),
+          Image.asset('assets/vacuna_icon.png', width: 30, height: 30), // Ya estamos aquí
           InkWell(
             onTap: () {
               Navigator.push(

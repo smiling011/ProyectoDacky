@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
@@ -22,6 +24,13 @@ class _UserScreen2State extends State<UserScreen2> {
   final TextEditingController direccionController = TextEditingController();
 
   int? idUsuario;
+  bool _loading = false;
+
+  // 🆕 Variables para manejo de imagen
+  File? imagenSeleccionada;
+  String? nombreImagen;
+  bool tieneImagenExistente = false;
+  bool imagenEliminada = false;
 
   @override
   void initState() {
@@ -31,7 +40,7 @@ class _UserScreen2State extends State<UserScreen2> {
 
   Future<void> _cargarUsuario() async {
     final prefs = await SharedPreferences.getInstance();
-    final id = prefs.getInt("id"); //  se guarda id del login
+    final id = prefs.getInt("id");
     if (id == null) return;
 
     setState(() {
@@ -51,11 +60,13 @@ class _UserScreen2State extends State<UserScreen2> {
         celularController.text = data["NumCel"] ?? "";
         telefonoController.text = data["NumTelf"] ?? "";
         direccionController.text = data["Direccion"] ?? "";
+        
+        // 🆕 Cargar información de imagen existente
+        tieneImagenExistente = data['tieneImagen'] == true;
       });
     }
   }
 
-  //  alerta personalizada (éxito o error)
   void _mostrarAlerta(String mensaje, {bool exito = false}) {
     showDialog(
       context: context,
@@ -63,7 +74,7 @@ class _UserScreen2State extends State<UserScreen2> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFD8CFBC), // Fondo Dacky-3
+            color: const Color(0xFFD8CFBC),
             borderRadius: BorderRadius.circular(20),
           ),
           padding: const EdgeInsets.all(20),
@@ -84,7 +95,7 @@ class _UserScreen2State extends State<UserScreen2> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontFamily: 'Montserrat',
-                      color: Color(0xFF11120D), // Texto oscuro
+                      color: Color(0xFF11120D),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -105,29 +116,155 @@ class _UserScreen2State extends State<UserScreen2> {
     );
   }
 
+  // 🆕 Seleccionar imagen
+  Future<void> _seleccionarImagen() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        imagenSeleccionada = File(result.files.single.path!);
+        nombreImagen = result.files.single.name;
+        imagenEliminada = false;
+      });
+    }
+  }
+
+  // 🆕 Eliminar imagen existente
+  Future<void> _eliminarImagenExistente() async {
+    if (idUsuario == null) return;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: const Color(0xFFD8CFBC),
+        title: const Text('Confirmar', style: TextStyle(fontFamily: 'Montserrat')),
+        content: const Text(
+          '¿Deseas eliminar tu foto de perfil?',
+          style: TextStyle(fontFamily: 'Montserrat'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar',
+                style: TextStyle(fontFamily: 'Montserrat', color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario/imagen");
+
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          tieneImagenExistente = false;
+          imagenEliminada = true;
+        });
+        _mostrarAlerta("Imagen eliminada correctamente.", exito: true);
+      } else {
+        _mostrarAlerta("Error al eliminar la imagen.");
+      }
+    } catch (e) {
+      _mostrarAlerta("Error: $e");
+    }
+  }
+
   Future<void> _guardarPerfil() async {
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario");
+    setState(() => _loading = true);
 
-    final response = await http.put(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "NomDueño": nombreController.text,
-        "Apell": apellidosController.text,
-        "Email": correoController.text,
-        "NumCel": celularController.text,
-        "NumTelf": telefonoController.text,
-        "Direccion": direccionController.text,
-      }),
+    try {
+      final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario");
+
+      var request = http.MultipartRequest('PUT', url);
+      request.fields['NomDueño'] = nombreController.text;
+      request.fields['Apell'] = apellidosController.text;
+      request.fields['Email'] = correoController.text;
+      request.fields['NumCel'] = celularController.text;
+      request.fields['NumTelf'] = telefonoController.text;
+      request.fields['Direccion'] = direccionController.text;
+
+      if (imagenSeleccionada != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'imagen',
+          imagenSeleccionada!.path,
+        ));
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      setState(() => _loading = false);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        _mostrarAlerta(data["message"] ?? "Perfil actualizado", exito: true);
+        
+        // Esperar un momento y volver
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pop(context);
+        });
+      } else {
+        _mostrarAlerta("Error al actualizar perfil");
+      }
+    } catch (e) {
+      setState(() => _loading = false);
+      _mostrarAlerta("Error: $e");
+    }
+  }
+
+  // 🆕 Widget para mostrar la imagen de perfil
+  Widget _buildProfileImage() {
+    return GestureDetector(
+      onTap: _seleccionarImagen,
+      child: Stack(
+        children: [
+          CircleAvatar(
+            radius: 65,
+            backgroundColor: Colors.grey[300],
+            backgroundImage: _obtenerImagenPerfil(),
+            child: _obtenerImagenPerfil() == null
+                ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                : null,
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF11120D),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+            ),
+          ),
+        ],
+      ),
     );
+  }
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      _mostrarAlerta(data["message"] ?? "Perfil actualizado", exito: true);
+  ImageProvider? _obtenerImagenPerfil() {
+    if (imagenSeleccionada != null) {
+      return FileImage(imagenSeleccionada!);
+    } else if (tieneImagenExistente && !imagenEliminada && idUsuario != null) {
+      return NetworkImage("http://192.168.0.15:5000/perfil/$idUsuario/imagen");
     } else {
-      _mostrarAlerta("Error al actualizar perfil");
+      return const AssetImage('assets/perfil_user.png');
     }
   }
 
@@ -144,10 +281,15 @@ class _UserScreen2State extends State<UserScreen2> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset('assets/atras.png', width: 28, height: 28),
-                  const Text('Mi Perfil',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Montserrat')),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Image.asset('assets/atras.png', width: 28, height: 28),
+                  ),
+                  const Text('Editar Perfil',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Montserrat')),
                   Image.asset('assets/menu.png', width: 28, height: 28),
                 ],
               ),
@@ -160,17 +302,54 @@ class _UserScreen2State extends State<UserScreen2> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: const Color(0xFFD8CFBC),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Column(
                     children: [
+                      // 🆕 Imagen de perfil
+                      _buildProfileImage(),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Toca para cambiar foto',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+
+                      // 🆕 Botón para eliminar imagen
+                      if ((tieneImagenExistente || imagenSeleccionada != null) &&
+                          !imagenEliminada)
+                        TextButton.icon(
+                          onPressed: tieneImagenExistente && imagenSeleccionada == null
+                              ? _eliminarImagenExistente
+                              : () {
+                                  setState(() {
+                                    imagenSeleccionada = null;
+                                    nombreImagen = null;
+                                  });
+                                },
+                          icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                          label: const Text(
+                            'Eliminar foto',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 12,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 16),
+
                       _buildTextField('Nombre', nombreController),
                       _buildTextField('Apellidos', apellidosController),
                       _buildTextField('Correo', correoController),
                       _buildTextField('Celular', celularController),
-                      _buildTextField('Telefono', telefonoController),
-                      _buildTextField('Direccion', direccionController),
+                      _buildTextField('Teléfono', telefonoController),
+                      _buildTextField('Dirección', direccionController),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -181,9 +360,14 @@ class _UserScreen2State extends State<UserScreen2> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 40, vertical: 14),
                         ),
-                        onPressed: _guardarPerfil,
-                        child: const Text('Guardar',
-                            style: TextStyle(color: Colors.white, fontFamily: 'Montserrat',)),
+                        onPressed: _loading ? null : _guardarPerfil,
+                        child: _loading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text('Guardar',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 16)),
                       )
                     ],
                   ),
@@ -208,7 +392,7 @@ class _UserScreen2State extends State<UserScreen2> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(style: TextStyle(fontFamily: 'Montserrat'), label),
+          Text(label, style: const TextStyle(fontFamily: 'Montserrat')),
           const SizedBox(height: 6),
           TextField(
             controller: controller,

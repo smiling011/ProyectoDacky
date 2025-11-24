@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
@@ -25,10 +28,15 @@ class _PetScreen2State extends State<PetScreen2> {
   final TextEditingController pesoController = TextEditingController();
   final TextEditingController alturaController = TextEditingController();
   final TextEditingController edadController = TextEditingController();
-  // final TextEditingController generoController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
   bool _loading = false;
+  
+  // 🆕 Variables para manejo de imagen
+  File? imagenSeleccionada;
+  String? nombreImagen;
+  bool tieneImagenExistente = false;
+  bool imagenEliminada = false;
 
   @override
   void initState() {
@@ -39,13 +47,14 @@ class _PetScreen2State extends State<PetScreen2> {
       pesoController.text = (widget.mascota!['Peso'] ?? '').toString();
       alturaController.text = (widget.mascota!['Altura'] ?? '').toString();
       edadController.text = (widget.mascota!['Edad'] ?? '').toString();
-      // generoController.text = widget.mascota!['Genero'] ?? '';
       descripcionController.text = widget.mascota!['Descripcion'] ?? '';
+      
+      // 🆕 Cargar información de imagen existente
+      tieneImagenExistente = widget.mascota!['tieneImagen'] == true;
     }
   }
 
-  // apra Mostrar alerta 
-  void _mostrarAlerta(String mensaje, {bool exito = false}) { // validacion de si esta bien o mal
+  void _mostrarAlerta(String mensaje, {bool exito = false}) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
@@ -94,7 +103,6 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  //  Validaciones en los campo de texto
   bool _validarCampos() {
     if (nombreController.text.trim().isEmpty ||
         razaController.text.trim().isEmpty ||
@@ -115,6 +123,71 @@ class _PetScreen2State extends State<PetScreen2> {
     return true;
   }
 
+  // 🆕 Seleccionar imagen
+  Future<void> _seleccionarImagen() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        imagenSeleccionada = File(result.files.single.path!);
+        nombreImagen = result.files.single.name;
+        imagenEliminada = false;
+      });
+    }
+  }
+
+  // 🆕 Eliminar imagen existente
+  Future<void> _eliminarImagenExistente() async {
+    if (widget.mascota == null) return;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: const Color(0xFFD8CFBC),
+        title: const Text('Confirmar', style: TextStyle(fontFamily: 'Montserrat')),
+        content: const Text(
+          '¿Deseas eliminar la foto de perfil?',
+          style: TextStyle(fontFamily: 'Montserrat'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', style: TextStyle(fontFamily: 'Montserrat', color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      final idMascota = widget.mascota!['IdMascota'];
+      final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/$idMascota/imagen");
+      
+      final response = await http.delete(url);
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          tieneImagenExistente = false;
+          imagenEliminada = true;
+        });
+        _mostrarAlerta("Imagen eliminada correctamente.", exito: true);
+      } else {
+        _mostrarAlerta("Error al eliminar la imagen.");
+      }
+    } catch (e) {
+      _mostrarAlerta("Error: $e");
+    }
+  }
+
   Future<void> _guardarMascota() async {
     if (!_validarCampos()) return;
 
@@ -129,62 +202,119 @@ class _PetScreen2State extends State<PetScreen2> {
       return;
     }
 
-    http.Response response;
+    try {
+      http.Response response;
 
-    if (widget.mascota == null) {
-      // POST → Crear mascota
-      final url = Uri.parse("http://192.168.0.15:5000/pet/$idUsuario");
-      response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({
-          "NomMascota": nombreController.text.trim(),
-          "Raza": razaController.text.trim(),
-          "Peso": int.tryParse(pesoController.text) ?? 0,
-          "Altura": int.tryParse(alturaController.text) ?? 0,
-          "Edad": int.tryParse(edadController.text) ?? 0,
-          // "Genero": generoController.text.trim(),
-          "Descripcion": descripcionController.text.trim(),
-        }),
-      );
-    } else {
-      // PUT → Editar mascota
-      final idMascota = widget.mascota!['IdMascota'];
-      final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/$idMascota");
-      response = await http.put(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({
-          "NomMascota": nombreController.text.trim(),
-          "Raza": razaController.text.trim(),
-          "Peso": int.tryParse(pesoController.text) ?? 0,
-          "Altura": int.tryParse(alturaController.text) ?? 0,
-          "Edad": int.tryParse(edadController.text) ?? 0,
-          // "Genero": generoController.text.trim(),
-          "Descripcion": descripcionController.text.trim(),
-        }),
-      );
-    }
+      if (widget.mascota == null) {
+        // POST → Crear mascota con imagen
+        final url = Uri.parse("http://192.168.0.15:5000/pet/$idUsuario");
+        
+        var request = http.MultipartRequest('POST', url);
+        request.fields['NomMascota'] = nombreController.text.trim();
+        request.fields['Raza'] = razaController.text.trim();
+        request.fields['Peso'] = (int.tryParse(pesoController.text) ?? 0).toString();
+        request.fields['Altura'] = (int.tryParse(alturaController.text) ?? 0).toString();
+        request.fields['Edad'] = (int.tryParse(edadController.text) ?? 0).toString();
+        request.fields['Descripcion'] = descripcionController.text.trim();
 
-    setState(() => _loading = false);
+        if (imagenSeleccionada != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'imagen',
+            imagenSeleccionada!.path,
+          ));
+        }
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      _mostrarAlerta(
-        widget.mascota == null
-            ? "Mascota registrada con éxito."
-            : "Perfil de mascota actualizado.",
-        exito: true,
-      );
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const PetScreen3()),
+        var streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      } else {
+        // PUT → Editar mascota con imagen
+        final idMascota = widget.mascota!['IdMascota'];
+        final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/$idMascota");
+        
+        var request = http.MultipartRequest('PUT', url);
+        request.fields['NomMascota'] = nombreController.text.trim();
+        request.fields['Raza'] = razaController.text.trim();
+        request.fields['Peso'] = (int.tryParse(pesoController.text) ?? 0).toString();
+        request.fields['Altura'] = (int.tryParse(alturaController.text) ?? 0).toString();
+        request.fields['Edad'] = (int.tryParse(edadController.text) ?? 0).toString();
+        request.fields['Descripcion'] = descripcionController.text.trim();
+
+        if (imagenSeleccionada != null) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'imagen',
+            imagenSeleccionada!.path,
+          ));
+        }
+
+        var streamedResponse = await request.send();
+        response = await http.Response.fromStream(streamedResponse);
+      }
+
+      setState(() => _loading = false);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _mostrarAlerta(
+          widget.mascota == null
+              ? "Mascota registrada con éxito."
+              : "Perfil de mascota actualizado.",
+          exito: true,
         );
-      });
-    } else {
-      final data = json.decode(response.body);
-      _mostrarAlerta("Error: ${data['mensaje'] ?? 'No se pudo guardar'}");
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PetScreen3()),
+          );
+        });
+      } else {
+        final data = json.decode(response.body);
+        _mostrarAlerta("Error: ${data['mensaje'] ?? 'No se pudo guardar'}");
+      }
+    } catch (e) {
+      setState(() => _loading = false);
+      _mostrarAlerta("Error: $e");
     }
+  }
+
+  // 🆕 Widget para mostrar la imagen de perfil
+  Widget _buildProfileImage() {
+    return GestureDetector(
+      onTap: _seleccionarImagen,
+      child: Stack(
+        children: [
+          CircleAvatar(
+            radius: 55,
+            backgroundColor: Colors.grey[300],
+            backgroundImage: _obtenerImagenPerfil(),
+            child: _obtenerImagenPerfil() == null
+                ? const Icon(Icons.pets, size: 50, color: Colors.grey)
+                : null,
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF11120D),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ImageProvider? _obtenerImagenPerfil() {
+    if (imagenSeleccionada != null) {
+      return FileImage(imagenSeleccionada!);
+    } else if (tieneImagenExistente && !imagenEliminada && widget.mascota != null) {
+      final idMascota = widget.mascota!['IdMascota'];
+      return NetworkImage("http://192.168.0.15:5000/pet/detalle/$idMascota/imagen");
+    }
+    return null;
   }
 
   @override
@@ -210,11 +340,42 @@ class _PetScreen2State extends State<PetScreen2> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          const CircleAvatar(
-                            radius: 55,
-                            backgroundImage: AssetImage('assets/images/Perfil_Perro_Gato.png'),
+                          // 🆕 Imagen de perfil mejorada
+                          _buildProfileImage(),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Toca para cambiar foto',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
                           ),
-                          const SizedBox(height: 24),
+                          
+                          // 🆕 Botón para eliminar imagen (solo en edición)
+                          if (isEditing && (tieneImagenExistente || imagenSeleccionada != null) && !imagenEliminada)
+                            TextButton.icon(
+                              onPressed: tieneImagenExistente && imagenSeleccionada == null
+                                  ? _eliminarImagenExistente
+                                  : () {
+                                      setState(() {
+                                        imagenSeleccionada = null;
+                                        nombreImagen = null;
+                                      });
+                                    },
+                              icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                              label: const Text(
+                                'Eliminar foto',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          
+                          const SizedBox(height: 16),
+                          
                           _buildTextField(label: 'Nombre *', controller: nombreController),
                           _buildTextField(label: 'Raza *', controller: razaController),
                           _buildTextField(
@@ -229,7 +390,6 @@ class _PetScreen2State extends State<PetScreen2> {
                               label: 'Edad (años) *',
                               controller: edadController,
                               keyboardType: TextInputType.number),
-                          // _buildTextField(label: 'Género *', controller: generoController),
                           _buildDescriptionField(label: 'Descripción', controller: descripcionController),
                           const SizedBox(height: 20),
                           ElevatedButton(
@@ -254,7 +414,6 @@ class _PetScreen2State extends State<PetScreen2> {
               ),
             ),
 
-            // Encabezado fijo
             Positioned(
               top: 0,
               left: 0,
@@ -277,7 +436,6 @@ class _PetScreen2State extends State<PetScreen2> {
               ),
             ),
 
-            // Barra inferior fija
             Positioned(
               bottom: 0,
               left: 0,
@@ -290,7 +448,6 @@ class _PetScreen2State extends State<PetScreen2> {
     );
   }
 
-  // Campos comunes
   Widget _buildTextField(
       {required String label,
       required TextEditingController controller,

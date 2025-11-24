@@ -27,6 +27,7 @@ class PerfilDueño(db.Model):
     NumTelf = db.Column(db.String(15))
     NumCel = db.Column(db.String(15))
     Direccion = db.Column(db.String(255))
+    imagen = db.Column(db.String(255), nullable=True)
 
     IdInicioSesion = db.Column(db.Integer, db.ForeignKey('iniciosesion.IdInicioSesion'))
 
@@ -45,6 +46,7 @@ class PerfilMascota(db.Model):
     Descripcion = db.Column(db.Text, nullable=False)
     Edad = db.Column(db.Integer, nullable=False)
     PerfilDueño_IdPerfilDueño = db.Column(db.Integer, db.ForeignKey('perfildueño.IdPerfilDueño'))
+    imagen = db.Column(db.String(255), nullable=True)
 
 
 class Mascota(db.Model):

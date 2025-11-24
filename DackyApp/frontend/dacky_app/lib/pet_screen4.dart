@@ -47,14 +47,78 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 
   Future<void> _eliminarMascota() async {
-    final url = Uri.parse("http://192.168.0.15:5000/pet/${widget.idMascota}");
+    // Confirmación antes de eliminar
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: const Color(0xFFD8CFBC),
+        title: const Text('Confirmar eliminación', 
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold)),
+        content: Text(
+          '¿Estás seguro de eliminar a ${mascota!['NomMascota']}?',
+          style: const TextStyle(fontFamily: 'Montserrat'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar', 
+              style: TextStyle(fontFamily: 'Montserrat', color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
       Navigator.pop(context); // Regresa a la lista
     } else {
-      print("Error al eliminar mascota: ${response.body}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error al eliminar mascota')),
+      );
     }
+  }
+
+  // 🆕 Widget para mostrar imagen de perfil
+  Widget _buildProfileAvatar() {
+    final tieneImagen = mascota!['tieneImagen'] == true;
+
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF11120D),
+          width: 4,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: 90,
+        backgroundColor: Colors.grey[300],
+        backgroundImage: tieneImagen
+            ? NetworkImage(
+                "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}/imagen",
+              ) as ImageProvider
+            : const AssetImage('assets/images/Perfil_Perro_Gato.png'),
+        child: tieneImagen
+            ? null
+            : null, // Si hay imagen de red, no mostrar nada encima
+      ),
+    );
   }
 
   @override
@@ -62,10 +126,9 @@ class _PetScreen4State extends State<PetScreen4> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBF4),
       body: SafeArea(
-        //  Protegemos encabezado
         child: Column(
           children: [
-            //  Encabezado
+            // Encabezado
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -96,85 +159,186 @@ class _PetScreen4State extends State<PetScreen4> {
               ),
             ),
 
-            //  Contenido
+            // Contenido
             Expanded(
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : mascota == null
-                      ? const Center(child: Text("Mascota no encontrada"))
+                      ? const Center(
+                          child: Text(
+                            "Mascota no encontrada",
+                            style: TextStyle(fontFamily: 'Montserrat'),
+                          ),
+                        )
                       : SingleChildScrollView(
                           child: Column(
                             children: [
                               const SizedBox(height: 10),
-                              const CircleAvatar(
-                                radius: 90,
-                                backgroundImage: AssetImage(
-                                    'assets/images/Perfil_Perro_Gato.png'),
-                              ),
+                              
+                              // 🆕 Avatar con imagen dinámica
+                              _buildProfileAvatar(),
+                              
                               const SizedBox(height: 12),
                               Text(
                                 mascota!['NomMascota'] ?? 'Sin nombre',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Montserrat',
-                                  fontSize: 18,
+                                  fontSize: 22,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                mascota!['Raza'] ?? 'Sin raza',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                               const SizedBox(height: 20),
 
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 40),
+                              // Información en tarjeta
+                              Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD8CFBC),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     InfoRow(
-                                        label: 'Raza',
-                                        value: mascota!['Raza'] ?? ''),
+                                      label: 'Peso',
+                                      value: "${mascota!['Peso']} kg",
+                                      icon: Icons.monitor_weight_outlined,
+                                    ),
+                                    const Divider(height: 20),
                                     InfoRow(
-                                        label: 'Peso',
-                                        value: "${mascota!['Peso']} kg"),
+                                      label: 'Altura',
+                                      value: "${mascota!['Altura']} cm",
+                                      icon: Icons.height,
+                                    ),
+                                    const Divider(height: 20),
                                     InfoRow(
-                                        label: 'Altura',
-                                        value: "${mascota!['Altura']} cm"),
-                                    InfoRow(
-                                        label: 'Edad',
-                                        value: "${mascota!['Edad']} años"),
-                                    InfoRow(
+                                      label: 'Edad',
+                                      value: "${mascota!['Edad']} años",
+                                      icon: Icons.cake_outlined,
+                                    ),
+                                    if (mascota!['Descripcion'] != null &&
+                                        mascota!['Descripcion'].toString().isNotEmpty) ...[
+                                      const Divider(height: 20),
+                                      InfoRow(
                                         label: 'Descripción',
-                                        value: mascota!['Descripcion'] ?? ''),
+                                        value: mascota!['Descripcion'],
+                                        icon: Icons.description_outlined,
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
 
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 30),
 
                               // Botones editar y borrar
-                              // Dentro del Row de botones en PetScreen4:
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  // Botón editar
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => PetScreen2(
-                                              mascota:
-                                                  mascota), // ✅ pasamos datos
+                                            mascota: mascota,
+                                          ),
                                         ),
                                       ).then((_) {
-                                        _cargarMascota(); // 🔄 refrescamos al volver
+                                        _cargarMascota(); // Refrescar al volver
                                       });
                                     },
-                                    child: Image.asset('assets/editar.png',
-                                        width: 35, height: 35),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF11120D),
+                                        borderRadius: BorderRadius.circular(15),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2),
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            'assets/editar.png',
+                                            width: 24,
+                                            height: 24,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Text(
+                                            'Editar',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
+                                  
                                   const SizedBox(width: 20),
+                                  
+                                  // Botón eliminar
                                   GestureDetector(
                                     onTap: _eliminarMascota,
-                                    child: Image.asset('assets/borrar.png',
-                                        width: 35, height: 35),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(15),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2),
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            'assets/borrar.png',
+                                            width: 24,
+                                            height: 24,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Text(
+                                            'Eliminar',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -188,7 +352,6 @@ class _PetScreen4State extends State<PetScreen4> {
         ),
       ),
       bottomNavigationBar: SafeArea(
-        // ✅ Barra protegida
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildBottomNavBar(context),
@@ -242,29 +405,55 @@ class _PetScreen4State extends State<PetScreen4> {
   }
 }
 
-// 🔹 Fila de información
+// 🔹 Fila de información mejorada con icono
 class InfoRow extends StatelessWidget {
   final String label;
   final String value;
+  final IconData? icon;
 
-  const InfoRow({super.key, required this.label, required this.value});
+  const InfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-            
-          ),
-          Expanded(child: Text( value, style: const TextStyle(fontFamily: 'Montserrat')),
-          ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 20, color: const Color(0xFF11120D)),
+          const SizedBox(width: 8),
         ],
-      ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 12,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontSize: 16,
+                  color: Color(0xFF11120D),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
