@@ -7,6 +7,7 @@ import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'user_screen2.dart';
+import 'login_screen.dart'; 
 
 class UserScreen1 extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class UserScreen1 extends StatefulWidget {
 class _UserScreen1State extends State<UserScreen1> {
   Map<String, dynamic>? perfil;
   int? idUsuario;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // 🆕 Key para el Drawer
 
   @override
   void initState() {
@@ -41,7 +43,82 @@ class _UserScreen1State extends State<UserScreen1> {
     }
   }
 
-  // 🆕 Widget para mostrar avatar con imagen de perfil
+  // 🆕 Función para cerrar sesión
+  Future<void> _cerrarSesion() async {
+    // Mostrar diálogo de confirmación
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFFFFFBF4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          '¿Cerrar Sesión?',
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          '¿Estás seguro que deseas cerrar sesión?',
+          style: TextStyle(fontFamily: 'Montserrat'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(
+                color: Colors.grey,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF11120D),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Cerrar Sesión',
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true) {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // 🆕 Limpiar todos los datos de sesión
+      await prefs.remove('id');
+      await prefs.remove('email');
+      await prefs.remove('token'); // Si usas token
+      await prefs.remove('lastLoginTime'); // Para el tiempo de inactividad
+      
+      // O limpiar todo:
+      // await prefs.clear();
+
+      // 🆕 Navegar al login y remover todas las pantallas anteriores
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login', // Ajusta según tu ruta de login
+        (Route<dynamic> route) => false,
+      );
+      
+      // Si no usas rutas con nombre, usa esto:
+      // Navigator.of(context).pushAndRemoveUntil(
+      //   MaterialPageRoute(builder: (context) => LoginScreen()),
+      //   (Route<dynamic> route) => false,
+      // );
+    }
+  }
+
   Widget _buildProfileAvatar() {
     final tieneImagen = perfil!['tieneImagen'] == true;
 
@@ -73,10 +150,145 @@ class _UserScreen1State extends State<UserScreen1> {
     );
   }
 
+  // 🆕 Drawer (menú lateral)
+  Widget _buildDrawer() {
+    return Drawer(
+      backgroundColor: const Color(0xFFFFFBF4),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          // Encabezado del Drawer
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: Color(0xFFD8CFBC),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.white,
+                  backgroundImage: perfil?['tieneImagen'] == true
+                      ? NetworkImage(
+                          "http://192.168.0.15:5000/perfil/$idUsuario/imagen",
+                        ) as ImageProvider
+                      : const AssetImage('assets/perfil_user.png'),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  perfil != null
+                      ? '${perfil!['NomDueño']} ${perfil!['Apell']}'
+                      : 'Usuario',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Montserrat',
+                    color: Color(0xFF11120D),
+                  ),
+                ),
+                Text(
+                  perfil?['Email'] ?? '',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Montserrat',
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Opción: Mi Perfil
+          ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF11120D)),
+            title: const Text(
+              'Mi Perfil',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar drawer
+              // Ya estamos en UserScreen1
+            },
+          ),
+
+          // Opción: Mis Mascotas
+          ListTile(
+            leading: const Icon(Icons.pets, color: Color(0xFF11120D)),
+            title: const Text(
+              'Mis Mascotas',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PetScreen1()),
+              );
+            },
+          ),
+
+          // Opción: Vacunas
+          ListTile(
+            leading: const Icon(Icons.medical_services, color: Color(0xFF11120D)),
+            title: const Text(
+              'Vacunas',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VacunaScreen1()),
+              );
+            },
+          ),
+
+          // Opción: GPS
+          ListTile(
+            leading: const Icon(Icons.location_on, color: Color(0xFF11120D)),
+            title: const Text(
+              'Rastreo GPS',
+              style: TextStyle(fontFamily: 'Montserrat'),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GpsScreen()),
+              );
+            },
+          ),
+
+          const Divider(),
+
+          // 🆕 Opción: Cerrar Sesión
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text(
+              'Cerrar Sesión',
+              style: TextStyle(
+                fontFamily: 'Montserrat',
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar drawer primero
+              _cerrarSesion();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey, // 🆕 Asignar key
       backgroundColor: const Color(0xFFFFFBF4),
+      drawer: _buildDrawer(), // 🆕 Agregar el Drawer
       body: SafeArea(
         child: perfil == null
             ? const Center(child: CircularProgressIndicator())
@@ -100,7 +312,11 @@ class _UserScreen1State extends State<UserScreen1> {
                             fontFamily: 'Montserrat',
                           ),
                         ),
-                        Image.asset('assets/menu.png', width: 28, height: 28),
+                        // 🆕 Hacer funcional el botón de menú
+                        GestureDetector(
+                          onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                          child: Image.asset('assets/menu.png', width: 28, height: 28),
+                        ),
                       ],
                     ),
                   ),
@@ -124,12 +340,10 @@ class _UserScreen1State extends State<UserScreen1> {
                         ),
                         child: Column(
                           children: [
-                            // 🆕 Avatar con imagen dinámica
                             _buildProfileAvatar(),
                             
                             const SizedBox(height: 16),
                             
-                            // Nombre completo destacado
                             Text(
                               '${perfil!['NomDueño']} ${perfil!['Apell']}',
                               style: const TextStyle(
@@ -155,7 +369,6 @@ class _UserScreen1State extends State<UserScreen1> {
                             
                             const SizedBox(height: 30),
                             
-                            // Información en tarjetas
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -187,7 +400,6 @@ class _UserScreen1State extends State<UserScreen1> {
                             
                             const SizedBox(height: 24),
                             
-                            // Botón de editar
                             ElevatedButton.icon(
                               onPressed: () {
                                 Navigator.push(
@@ -196,7 +408,6 @@ class _UserScreen1State extends State<UserScreen1> {
                                     builder: (context) => UserScreen2(),
                                   ),
                                 ).then((_) {
-                                  // Recargar perfil al volver
                                   _cargarPerfil();
                                 });
                               },
@@ -228,7 +439,6 @@ class _UserScreen1State extends State<UserScreen1> {
                     ),
                   ),
 
-                  // Barra de navegación inferior
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: _buildBottomNavBar(context),
@@ -239,7 +449,6 @@ class _UserScreen1State extends State<UserScreen1> {
     );
   }
 
-  // 🆕 Widget mejorado para mostrar información con iconos
   Widget _buildInfoRow(String label, String value, IconData icon) {
     return Row(
       children: [
@@ -305,7 +514,7 @@ class _UserScreen1State extends State<UserScreen1> {
                 context, MaterialPageRoute(builder: (context) => PetScreen1())),
             child: Image.asset('assets/huella_icon.png', width: 30, height: 30),
           ),
-          Image.asset('assets/user_icon.png', width: 30, height: 30), // Ya estamos aquí
+          Image.asset('assets/user_icon.png', width: 30, height: 30),
         ],
       ),
     );

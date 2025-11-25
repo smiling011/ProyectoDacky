@@ -13,9 +13,16 @@ class InicioSesion(db.Model):
     NumCel = db.Column(db.String(15))
     Direccion = db.Column(db.String(255))
     Rol = db.Column(db.String(20), default='usuario')
+    
+    token = db.Column(db.String(255), nullable=True)
+    ultima_sesion = db.Column(db.DateTime, nullable=True)
 
     # Relación con PerfilDueño
     perfil = db.relationship("PerfilDueño", back_populates="usuario", uselist=False)
+    
+    def actualizar_sesion(self, nuevo_token):
+        self.token = nuevo_token
+        self.ultima_sesion = datetime.now()
 
 
 class PerfilDueño(db.Model):

@@ -1,27 +1,62 @@
-// Scren de login
-import 'package:flutter/material.dart'; // libreria de flutter
-import 'dart:convert'; // libreria para convertir json
-import 'package:http/http.dart' as http; // libreria para hacer peticiones http
-import 'package:shared_preferences/shared_preferences.dart'; // libreria para guardar datos de forma local
-// se guardan los datos de login para usarlos en otras pantallas
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'gps_screen.dart'; // importa la screen principal que es la de GPS
+import 'gps_screen.dart';
 
-// el widget de la pantalla de login
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key); // constructor y las keys son para identificar widgets
+  const LoginScreen({Key? key}) : super(key: key);
 
-// aqui se crea el estado del widget
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-// otra clase que maneja el estado del widget
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController(); // controlador del campo correo
-  final TextEditingController _passwordController = TextEditingController(); // controlador del campo contraseña
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false; // 🆕 Para mostrar loading
 
-  //  método de alerta personalizada
+  @override
+  void initState() {
+    super.initState();
+    _verificarSesionActiva(); // 🆕 Verificar si hay sesión activa al iniciar
+  }
+
+  // 🆕 Verificar si hay una sesión activa válida
+  Future<void> _verificarSesionActiva() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final lastLoginTime = prefs.getString('lastLoginTime');
+    final id = prefs.getInt('id');
+
+    // Si no hay token, no hacer nada
+    if (token == null || lastLoginTime == null || id == null) return;
+
+    // Calcular si han pasado más de 30 días (1 mes)
+    final lastLogin = DateTime.parse(lastLoginTime);
+    final now = DateTime.now();
+    final diferenciaDias = now.difference(lastLogin).inDays;
+
+    // Si la sesión expiró (más de 30 días)
+    if (diferenciaDias > 30) {
+      // Limpiar datos expirados
+      await prefs.clear();
+      return;
+    }
+
+    // 🆕 Sesión válida - actualizar tiempo de última actividad
+    await prefs.setString('lastLoginTime', now.toIso8601String());
+
+    // Navegar automáticamente a la pantalla principal
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const GpsScreen()),
+      );
+    }
+  }
+
   void _mostrarAlerta(String mensaje) {
     showDialog(
       context: context,
@@ -29,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFD8CFBC), // Fondo Dacky-3
+            color: const Color(0xFFD8CFBC),
             borderRadius: BorderRadius.circular(20),
           ),
           padding: const EdgeInsets.all(20),
@@ -46,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontFamily: 'Montserrat',
-                      color: Color(0xFF11120D), // Texto oscuro
+                      color: Color(0xFF11120D),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -67,75 +102,87 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // método login para validar los datos y hacer la petición al servidor
+  // 🆕 Método actualizado para guardar sesión persistente
   Future<void> _login() async {
-    final email = _emailController.text.trim(); // quita espacios innecesarios
+    final email = _emailController.text.trim();
     final contrasena = _passwordController.text.trim();
 
-    // validación de campos vacíos
     if (email.isEmpty || contrasena.isEmpty) {
-      _mostrarAlerta("Por favor, completa todos los campos"); // alerta personalizada
+      _mostrarAlerta("Por favor, completa todos los campos");
       return;
     }
 
+    setState(() => _isLoading = true);
+
     try {
-      // petición POST al servidor
       final response = await http.post(
-        Uri.parse('http://192.168.0.15:5000/auth/login'), // la url del backend
+        Uri.parse('http://192.168.0.15:5000/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'contrasena': contrasena}),
       );
 
-      // debug de la respuesta del servidor
       print('Código de estado: ${response.statusCode}');
       print('Respuesta del servidor: ${response.body}');
 
       final data = jsonDecode(response.body);
 
-      // validación de login exitoso
       if (response.statusCode == 200 && data['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('email', email); // guarda el correo en local
-        await prefs.setInt('id', data['id']); // guarda el id del usuario
+        
+        // 🆕 Guardar datos de sesión con tiempo
+        await prefs.setString('email', email);
+        await prefs.setInt('id', data['id']);
+        await prefs.setString('token', data['token']); // Token del servidor
+        await prefs.setString('lastLoginTime', DateTime.now().toIso8601String()); // Fecha de login
+        
+        // Opcional: guardar datos del perfil
+        if (data['perfil'] != null) {
+          await prefs.setString('nombre', data['perfil']['nom']);
+          await prefs.setString('apellido', data['perfil']['apell']);
+        }
 
-        // navega a GPSScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const GpsScreen()),
-        );
+        // Navegar a la pantalla principal
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const GpsScreen()),
+          );
+        }
       } else {
         final mensaje = data['message'] ?? 'Correo o contraseña incorrectos';
-        _mostrarAlerta(mensaje); //  alerta personalizada
+        _mostrarAlerta(mensaje);
       }
     } catch (e) {
       print('Error al iniciar sesión: $e');
-      _mostrarAlerta("Error al iniciar sesión"); //  alerta personalizada
+      _mostrarAlerta("Error al iniciar sesión. Verifica tu conexión.");
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  // este es el widget build que construye toda la pantalla del login
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF11120D), // color de fondo Dacky-1
+      backgroundColor: const Color(0xFF11120D),
       appBar: AppBar(
         backgroundColor: const Color(0xFF11120D),
         elevation: 0,
         leading: IconButton(
           icon: Image.asset('assets/atras_blanco.png', width: 24, height: 24),
           onPressed: () {
-            Navigator.pop(context); // regresa a la pantalla anterior
+            Navigator.pop(context);
           },
         ),
       ),
       body: SafeArea(
-        // ✅ Scroll para que no se corte con el teclado
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // 🔹 Logo y título
+              // Logo y título
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.35, // altura proporcional
+                height: MediaQuery.of(context).size.height * 0.35,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -154,10 +201,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              // 🔹 Caja del formulario
+              // Formulario
               Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF565449), // Dacky-2
+                  color: Color(0xFF565449),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -167,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // campo correo
+                    // Campo correo
                     TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
@@ -177,14 +224,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             'assets/usuario.png',
                             width: 24,
                             height: 24,
-                            color: const Color(0xFFD8CFBC), // Dacky-3
+                            color: const Color(0xFFD8CFBC),
                           ),
                         ),
                         hintText: 'Correo',
                         hintStyle: const TextStyle(
                             color: Color(0xFFD8CFBC), fontFamily: 'Montserrat'),
                         filled: true,
-                        fillColor: const Color(0xFFFFFBF4), // Dacky-4
+                        fillColor: const Color(0xFFFFFBF4),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(50),
                           borderSide: BorderSide.none,
@@ -193,7 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // campo contraseña
+                    // Campo contraseña
                     TextField(
                       controller: _passwordController,
                       obscureText: true,
@@ -220,9 +267,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // botón iniciar sesión
+                    // 🆕 Botón con loading indicator
                     ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF11120D),
                         foregroundColor: const Color(0xFFFFFBF4),
@@ -231,15 +278,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: const Center(
-                        child: Text('Iniciar Sesión',
-                            style: TextStyle(
-                                fontSize: 16, fontFamily: 'Montserrat')),
+                      child: Center(
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFFFFFBF4),
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Iniciar Sesión',
+                                style: TextStyle(
+                                    fontSize: 16, fontFamily: 'Montserrat'),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    // iconos de login alternativo
+                    // Iconos de login alternativo (próximamente funcionales)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -253,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // crear cuenta
+                    // Crear cuenta
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -284,5 +342,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
