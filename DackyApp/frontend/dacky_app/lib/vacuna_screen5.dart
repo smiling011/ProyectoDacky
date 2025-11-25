@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'vacuna_screen1.dart';
 import 'gps_screen.dart';
@@ -27,7 +26,11 @@ class VacunaScreen5 extends StatefulWidget {
 }
 
 class _VacunaScreen5State extends State<VacunaScreen5> {
-  final TextEditingController nombreController = TextEditingController();
+  // 🆕 Variables para el catálogo de vacunas
+  List<Map<String, dynamic>> catalogoVacunas = [];
+  int? idVacunaSeleccionada;
+  bool cargandoCatalogo = false;
+
   final TextEditingController fechaAplicacionController = TextEditingController();
   final TextEditingController edadController = TextEditingController();
   final TextEditingController fechaVencimientoController = TextEditingController();
@@ -36,7 +39,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   File? archivoSeleccionado;
   String? nombreArchivo;
   
-  // Variables para archivo existente
   bool tieneArchivoExistente = false;
   String? nombreArchivoExistente;
   String? tipoArchivoExistente;
@@ -47,15 +49,16 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   @override
   void initState() {
     super.initState();
+    _cargarCatalogoVacunas(); // 🆕 Cargar catálogo al iniciar
+    
     if (widget.vacuna != null) {
       final vacuna = widget.vacuna!;
-      nombreController.text = vacuna['NomVacuna'] ?? '';
+      idVacunaSeleccionada = vacuna['IdVacuna']; // 🆕 Usar IdVacuna en lugar de nombre
       fechaAplicacionController.text = vacuna['FechaVac'] ?? '';
       edadController.text = vacuna['Edad']?.toString() ?? '';
       fechaVencimientoController.text = vacuna['FechaVenVac'] ?? '';
       notaController.text = vacuna['Nota'] ?? '';
       
-      // Cargar información del archivo existente
       tieneArchivoExistente = vacuna['tieneArchivo'] == true;
       nombreArchivoExistente = vacuna['nombreArchivo'];
       tipoArchivoExistente = vacuna['tipoArchivo'];
@@ -65,6 +68,34 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
           dosisSeleccionadas[i] = true;
         }
       }
+    }
+  }
+
+  // 🆕 Cargar catálogo de vacunas desde el backend
+  Future<void> _cargarCatalogoVacunas() async {
+    setState(() => cargandoCatalogo = true);
+    
+    try {
+      final response = await http.get(
+        Uri.parse('https://proyectodackybackend.onrender.com/vacunas/catalogo')
+      );
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          catalogoVacunas = data.map((v) => {
+            'IdVacunas': v['IdVacunas'],
+            'NomVacuna': v['NomVacuna'],
+          }).toList();
+          cargandoCatalogo = false;
+        });
+      } else {
+        setState(() => cargandoCatalogo = false);
+        _mostrarAlerta("Error al cargar el catálogo de vacunas");
+      }
+    } catch (e) {
+      setState(() => cargandoCatalogo = false);
+      _mostrarAlerta("Error: $e");
     }
   }
 
@@ -118,7 +149,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
   }
 
   bool _validarCampos() {
-    if (nombreController.text.trim().isEmpty ||
+    if (idVacunaSeleccionada == null ||
         fechaAplicacionController.text.trim().isEmpty ||
         edadController.text.trim().isEmpty) {
       _mostrarAlerta("Todos los campos obligatorios deben completarse.");
@@ -155,7 +186,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     }
   }
 
-  // Descargar y abrir archivo existente
   Future<void> _descargarYAbrirArchivo() async {
     if (widget.vacuna == null) return;
 
@@ -169,15 +199,13 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       final response = await http.get(url);
       
       if (response.statusCode == 200) {
-        // Guardar en directorio de descargas
         final dir = await getApplicationDocumentsDirectory();
         final filePath = '${dir.path}/$nombreArchivoExistente';
         final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
-        Navigator.pop(context); // Cerrar diálogo de descarga
+        Navigator.pop(context);
 
-        // Abrir con aplicación externa
         final result = await OpenFile.open(filePath);
         
         if (result.type != ResultType.done) {
@@ -193,7 +221,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     }
   }
 
-  // Eliminar archivo existente
   Future<void> _eliminarArchivoExistente() async {
     if (widget.vacuna == null) return;
 
@@ -258,7 +285,8 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       uri,
     );
 
-    request.fields['NomVacuna'] = nombreController.text.trim();
+    // 🆕 Enviar IdVacunas en lugar de NomVacuna
+    request.fields['IdVacunas'] = idVacunaSeleccionada.toString();
     request.fields['FechaVac'] = fechaAplicacionController.text.trim();
     request.fields['Edad'] = (int.tryParse(edadController.text) ?? 0).toString();
     request.fields['FechaVenVac'] = fechaVencimientoController.text.trim();
@@ -326,7 +354,49 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildInputField('Nombre *', nombreController),
+                      // 🆕 DROPDOWN PARA SELECCIONAR VACUNA
+                      const Text('Nombre de la vacuna *', style: TextStyle(fontFamily: 'Montserrat')),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF9F2),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: cargandoCatalogo
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  isExpanded: true,
+                                  value: idVacunaSeleccionada,
+                                  hint: const Text(
+                                    'Selecciona una vacuna',
+                                    style: TextStyle(fontFamily: 'Montserrat'),
+                                  ),
+                                  items: catalogoVacunas.map((vacuna) {
+                                    return DropdownMenuItem<int>(
+                                      value: vacuna['IdVacunas'],
+                                      child: Text(
+                                        vacuna['NomVacuna'],
+                                        style: const TextStyle(fontFamily: 'Montserrat'),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      idVacunaSeleccionada = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: 16),
+
                       _buildDateField('Fecha de aplicación *', fechaAplicacionController),
                       _buildInputField('Edad *', edadController, number: true),
                       _buildDateField('Fecha de Vencimiento', fechaVencimientoController),
@@ -360,11 +430,9 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
 
                       const SizedBox(height: 16),
 
-                      // SECCIÓN DE ARCHIVOS SIMPLIFICADA
                       const Text('Archivo adjunto (opcional)', style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold)),
                       const SizedBox(height: 12),
 
-                      // Mostrar archivo existente
                       if (widget.vacuna != null && tieneArchivoExistente && !archivoEliminado) ...[
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -421,7 +489,6 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
                         const SizedBox(height: 12),
                       ],
 
-                      // Mostrar nuevo archivo seleccionado
                       if (archivoSeleccionado != null) ...[
                         Container(
                           padding: const EdgeInsets.all(12),

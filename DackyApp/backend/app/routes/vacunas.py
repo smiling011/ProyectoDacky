@@ -57,7 +57,7 @@ def obtener_vacunas_mascota(id_mascota):
     return jsonify(resultado), 200
 
 
-# 🟢 Registrar vacuna a una mascota
+# 🟢 Registrar vacuna a una mascota (CORREGIDO)
 @vacunas_bp.route("/<int:id_mascota>", methods=["POST"])
 def agregar_vacuna_mascota(id_mascota):
     mascota = Mascota.query.get(id_mascota)
@@ -70,29 +70,35 @@ def agregar_vacuna_mascota(id_mascota):
     else:
         data = request.get_json() or {}
 
-    if not all(k in data for k in ("NomVacuna", "Edad", "NumDosis")):
-        return jsonify({"mensaje": "Faltan campos obligatorios"}), 400
+    # 🔹 CAMBIO: Ahora recibimos IdVacunas en lugar de NomVacuna
+    if not all(k in data for k in ("IdVacunas", "Edad", "NumDosis")):
+        return jsonify({"mensaje": "Faltan campos obligatorios (IdVacunas, Edad, NumDosis)"}), 400
+
+    # Verificar que la vacuna existe
+    id_vacuna = int(data["IdVacunas"])
+    vacuna = Vacunas.query.get(id_vacuna)
+    if not vacuna:
+        return jsonify({"mensaje": "Vacuna no encontrada en el catálogo"}), 404
 
     # Parseo de fechas
     fecha_vac = None
     if data.get("FechaVac"):
-        fecha_vac = datetime.strptime(data["FechaVac"], "%Y-%m-%d").date()
+        try:
+            fecha_vac = datetime.strptime(data["FechaVac"], "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"mensaje": "Formato de fecha inválido (usar YYYY-MM-DD)"}), 400
 
     fecha_ven = None
     if data.get("FechaVenVac"):
-        fecha_ven = datetime.strptime(data["FechaVenVac"], "%Y-%m-%d").date()
-
-    # Verificar si la vacuna ya existe en el catálogo
-    vacuna = Vacunas.query.filter_by(NomVacuna=data["NomVacuna"]).first()
-    if not vacuna:
-        vacuna = Vacunas(NomVacuna=data["NomVacuna"])
-        db.session.add(vacuna)
-        db.session.flush()
+        try:
+            fecha_ven = datetime.strptime(data["FechaVenVac"], "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"mensaje": "Formato de fecha de vencimiento inválido"}), 400
 
     # Crear registro de vacuna aplicada
     vacuna_mascota = VacunasMascota(
         Mascota_IdMascota=id_mascota,
-        Vacunas_IdVacunas=vacuna.IdVacunas,
+        Vacunas_IdVacunas=id_vacuna,
         FechaVac=fecha_vac,
         Edad=int(data["Edad"]),
         FechaVenVac=fecha_ven,
@@ -105,7 +111,6 @@ def agregar_vacuna_mascota(id_mascota):
         file = request.files["file"]
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            # 🔹 MEJORADO: Agregar timestamp para evitar sobrescribir
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             name, ext = os.path.splitext(filename)
             filename = f"{name}_{timestamp}{ext}"
@@ -161,11 +166,11 @@ def obtener_vacuna_detalle(id_vacuna_mascota):
     }), 200
 
 
-# 🟢 Editar vacuna aplicada
+# 🟢 Editar vacuna aplicada (CORREGIDO)
 @vacunas_bp.route("/detalle/<int:id_vacuna_mascota>", methods=["PUT"])
 def editar_vacuna(id_vacuna_mascota):
-    vacuna = VacunasMascota.query.get(id_vacuna_mascota)
-    if not vacuna:
+    vacuna_mascota = VacunasMascota.query.get(id_vacuna_mascota)
+    if not vacuna_mascota:
         return jsonify({"mensaje": "Vacuna no encontrada"}), 404
 
     # 🔹 Aceptar JSON o multipart
@@ -174,33 +179,42 @@ def editar_vacuna(id_vacuna_mascota):
     else:
         data = request.get_json() or {}
 
-    # Si envían un nombre de vacuna diferente
-    if "NomVacuna" in data:
-        vacuna_catalogo = Vacunas.query.filter_by(NomVacuna=data["NomVacuna"]).first()
-        if not vacuna_catalogo:
-            vacuna_catalogo = Vacunas(NomVacuna=data["NomVacuna"])
-            db.session.add(vacuna_catalogo)
-            db.session.flush()
-        vacuna.Vacunas_IdVacunas = vacuna_catalogo.IdVacunas
+    # 🔹 CAMBIO: Actualizar con IdVacunas
+    if "IdVacunas" in data:
+        id_vacuna = int(data["IdVacunas"])
+        vacuna = Vacunas.query.get(id_vacuna)
+        if not vacuna:
+            return jsonify({"mensaje": "Vacuna no encontrada en el catálogo"}), 404
+        vacuna_mascota.Vacunas_IdVacunas = id_vacuna
 
     # Parseo de fechas
     if data.get("FechaVac"):
-        vacuna.FechaVac = datetime.strptime(data["FechaVac"], "%Y-%m-%d").date()
+        try:
+            vacuna_mascota.FechaVac = datetime.strptime(data["FechaVac"], "%Y-%m-%d").date()
+        except ValueError:
+            pass
+
     if data.get("FechaVenVac"):
-        vacuna.FechaVenVac = datetime.strptime(data["FechaVenVac"], "%Y-%m-%d").date()
+        try:
+            vacuna_mascota.FechaVenVac = datetime.strptime(data["FechaVenVac"], "%Y-%m-%d").date()
+        except ValueError:
+            pass
 
-    vacuna.Edad = int(data.get("Edad", vacuna.Edad))
-    vacuna.NumDosis = int(data.get("NumDosis", vacuna.NumDosis))
-    vacuna.Nota = data.get("Nota", vacuna.Nota)
+    if "Edad" in data:
+        vacuna_mascota.Edad = int(data["Edad"])
+    if "NumDosis" in data:
+        vacuna_mascota.NumDosis = int(data["NumDosis"])
+    if "Nota" in data:
+        vacuna_mascota.Nota = data["Nota"]
 
-    # 🔹 MEJORADO: Si hay archivo adjunto, reemplazar el anterior
+    # Si hay archivo adjunto, reemplazar el anterior
     if "file" in request.files:
         file = request.files["file"]
         if file and allowed_file(file.filename):
             # Eliminar archivo anterior si existe
-            if vacuna.archivo and os.path.exists(vacuna.archivo):
+            if vacuna_mascota.archivo and os.path.exists(vacuna_mascota.archivo):
                 try:
-                    os.remove(vacuna.archivo)
+                    os.remove(vacuna_mascota.archivo)
                 except:
                     pass
             
@@ -210,19 +224,20 @@ def editar_vacuna(id_vacuna_mascota):
             filename = f"{name}_{timestamp}{ext}"
             path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(path)
-            vacuna.archivo = path
+            vacuna_mascota.archivo = path
 
     db.session.commit()
+    
     return jsonify({
         "mensaje": "Vacuna actualizada correctamente",
         "vacuna": {
-            "IdVacunasMascota": vacuna.IdVacunasMascota,
-            "NomVacuna": vacuna.vacuna.NomVacuna if vacuna.vacuna else "Desconocida",
-            "FechaVac": vacuna.FechaVac.isoformat() if vacuna.FechaVac else None,
-            "Edad": vacuna.Edad,
-            "FechaVenVac": vacuna.FechaVenVac.isoformat() if vacuna.FechaVenVac else None,
-            "NumDosis": vacuna.NumDosis,
-            "Nota": vacuna.Nota
+            "IdVacunasMascota": vacuna_mascota.IdVacunasMascota,
+            "NomVacuna": vacuna_mascota.vacuna.NomVacuna if vacuna_mascota.vacuna else "Desconocida",
+            "FechaVac": vacuna_mascota.FechaVac.isoformat() if vacuna_mascota.FechaVac else None,
+            "Edad": vacuna_mascota.Edad,
+            "FechaVenVac": vacuna_mascota.FechaVenVac.isoformat() if vacuna_mascota.FechaVenVac else None,
+            "NumDosis": vacuna_mascota.NumDosis,
+            "Nota": vacuna_mascota.Nota
         }
     }), 200
 
@@ -425,3 +440,18 @@ def exportar_pdf_vacunas(id_mascota):
             "mensaje": f"Error al generar PDF: {str(e)}",
             "tipo_error": type(e).__name__
         }), 500
+        
+
+# 🆕 NUEVO: Obtener catálogo completo de vacunas
+@vacunas_bp.route("/catalogo", methods=["GET"])
+def obtener_catalogo_vacunas():
+    """Retorna todas las vacunas disponibles en el catálogo"""
+    vacunas = Vacunas.query.order_by(Vacunas.NomVacuna).all()
+    resultado = [
+        {
+            "IdVacunas": v.IdVacunas,
+            "NomVacuna": v.NomVacuna
+        }
+        for v in vacunas
+    ]
+    return jsonify(resultado), 200
