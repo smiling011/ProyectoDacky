@@ -15,6 +15,8 @@ def generar_token():
 @auth_bp.route('/registro', methods=['POST'])
 def registro():
     data = request.get_json()
+    
+    print(f"📥 Datos recibidos: {data}")
 
     if not all(k in data for k in ('Nom', 'Apell', 'Email', 'Contrasena')):
         return jsonify({'success': False, 'message': 'Faltan campos obligatorios'}), 400
@@ -27,27 +29,25 @@ def registro():
     num_cel = data.get('NumCel')
     
     if num_telf == '' or num_telf is None:
-        num_telf = 0  # Valor por defecto
+        num_telf = 0
     else:
         try:
             num_telf = int(num_telf)
         except (ValueError, TypeError):
-            return jsonify({'success': False, 'message': 'Número de teléfono inválido'}), 400
+            num_telf = 0
     
     if num_cel == '' or num_cel is None:
-        num_cel = 0  # Valor por defecto
+        num_cel = 0
     else:
         try:
             num_cel = int(num_cel)
         except (ValueError, TypeError):
-            return jsonify({'success': False, 'message': 'Número de celular inválido'}), 400
+            num_cel = 0
 
-    direccion = data.get('Direccion')
-    if direccion == '' or direccion is None:
-        direccion = ''
+    direccion = data.get('Direccion', '') or ''
 
     try:
-        # 1️⃣ PRIMERO: Crear PerfilDueño
+        # 1️⃣ Crear PerfilDueño PRIMERO
         nuevo_perfil = PerfilDueño(
             NomDueño=data['Nom'],
             Apell=data['Apell'],
@@ -57,33 +57,42 @@ def registro():
             Direccion=direccion
         )
         db.session.add(nuevo_perfil)
-        db.session.flush()
+        db.session.flush()  # Genera el IdPerfilDueño
         
         print(f"✅ Perfil creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-        # 2️⃣ SEGUNDO: Crear InicioSesion SIN PerfilDueño_IdPerfilDueño
-        nuevo_usuario = InicioSesion(
-            Nom=data['Nom'],
-            Apell=data['Apell'],
-            Email=data['Email'],
-            Contrasena=generate_password_hash(data['Contrasena']),
-            NumTelf=num_telf,
-            NumCel=num_cel,
-            Direccion=direccion,
-            Rol='usuario'
-            # ❌ NO incluir: PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño
-        )
-        db.session.add(nuevo_usuario)
-        db.session.flush()
+        # 2️⃣ Crear InicioSesion usando SQL directo para incluir PerfilDueño_IdPerfilDueño
+        from sqlalchemy import text
         
-        print(f"✅ Usuario creado con ID: {nuevo_usuario.IdInicioSesion}")
+        sql = text("""
+            INSERT INTO iniciosesion 
+            ("Nom", "Apell", "Email", "Contrasena", "NumTelf", "NumCel", "Direccion", "Rol", "PerfilDueño_IdPerfilDueño")
+            VALUES (:nom, :apell, :email, :contrasena, :numtelf, :numcel, :direccion, :rol, :perfil_id)
+            RETURNING "IdInicioSesion"
+        """)
+        
+        result = db.session.execute(sql, {
+            'nom': data['Nom'],
+            'apell': data['Apell'],
+            'email': data['Email'],
+            'contrasena': generate_password_hash(data['Contrasena']),
+            'numtelf': num_telf,
+            'numcel': num_cel,
+            'direccion': direccion,
+            'rol': 'usuario',
+            'perfil_id': nuevo_perfil.IdPerfilDueño
+        })
+        
+        id_inicio_sesion = result.fetchone()[0]
+        
+        print(f"✅ Usuario creado con ID: {id_inicio_sesion}")
 
-        # 3️⃣ TERCERO: Actualizar PerfilDueño con IdInicioSesion
-        nuevo_perfil.IdInicioSesion = nuevo_usuario.IdInicioSesion
+        # 3️⃣ Actualizar PerfilDueño con IdInicioSesion
+        nuevo_perfil.IdInicioSesion = id_inicio_sesion
 
         db.session.commit()
         
-        print("✅ Commit exitoso")
+        print("✅ Registro completado exitosamente")
 
         # Generar token
         token = generar_token()
@@ -91,14 +100,16 @@ def registro():
         return jsonify({
             'success': True,
             'message': 'Usuario registrado correctamente',
-            'id': nuevo_usuario.IdInicioSesion,
-            'email': nuevo_usuario.Email,
+            'id': id_inicio_sesion,
+            'email': data['Email'],
             'token': token
         }), 201
         
     except Exception as e:
         db.session.rollback()
-        print(f"❌ Error en registro: {str(e)}")
+        import traceback
+        error_completo = traceback.format_exc()
+        print(f"❌ Error completo:\n{error_completo}")
         return jsonify({'success': False, 'message': f'Error al registrar: {str(e)}'}), 500
 
 # Login
