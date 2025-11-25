@@ -27,7 +27,7 @@ def registro():
     num_cel = data.get('NumCel')
     
     if num_telf == '' or num_telf is None:
-        num_telf = 0  # 👈 Valor por defecto en lugar de None
+        num_telf = 0  # Valor por defecto
     else:
         try:
             num_telf = int(num_telf)
@@ -35,7 +35,7 @@ def registro():
             return jsonify({'success': False, 'message': 'Número de teléfono inválido'}), 400
     
     if num_cel == '' or num_cel is None:
-        num_cel = 0  # 👈 Valor por defecto en lugar de None
+        num_cel = 0  # Valor por defecto
     else:
         try:
             num_cel = int(num_cel)
@@ -44,7 +44,7 @@ def registro():
 
     direccion = data.get('Direccion')
     if direccion == '' or direccion is None:
-        direccion = ''  # 👈 String vacío en lugar de None
+        direccion = ''
 
     try:
         # 1️⃣ PRIMERO: Crear PerfilDueño
@@ -52,16 +52,16 @@ def registro():
             NomDueño=data['Nom'],
             Apell=data['Apell'],
             Email=data['Email'],
-            NumTelf=num_telf,  # Ahora será 0 si está vacío
-            NumCel=num_cel,    # Ahora será 0 si está vacío
-            Direccion=direccion  # Ahora será '' si está vacío
+            NumTelf=num_telf,
+            NumCel=num_cel,
+            Direccion=direccion
         )
         db.session.add(nuevo_perfil)
         db.session.flush()
         
         print(f"✅ Perfil creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-        # 2️⃣ SEGUNDO: Crear InicioSesion
+        # 2️⃣ SEGUNDO: Crear InicioSesion SIN PerfilDueño_IdPerfilDueño
         nuevo_usuario = InicioSesion(
             Nom=data['Nom'],
             Apell=data['Apell'],
@@ -70,8 +70,8 @@ def registro():
             NumTelf=num_telf,
             NumCel=num_cel,
             Direccion=direccion,
-            Rol='usuario',
-            PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño
+            Rol='usuario'
+            # ❌ NO incluir: PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño
         )
         db.session.add(nuevo_usuario)
         db.session.flush()
