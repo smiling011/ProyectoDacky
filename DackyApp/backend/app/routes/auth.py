@@ -26,7 +26,6 @@ def registro():
     num_telf = data.get('NumTelf')
     num_cel = data.get('NumCel')
     
-    # Convertir cadenas vacías a None para campos bigint
     if num_telf == '' or num_telf is None:
         num_telf = None
     else:
@@ -43,49 +42,64 @@ def registro():
         except (ValueError, TypeError):
             return jsonify({'success': False, 'message': 'Número de celular inválido'}), 400
 
-    # Validar dirección
     direccion = data.get('Direccion')
     if direccion == '':
         direccion = None
 
-    # 1. Crear usuario en iniciosesion
-    nuevo_usuario = InicioSesion(
-        Nom=data['Nom'],
-        Apell=data['Apell'],
-        Email=data['Email'],
-        Contrasena=generate_password_hash(data['Contrasena']),
-        NumTelf=num_telf,
-        NumCel=num_cel,
-        Direccion=direccion,
-        Rol='usuario'
-    )
-    db.session.add(nuevo_usuario)
-    db.session.flush()
+    try:
+        # 1️⃣ PRIMERO: Crear PerfilDueño (sin IdInicioSesion)
+        nuevo_perfil = PerfilDueño(
+            NomDueño=data['Nom'],
+            Apell=data['Apell'],
+            Email=data['Email'],
+            NumTelf=num_telf,
+            NumCel=num_cel,
+            Direccion=direccion
+        )
+        db.session.add(nuevo_perfil)
+        db.session.flush()  # Genera IdPerfilDueño
+        
+        print(f"✅ Perfil creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-    # 2. Crear perfil en perfildueño enlazado
-    nuevo_perfil = PerfilDueño(
-        NomDueño=data['Nom'],
-        Apell=data['Apell'],
-        Email=data['Email'],
-        NumTelf=num_telf,
-        NumCel=num_cel,
-        Direccion=direccion,
-        IdInicioSesion=nuevo_usuario.IdInicioSesion
-    )
-    db.session.add(nuevo_perfil)
+        # 2️⃣ SEGUNDO: Crear InicioSesion CON la referencia al perfil
+        nuevo_usuario = InicioSesion(
+            Nom=data['Nom'],
+            Apell=data['Apell'],
+            Email=data['Email'],
+            Contrasena=generate_password_hash(data['Contrasena']),
+            NumTelf=num_telf,
+            NumCel=num_cel,
+            Direccion=direccion,
+            Rol='usuario',
+            PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño  # 🔑 CLAVE: agregar esta línea
+        )
+        db.session.add(nuevo_usuario)
+        db.session.flush()  # Genera IdInicioSesion
+        
+        print(f"✅ Usuario creado con ID: {nuevo_usuario.IdInicioSesion}")
 
-    db.session.commit()
+        # 3️⃣ TERCERO: Actualizar PerfilDueño con IdInicioSesion
+        nuevo_perfil.IdInicioSesion = nuevo_usuario.IdInicioSesion
 
-    # 🆕 Generar token para el nuevo usuario
-    token = generar_token()
+        db.session.commit()
+        
+        print("✅ Commit exitoso")
 
-    return jsonify({
-        'success': True,
-        'message': 'Usuario registrado correctamente',
-        'id': nuevo_usuario.IdInicioSesion,
-        'email': nuevo_usuario.Email,
-        'token': token  # 🆕 Token de sesión
-    }), 201
+        # Generar token
+        token = generar_token()
+
+        return jsonify({
+            'success': True,
+            'message': 'Usuario registrado correctamente',
+            'id': nuevo_usuario.IdInicioSesion,
+            'email': nuevo_usuario.Email,
+            'token': token
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error en registro: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error al registrar: {str(e)}'}), 500
 
 # Login
 @auth_bp.route('/login', methods=['POST'])

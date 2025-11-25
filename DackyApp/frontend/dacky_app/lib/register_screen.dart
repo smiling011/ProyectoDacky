@@ -108,9 +108,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           "Apell": apellidoController.text.trim(),
           "Email": correoController.text.trim(),
           "Contrasena": contrasenaController.text.trim(),
-          "NumCel": "",
-          "NumTelf": "",
-          "Direccion": ""
+          "NumCel": null,
+          "NumTelf": null,
+          "Direccion": null
         }),
       );
 
