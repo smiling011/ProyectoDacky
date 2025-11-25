@@ -142,7 +142,7 @@ class _UserScreen1State extends State<UserScreen1> {
         backgroundColor: Colors.grey[300],
         backgroundImage: tieneImagen
             ? NetworkImage(
-                "http://192.168.0.15:5000/perfil/$idUsuario/imagen",
+                "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen",
               ) as ImageProvider
             : const AssetImage('assets/perfil_user.png'),
         child: tieneImagen ? null : null,

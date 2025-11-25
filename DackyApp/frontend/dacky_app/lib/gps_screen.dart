@@ -8,6 +8,11 @@ import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'user_screen1.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
+final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
+
 // widget principal de la screen
 class GpsScreen extends StatefulWidget {
   const GpsScreen({Key? key}) : super(key: key);

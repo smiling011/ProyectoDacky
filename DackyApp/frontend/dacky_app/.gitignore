@@ -39,3 +39,6 @@ app.*.map.json
 
 # Android Studio will place build artifacts here
 
+# Variables de entorno
+.env
+*.env
