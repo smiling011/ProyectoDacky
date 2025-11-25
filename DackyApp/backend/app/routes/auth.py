@@ -27,7 +27,7 @@ def registro():
     num_cel = data.get('NumCel')
     
     if num_telf == '' or num_telf is None:
-        num_telf = None
+        num_telf = 0  # 👈 Valor por defecto en lugar de None
     else:
         try:
             num_telf = int(num_telf)
@@ -35,7 +35,7 @@ def registro():
             return jsonify({'success': False, 'message': 'Número de teléfono inválido'}), 400
     
     if num_cel == '' or num_cel is None:
-        num_cel = None
+        num_cel = 0  # 👈 Valor por defecto en lugar de None
     else:
         try:
             num_cel = int(num_cel)
@@ -43,25 +43,25 @@ def registro():
             return jsonify({'success': False, 'message': 'Número de celular inválido'}), 400
 
     direccion = data.get('Direccion')
-    if direccion == '':
-        direccion = None
+    if direccion == '' or direccion is None:
+        direccion = ''  # 👈 String vacío en lugar de None
 
     try:
-        # 1️⃣ PRIMERO: Crear PerfilDueño (sin IdInicioSesion)
+        # 1️⃣ PRIMERO: Crear PerfilDueño
         nuevo_perfil = PerfilDueño(
             NomDueño=data['Nom'],
             Apell=data['Apell'],
             Email=data['Email'],
-            NumTelf=num_telf,
-            NumCel=num_cel,
-            Direccion=direccion
+            NumTelf=num_telf,  # Ahora será 0 si está vacío
+            NumCel=num_cel,    # Ahora será 0 si está vacío
+            Direccion=direccion  # Ahora será '' si está vacío
         )
         db.session.add(nuevo_perfil)
-        db.session.flush()  # Genera IdPerfilDueño
+        db.session.flush()
         
         print(f"✅ Perfil creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-        # 2️⃣ SEGUNDO: Crear InicioSesion CON la referencia al perfil
+        # 2️⃣ SEGUNDO: Crear InicioSesion
         nuevo_usuario = InicioSesion(
             Nom=data['Nom'],
             Apell=data['Apell'],
@@ -71,10 +71,10 @@ def registro():
             NumCel=num_cel,
             Direccion=direccion,
             Rol='usuario',
-            PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño  # 🔑 CLAVE: agregar esta línea
+            PerfilDueño_IdPerfilDueño=nuevo_perfil.IdPerfilDueño
         )
         db.session.add(nuevo_usuario)
-        db.session.flush()  # Genera IdInicioSesion
+        db.session.flush()
         
         print(f"✅ Usuario creado con ID: {nuevo_usuario.IdInicioSesion}")
 
