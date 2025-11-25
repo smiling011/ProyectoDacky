@@ -163,7 +163,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
       _mostrarAlerta("Descargando archivo...", exito: true);
 
       final url = Uri.parse(
-        "http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
+        "https://proyectodackybackend.onrender.com/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
       );
       
       final response = await http.get(url);
@@ -224,7 +224,7 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
 
     try {
       final url = Uri.parse(
-        "http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
+        "https://proyectodackybackend.onrender.com/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}/archivo"
       );
       
       final response = await http.delete(url);
@@ -250,8 +250,8 @@ class _VacunaScreen5State extends State<VacunaScreen5> {
     final int numDosis = dosisSeleccionadas.lastIndexWhere((e) => e) + 1;
 
     var uri = widget.vacuna == null
-        ? Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}")
-        : Uri.parse("http://192.168.0.15:5000/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}");
+        ? Uri.parse("https://proyectodackybackend.onrender.com/vacunas/${widget.idMascota}")
+        : Uri.parse("https://proyectodackybackend.onrender.com/vacunas/detalle/${widget.vacuna!['IdVacunasMascota']}");
 
     var request = http.MultipartRequest(
       widget.vacuna == null ? 'POST' : 'PUT',

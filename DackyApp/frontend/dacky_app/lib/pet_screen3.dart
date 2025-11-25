@@ -34,7 +34,7 @@ class _PetScreen3State extends State<PetScreen3> {
 
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://192.168.0.15:5000/pet/$idUsuario");
+    final url = Uri.parse("https://proyectodackybackend.onrender.com/pet/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -175,7 +175,7 @@ class _PetScreen3State extends State<PetScreen3> {
             ClipOval(
               child: tieneImagen
                   ? Image.network(
-                      "http://192.168.0.15:5000/pet/detalle/$idMascota/imagen",
+                      "https://proyectodackybackend.onrender.com/pet/detalle/$idMascota/imagen",
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,

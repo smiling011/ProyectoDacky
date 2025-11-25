@@ -31,7 +31,7 @@ class _UserScreen1State extends State<UserScreen1> {
 
     if (idUsuario == null) return;
 
-    final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario");
+    final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -171,7 +171,7 @@ class _UserScreen1State extends State<UserScreen1> {
                   backgroundColor: Colors.white,
                   backgroundImage: perfil?['tieneImagen'] == true
                       ? NetworkImage(
-                          "http://192.168.0.15:5000/perfil/$idUsuario/imagen",
+                          "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen",
                         ) as ImageProvider
                       : const AssetImage('assets/perfil_user.png'),
                 ),

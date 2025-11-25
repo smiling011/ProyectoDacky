@@ -170,7 +170,7 @@ class _PetScreen2State extends State<PetScreen2> {
 
     try {
       final idMascota = widget.mascota!['IdMascota'];
-      final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/$idMascota/imagen");
+      final url = Uri.parse("https://proyectodackybackend.onrender.com/pet/detalle/$idMascota/imagen");
       
       final response = await http.delete(url);
       
@@ -207,7 +207,7 @@ class _PetScreen2State extends State<PetScreen2> {
 
       if (widget.mascota == null) {
         // POST → Crear mascota con imagen
-        final url = Uri.parse("http://192.168.0.15:5000/pet/$idUsuario");
+        final url = Uri.parse("https://proyectodackybackend.onrender.com/pet/$idUsuario");
         
         var request = http.MultipartRequest('POST', url);
         request.fields['NomMascota'] = nombreController.text.trim();
@@ -229,7 +229,7 @@ class _PetScreen2State extends State<PetScreen2> {
       } else {
         // PUT → Editar mascota con imagen
         final idMascota = widget.mascota!['IdMascota'];
-        final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/$idMascota");
+        final url = Uri.parse("https://proyectodackybackend.onrender.com/pet/detalle/$idMascota");
         
         var request = http.MultipartRequest('PUT', url);
         request.fields['NomMascota'] = nombreController.text.trim();
@@ -312,7 +312,7 @@ class _PetScreen2State extends State<PetScreen2> {
       return FileImage(imagenSeleccionada!);
     } else if (tieneImagenExistente && !imagenEliminada && widget.mascota != null) {
       final idMascota = widget.mascota!['IdMascota'];
-      return NetworkImage("http://192.168.0.15:5000/pet/detalle/$idMascota/imagen");
+      return NetworkImage("https://proyectodackybackend.onrender.com:5000/pet/detalle/$idMascota/imagen");
     }
     return null;
   }

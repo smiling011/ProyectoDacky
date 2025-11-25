@@ -30,7 +30,7 @@ class _PetScreen4State extends State<PetScreen4> {
 
   Future<void> _cargarMascota() async {
     final url =
-        Uri.parse("http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
+        Uri.parse("https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -75,7 +75,7 @@ class _PetScreen4State extends State<PetScreen4> {
 
     if (confirmar != true) return;
 
-    final url = Uri.parse("http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
+    final url = Uri.parse("https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}");
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
@@ -111,7 +111,7 @@ class _PetScreen4State extends State<PetScreen4> {
         backgroundColor: Colors.grey[300],
         backgroundImage: tieneImagen
             ? NetworkImage(
-                "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}/imagen",
+                "https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}/imagen",
               ) as ImageProvider
             : const AssetImage('assets/images/Perfil_Perro_Gato.png'),
         child: tieneImagen

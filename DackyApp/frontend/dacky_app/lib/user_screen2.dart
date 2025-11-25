@@ -47,7 +47,7 @@ class _UserScreen2State extends State<UserScreen2> {
       idUsuario = id;
     });
 
-    final url = Uri.parse("http://192.168.0.15:5000/perfil/$id");
+    final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$id");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -187,7 +187,7 @@ class _UserScreen2State extends State<UserScreen2> {
     setState(() => _loading = true);
 
     try {
-      final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario");
+      final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario");
 
       var request = http.MultipartRequest('PUT', url);
       request.fields['NomDueño'] = nombreController.text;
@@ -262,7 +262,7 @@ class _UserScreen2State extends State<UserScreen2> {
     if (imagenSeleccionada != null) {
       return FileImage(imagenSeleccionada!);
     } else if (tieneImagenExistente && !imagenEliminada && idUsuario != null) {
-      return NetworkImage("http://192.168.0.15:5000/perfil/$idUsuario/imagen");
+      return NetworkImage("https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen");
     } else {
       return const AssetImage('assets/perfil_user.png');
     }

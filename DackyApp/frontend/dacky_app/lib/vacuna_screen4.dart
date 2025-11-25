@@ -35,7 +35,7 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
   Future<void> _cargarMascota() async {
     try {
       final url = Uri.parse(
-          "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}");
+          "https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}");
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -49,7 +49,7 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
   }
 
   Future<void> _cargarVacunas() async {
-    final url = Uri.parse("http://192.168.0.15:5000/vacunas/${widget.idMascota}");
+    final url = Uri.parse("https://proyectodackybackend.onrender.com/vacunas/${widget.idMascota}");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -105,7 +105,7 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
       );
 
       final url = Uri.parse(
-          "http://192.168.0.15:5000/vacunas/${widget.idMascota}/exportar-pdf");
+          "https://proyectodackybackend.onrender.com/vacunas/${widget.idMascota}/exportar-pdf");
       final response = await http.get(url);
 
       Navigator.pop(context); // Cerrar diálogo de carga
@@ -168,7 +168,7 @@ class _VacunaScreen4State extends State<VacunaScreen4> {
           ClipOval(
             child: tieneImagen
                 ? Image.network(
-                    "http://192.168.0.15:5000/pet/detalle/${widget.idMascota}/imagen",
+                    "https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}/imagen",
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
