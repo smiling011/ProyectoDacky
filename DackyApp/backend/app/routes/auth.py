@@ -22,15 +22,41 @@ def registro():
     if InicioSesion.query.filter_by(Email=data['Email']).first():
         return jsonify({'success': False, 'message': 'El correo ya está registrado'}), 400
 
+    # Validar y convertir campos numéricos
+    num_telf = data.get('NumTelf')
+    num_cel = data.get('NumCel')
+    
+    # Convertir cadenas vacías a None para campos bigint
+    if num_telf == '' or num_telf is None:
+        num_telf = None
+    else:
+        try:
+            num_telf = int(num_telf)
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'message': 'Número de teléfono inválido'}), 400
+    
+    if num_cel == '' or num_cel is None:
+        num_cel = None
+    else:
+        try:
+            num_cel = int(num_cel)
+        except (ValueError, TypeError):
+            return jsonify({'success': False, 'message': 'Número de celular inválido'}), 400
+
+    # Validar dirección
+    direccion = data.get('Direccion')
+    if direccion == '':
+        direccion = None
+
     # 1. Crear usuario en iniciosesion
     nuevo_usuario = InicioSesion(
         Nom=data['Nom'],
         Apell=data['Apell'],
         Email=data['Email'],
         Contrasena=generate_password_hash(data['Contrasena']),
-        NumTelf=data.get('NumTelf'),
-        NumCel=data.get('NumCel'),
-        Direccion=data.get('Direccion'),
+        NumTelf=num_telf,
+        NumCel=num_cel,
+        Direccion=direccion,
         Rol='usuario'
     )
     db.session.add(nuevo_usuario)
@@ -41,9 +67,9 @@ def registro():
         NomDueño=data['Nom'],
         Apell=data['Apell'],
         Email=data['Email'],
-        NumTelf=data.get('NumTelf'),
-        NumCel=data.get('NumCel'),
-        Direccion=data.get('Direccion'),
+        NumTelf=num_telf,
+        NumCel=num_cel,
+        Direccion=direccion,
         IdInicioSesion=nuevo_usuario.IdInicioSesion
     )
     db.session.add(nuevo_perfil)
@@ -60,7 +86,6 @@ def registro():
         'email': nuevo_usuario.Email,
         'token': token  # 🆕 Token de sesión
     }), 201
-
 
 # Login
 @auth_bp.route('/login', methods=['POST'])
