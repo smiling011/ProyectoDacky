@@ -1,18 +1,10 @@
 from flask import Blueprint, request, jsonify, send_file
 from app.utils.models import db, PerfilDueño
-import os
-from werkzeug.utils import secure_filename
-from datetime import datetime
+from io import BytesIO
 
 perfil_bp = Blueprint("perfil", __name__)
 
-# Carpeta donde se guardarán las imágenes de perfil
-UPLOAD_FOLDER = "uploads/usuarios"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
-
-# Aseguramos que la carpeta exista
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -26,8 +18,8 @@ def perfil_usuario(id_usuario):
     if not perfil:
         return jsonify({'mensaje': 'Perfil no encontrado'}), 404
 
-    # 🔹 MEJORADO: Incluir información de imagen
-    tiene_imagen = perfil.imagen is not None and perfil.imagen != ""
+    # 🔹 MEJORADO: Verificar si hay imagen en la BD (bytea)
+    tiene_imagen = perfil.imagen is not None and len(perfil.imagen) > 0
 
     return jsonify({
         'IdPerfilDueño': perfil.IdPerfilDueño,
@@ -37,11 +29,11 @@ def perfil_usuario(id_usuario):
         'NumTelf': str(perfil.NumTelf) if perfil.NumTelf else '',
         'NumCel': str(perfil.NumCel) if perfil.NumCel else '',
         'Direccion': perfil.Direccion or '',
-        'tieneImagen': tiene_imagen  # 🆕 Campo nuevo
+        'tieneImagen': tiene_imagen
     })
 
 
-# 🟢 Actualizar perfil (con imagen opcional)
+# 🟢 Actualizar perfil (con imagen en BD como BYTEA)
 @perfil_bp.route('/<int:id_usuario>', methods=['PUT'])
 def actualizar_perfil(id_usuario):
     # 🔹 Aceptar multipart/form-data para imágenes
@@ -66,31 +58,22 @@ def actualizar_perfil(id_usuario):
     perfil.NumCel = data.get('NumCel', perfil.NumCel) or 0
     perfil.Direccion = data.get('Direccion', perfil.Direccion)
 
-    # 🔹 NUEVO: Manejar imagen si se envió
+    # 🔹 NUEVO: Guardar imagen directamente en la BD como BYTEA
     if 'imagen' in request.files:
         file = request.files['imagen']
         if file and allowed_file(file.filename):
-            # Eliminar imagen anterior si existe
-            if perfil.imagen and os.path.exists(perfil.imagen):
-                try:
-                    os.remove(perfil.imagen)
-                except:
-                    pass
-            
-            filename = secure_filename(file.filename)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            name, ext = os.path.splitext(filename)
-            filename = f"user_{id_usuario}_{timestamp}{ext}"
-            path = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(path)
-            perfil.imagen = path
+            # Leer el archivo como bytes
+            imagen_bytes = file.read()
+            # Guardar directamente en la BD
+            perfil.imagen = imagen_bytes
+            print(f"✅ Imagen guardada en BD: {len(imagen_bytes)} bytes")
 
     db.session.commit()
 
     return jsonify({'success': True, 'message': 'Perfil actualizado correctamente'})
 
 
-# 🆕 NUEVO: Obtener imagen de perfil de usuario
+# 🆕 NUEVO: Obtener imagen de perfil desde la BD
 @perfil_bp.route('/<int:id_usuario>/imagen', methods=['GET'])
 def obtener_imagen_usuario(id_usuario):
     perfil = PerfilDueño.query.filter_by(IdInicioSesion=id_usuario).first()
@@ -98,25 +81,16 @@ def obtener_imagen_usuario(id_usuario):
     if not perfil:
         return jsonify({'mensaje': 'Perfil no encontrado'}), 404
     
-    if not perfil.imagen:
+    if not perfil.imagen or len(perfil.imagen) == 0:
         return jsonify({'mensaje': 'No hay imagen asociada'}), 404
     
-    # Normalizar la ruta del archivo
-    imagen_path = perfil.imagen.replace('/', os.sep).replace('\\', os.sep)
-    
-    # Si la ruta no es absoluta, convertirla a absoluta
-    if not os.path.isabs(imagen_path):
-        imagen_path = os.path.join(os.getcwd(), imagen_path)
-    
-    if not os.path.exists(imagen_path):
-        return jsonify({
-            'mensaje': 'Imagen no encontrada en el servidor',
-            'ruta_guardada': perfil.imagen,
-            'ruta_buscada': imagen_path
-        }), 404
-    
     try:
-        return send_file(imagen_path, as_attachment=False)
+        # Enviar la imagen desde la BD
+        return send_file(
+            BytesIO(perfil.imagen),
+            mimetype='image/jpeg',
+            as_attachment=False
+        )
     except Exception as e:
         return jsonify({'mensaje': f'Error al enviar imagen: {str(e)}'}), 500
 
@@ -131,13 +105,6 @@ def eliminar_imagen_usuario(id_usuario):
     
     if not perfil.imagen:
         return jsonify({'mensaje': 'No hay imagen para eliminar'}), 404
-    
-    # Eliminar archivo físico
-    if os.path.exists(perfil.imagen):
-        try:
-            os.remove(perfil.imagen)
-        except Exception as e:
-            return jsonify({'mensaje': f'Error al eliminar imagen: {str(e)}'}), 500
     
     # Limpiar campo en BD
     perfil.imagen = None

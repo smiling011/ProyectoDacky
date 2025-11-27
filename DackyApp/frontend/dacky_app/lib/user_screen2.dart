@@ -163,7 +163,7 @@ class _UserScreen2State extends State<UserScreen2> {
     if (confirmar != true) return;
 
     try {
-      final url = Uri.parse("http://192.168.0.15:5000/perfil/$idUsuario/imagen");
+      final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen");
 
       final response = await http.delete(url);
 
