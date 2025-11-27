@@ -86,40 +86,46 @@ class _PetScreen4State extends State<PetScreen4> {
       );
     }
   }
+// 🆕 Widget para mostrar imagen de perfil
+Widget _buildProfileAvatar() {
+  final tieneImagen = mascota!['tieneImagen'] == true;
+  
+  // 🆕 AGREGAR ESTOS PRINTS
+  print("🖼️ tieneImagen: $tieneImagen");
+  print("🆔 idMascota: ${widget.idMascota}");
+  print("📦 mascota completa: $mascota");
 
-  // 🆕 Widget para mostrar imagen de perfil
-  Widget _buildProfileAvatar() {
-    final tieneImagen = mascota!['tieneImagen'] == true;
-
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: const Color(0xFF11120D),
-          width: 4,
+  return Container(
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: const Color(0xFF11120D),
+        width: 4,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.2),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: CircleAvatar(
-        radius: 90,
-        backgroundColor: Colors.grey[300],
-        backgroundImage: tieneImagen
-            ? NetworkImage(
-                "https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}/imagen",
-              ) as ImageProvider
-            : const AssetImage('assets/images/Perfil_Perro_Gato.png'),
-        child: tieneImagen
-            ? null
-            : null, // Si hay imagen de red, no mostrar nada encima
-      ),
-    );
-  }
+      ],
+    ),
+    child: CircleAvatar(
+      radius: 90,
+      backgroundColor: Colors.grey[300],
+      backgroundImage: tieneImagen
+          ? NetworkImage(
+              "https://proyectodackybackend.onrender.com/pet/detalle/${widget.idMascota}/imagen",
+            ) as ImageProvider
+          : const AssetImage('assets/images/Perfil_Perro_Gato.png'),
+      onBackgroundImageError: tieneImagen
+          ? (exception, stackTrace) {
+              print('❌ Error cargando imagen: $exception');
+            }
+          : null,
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

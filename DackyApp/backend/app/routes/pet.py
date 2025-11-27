@@ -23,8 +23,14 @@ def obtener_mascotas(id_perfil):
     for m in mascotas:
         perfil_mascota = PerfilMascota.query.get(m.PerfilMascota_IdPerfilMascota)
         
-        # 🔹 MEJORADO: Verificar si hay imagen en la BD
-        tiene_imagen = perfil_mascota.imagen is not None and len(perfil_mascota.imagen) > 0
+        # 🔹 CORREGIDO: Manejar BYTEA correctamente
+        tiene_imagen = False
+        if perfil_mascota.imagen is not None:
+            try:
+                imagen_bytes = bytes(perfil_mascota.imagen) if isinstance(perfil_mascota.imagen, memoryview) else perfil_mascota.imagen
+                tiene_imagen = len(imagen_bytes) > 0
+            except:
+                tiene_imagen = False
         
         resultado.append({
             'IdMascota': m.IdMascota,
@@ -98,8 +104,17 @@ def obtener_mascota(id_mascota):
 
     perfil_mascota = PerfilMascota.query.get(mascota.PerfilMascota_IdPerfilMascota)
 
-    # 🔹 MEJORADO: Verificar imagen en BD
-    tiene_imagen = perfil_mascota.imagen is not None and len(perfil_mascota.imagen) > 0
+    # 🔹 CORREGIDO: Manejar BYTEA correctamente
+    tiene_imagen = False
+    if perfil_mascota.imagen is not None:
+        try:
+            # Convertir memoryview a bytes si es necesario
+            imagen_bytes = bytes(perfil_mascota.imagen) if isinstance(perfil_mascota.imagen, memoryview) else perfil_mascota.imagen
+            tiene_imagen = len(imagen_bytes) > 0
+            print(f"✅ Mascota {id_mascota} tiene imagen: {len(imagen_bytes)} bytes")
+        except Exception as e:
+            print(f"❌ Error verificando imagen: {e}")
+            tiene_imagen = False
 
     return jsonify({
         'IdMascota': mascota.IdMascota,
@@ -169,23 +184,38 @@ def eliminar_mascota(id_mascota):
 # NUEVO: Obtener imagen de una mascota desde la BD
 @pet_bp.route('/detalle/<int:id_mascota>/imagen', methods=['GET'])
 def obtener_imagen_mascota(id_mascota):
+    print(f"📥 Solicitando imagen para mascota ID: {id_mascota}")
+    
     mascota = Mascota.query.get(id_mascota)
     if not mascota:
+        print(f"❌ Mascota {id_mascota} no encontrada")
         return jsonify({'mensaje': 'Mascota no encontrada'}), 404
     
     perfil_mascota = PerfilMascota.query.get(mascota.PerfilMascota_IdPerfilMascota)
     
-    if not perfil_mascota.imagen or len(perfil_mascota.imagen) == 0:
+    if perfil_mascota.imagen is None:
+        print(f"❌ No hay imagen para mascota {id_mascota}")
         return jsonify({'mensaje': 'No hay imagen asociada'}), 404
     
     try:
-        # Enviar la imagen desde la BD
+        # 🔹 CORREGIDO: Convertir memoryview a bytes
+        imagen_bytes = bytes(perfil_mascota.imagen) if isinstance(perfil_mascota.imagen, memoryview) else perfil_mascota.imagen
+        
+        if len(imagen_bytes) == 0:
+            print(f"❌ Imagen vacía para mascota {id_mascota}")
+            return jsonify({'mensaje': 'Imagen vacía'}), 404
+        
+        print(f"✅ Enviando imagen: {len(imagen_bytes)} bytes")
+        
         return send_file(
-            BytesIO(perfil_mascota.imagen),
+            BytesIO(imagen_bytes),
             mimetype='image/jpeg',
             as_attachment=False
         )
     except Exception as e:
+        print(f"❌ Error al enviar imagen: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'mensaje': f'Error al enviar imagen: {str(e)}'}), 500
 
 
