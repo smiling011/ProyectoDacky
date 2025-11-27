@@ -73,9 +73,20 @@ def crear_mascota(id_perfil):
     if 'imagen' in request.files:
         file = request.files['imagen']
         if file and allowed_file(file.filename):
+            # 🔹 IMPORTANTE: Leer los bytes correctamente
+            file.seek(0)  # Asegurar que estamos al inicio del archivo
             imagen_bytes = file.read()
-            perfil_mascota.imagen = imagen_bytes
-            print(f"✅ Imagen de mascota guardada en BD: {len(imagen_bytes)} bytes")
+            
+            print(f"📥 Recibido archivo: {file.filename}")
+            print(f"📊 Tamaño: {len(imagen_bytes)} bytes")
+            print(f"🔍 Primeros bytes: {imagen_bytes[:20]}")
+            
+            # Verificar que no esté vacío
+            if len(imagen_bytes) > 0:
+                perfil_mascota.imagen = imagen_bytes
+                print(f"✅ Imagen guardada en BD: {len(imagen_bytes)} bytes")
+            else:
+                print(f"⚠️ Archivo vacío, no se guardará")
 
     db.session.add(perfil_mascota)
     db.session.flush()
@@ -154,9 +165,15 @@ def editar_mascota(id_mascota):
     if 'imagen' in request.files:
         file = request.files['imagen']
         if file and allowed_file(file.filename):
+            file.seek(0)  # Asegurar inicio del archivo
             imagen_bytes = file.read()
-            perfil_mascota.imagen = imagen_bytes
-            print(f"✅ Imagen actualizada en BD: {len(imagen_bytes)} bytes")
+            
+            print(f"📥 Actualizando imagen: {file.filename}")
+            print(f"📊 Tamaño: {len(imagen_bytes)} bytes")
+            
+            if len(imagen_bytes) > 0:
+                perfil_mascota.imagen = imagen_bytes
+                print(f"✅ Imagen actualizada en BD: {len(imagen_bytes)} bytes")
 
     db.session.commit()
 
@@ -198,19 +215,40 @@ def obtener_imagen_mascota(id_mascota):
         return jsonify({'mensaje': 'No hay imagen asociada'}), 404
     
     try:
-        # 🔹 CORREGIDO: Convertir memoryview a bytes
-        imagen_bytes = bytes(perfil_mascota.imagen) if isinstance(perfil_mascota.imagen, memoryview) else perfil_mascota.imagen
+        # 🔹 NUEVO: Manejar correctamente los bytes de PostgreSQL
+        if isinstance(perfil_mascota.imagen, memoryview):
+            imagen_bytes = perfil_mascota.imagen.tobytes()
+        elif isinstance(perfil_mascota.imagen, bytes):
+            imagen_bytes = perfil_mascota.imagen
+        else:
+            # Si es otro tipo, intentar convertir
+            imagen_bytes = bytes(perfil_mascota.imagen)
         
         if len(imagen_bytes) == 0:
             print(f"❌ Imagen vacía para mascota {id_mascota}")
             return jsonify({'mensaje': 'Imagen vacía'}), 404
         
         print(f"✅ Enviando imagen: {len(imagen_bytes)} bytes")
+        print(f"🔍 Primeros bytes: {imagen_bytes[:20]}")  # Debug
         
-        return send_file(
-            BytesIO(imagen_bytes),
-            mimetype='image/jpeg',
-            as_attachment=False
+        # 🔹 Detectar el tipo de imagen automáticamente
+        mimetype = 'image/jpeg'  # default
+        if imagen_bytes.startswith(b'\x89PNG'):
+            mimetype = 'image/png'
+        elif imagen_bytes.startswith(b'\xff\xd8\xff'):
+            mimetype = 'image/jpeg'
+        
+        print(f"📝 Mimetype detectado: {mimetype}")
+        
+        from flask import Response
+        return Response(
+            imagen_bytes,
+            mimetype=mimetype,
+            headers={
+                'Content-Type': mimetype,
+                'Content-Length': str(len(imagen_bytes)),
+                'Cache-Control': 'no-cache'
+            }
         )
     except Exception as e:
         print(f"❌ Error al enviar imagen: {str(e)}")
