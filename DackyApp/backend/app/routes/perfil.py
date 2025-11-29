@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, Response
 from app.utils.models import db, PerfilDueño
 from io import BytesIO
 
@@ -18,8 +18,16 @@ def perfil_usuario(id_usuario):
     if not perfil:
         return jsonify({'mensaje': 'Perfil no encontrado'}), 404
 
-    # 🔹 MEJORADO: Verificar si hay imagen en la BD (bytea)
-    tiene_imagen = perfil.imagen is not None and len(perfil.imagen) > 0
+    # 🔹 CORREGIDO: Manejar BYTEA correctamente
+    tiene_imagen = False
+    if perfil.imagen is not None:
+        try:
+            imagen_bytes = bytes(perfil.imagen) if isinstance(perfil.imagen, memoryview) else perfil.imagen
+            tiene_imagen = len(imagen_bytes) > 0
+            print(f"✅ Usuario {id_usuario} tiene imagen: {len(imagen_bytes)} bytes")
+        except Exception as e:
+            print(f"❌ Error verificando imagen: {e}")
+            tiene_imagen = False
 
     return jsonify({
         'IdPerfilDueño': perfil.IdPerfilDueño,
@@ -58,15 +66,21 @@ def actualizar_perfil(id_usuario):
     perfil.NumCel = data.get('NumCel', perfil.NumCel) or 0
     perfil.Direccion = data.get('Direccion', perfil.Direccion)
 
-    # 🔹 NUEVO: Guardar imagen directamente en la BD como BYTEA
+    # 🔹 NUEVO: Guardar imagen correctamente
     if 'imagen' in request.files:
         file = request.files['imagen']
         if file and allowed_file(file.filename):
-            # Leer el archivo como bytes
+            file.seek(0)  # Asegurar inicio del archivo
             imagen_bytes = file.read()
-            # Guardar directamente en la BD
-            perfil.imagen = imagen_bytes
-            print(f"✅ Imagen guardada en BD: {len(imagen_bytes)} bytes")
+            
+            print(f"📥 Actualizando imagen de usuario: {file.filename}")
+            print(f"📊 Tamaño: {len(imagen_bytes)} bytes")
+            
+            if len(imagen_bytes) > 0:
+                perfil.imagen = imagen_bytes
+                print(f"✅ Imagen guardada en BD: {len(imagen_bytes)} bytes")
+            else:
+                print(f"⚠️ Archivo vacío, no se guardará")
 
     db.session.commit()
 
@@ -76,22 +90,56 @@ def actualizar_perfil(id_usuario):
 # 🆕 NUEVO: Obtener imagen de perfil desde la BD
 @perfil_bp.route('/<int:id_usuario>/imagen', methods=['GET'])
 def obtener_imagen_usuario(id_usuario):
+    print(f"📥 Solicitando imagen para usuario ID: {id_usuario}")
+    
     perfil = PerfilDueño.query.filter_by(IdInicioSesion=id_usuario).first()
     
     if not perfil:
+        print(f"❌ Usuario {id_usuario} no encontrado")
         return jsonify({'mensaje': 'Perfil no encontrado'}), 404
     
-    if not perfil.imagen or len(perfil.imagen) == 0:
+    if perfil.imagen is None:
+        print(f"❌ No hay imagen para usuario {id_usuario}")
         return jsonify({'mensaje': 'No hay imagen asociada'}), 404
     
     try:
-        # Enviar la imagen desde la BD
-        return send_file(
-            BytesIO(perfil.imagen),
-            mimetype='image/jpeg',
-            as_attachment=False
+        # 🔹 CORREGIDO: Manejar correctamente los bytes de PostgreSQL
+        if isinstance(perfil.imagen, memoryview):
+            imagen_bytes = perfil.imagen.tobytes()
+        elif isinstance(perfil.imagen, bytes):
+            imagen_bytes = perfil.imagen
+        else:
+            imagen_bytes = bytes(perfil.imagen)
+        
+        if len(imagen_bytes) == 0:
+            print(f"❌ Imagen vacía para usuario {id_usuario}")
+            return jsonify({'mensaje': 'Imagen vacía'}), 404
+        
+        print(f"✅ Enviando imagen: {len(imagen_bytes)} bytes")
+        print(f"🔍 Primeros bytes: {imagen_bytes[:20]}")
+        
+        # 🔹 Detectar el tipo de imagen automáticamente
+        mimetype = 'image/jpeg'  # default
+        if imagen_bytes.startswith(b'\x89PNG'):
+            mimetype = 'image/png'
+        elif imagen_bytes.startswith(b'\xff\xd8\xff'):
+            mimetype = 'image/jpeg'
+        
+        print(f"📝 Mimetype detectado: {mimetype}")
+        
+        return Response(
+            imagen_bytes,
+            mimetype=mimetype,
+            headers={
+                'Content-Type': mimetype,
+                'Content-Length': str(len(imagen_bytes)),
+                'Cache-Control': 'no-cache'
+            }
         )
     except Exception as e:
+        print(f"❌ Error al enviar imagen: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'mensaje': f'Error al enviar imagen: {str(e)}'}), 500
 
 
