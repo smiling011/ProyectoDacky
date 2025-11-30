@@ -6,14 +6,18 @@ import 'login_screen.dart';
 import 'register_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+// 🆕 Importaciones de Firebase
+import 'package:firebase_core/firebase_core.dart';
 
 // inicia la app con el widget principal
-// void main() {
-//   runApp(MyApp());
-// }
-
 Future<void> main() async {
-  await dotenv.load(fileName: ".env");  // ← AGREGAR ESTO
+  // 🆕 Inicializar Flutter Widgets
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 🆕 Inicializar Firebase
+  await Firebase.initializeApp();
+  
+  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 

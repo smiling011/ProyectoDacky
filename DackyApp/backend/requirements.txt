@@ -9,6 +9,7 @@ python-dotenv==1.0.1
 reportlab==4.2.2
 gunicorn==21.2.0
 
+
 # mysql-connector-python==9.0.0
 # mysqlclient==2.2.4
 # PyMySQL==1.1.1 

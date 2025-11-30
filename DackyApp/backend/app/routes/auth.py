@@ -4,6 +4,7 @@ from app.utils.models import InicioSesion, PerfilDueño
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets  # 🆕 Para generar tokens seguros
 from datetime import datetime
+from app import mail
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -214,3 +215,222 @@ def logout():
         'success': True,
         'message': 'Sesión cerrada correctamente'
     })
+    
+# 🆕 Endpoint para registro/login con Google
+# Agregar este código AL FINAL de tu archivo auth.py (después del endpoint /logout)
+
+@auth_bp.route('/registro-google', methods=['POST'])
+def registro_google():
+    """
+    Registra o inicia sesión de un usuario autenticado con Google
+    """
+    data = request.get_json()
+    
+    email = data.get('email')
+    nombre = data.get('nombre', 'Usuario')
+    apellido = data.get('apellido', '')
+    uid = data.get('uid')  # UID de Firebase
+
+    if not email or not uid:
+        return jsonify({'success': False, 'message': 'Email o UID faltante'}), 400
+
+    # Verificar si el usuario ya existe
+    user = InicioSesion.query.filter_by(Email=email).first()
+
+    if user:
+        # Usuario existe - solo iniciar sesión
+        perfil = user.perfil
+        token = generar_token()
+
+        return jsonify({
+            'success': True,
+            'message': 'Inicio de sesión exitoso con Google',
+            'id': user.IdInicioSesion,
+            'email': user.Email,
+            'token': token,
+            'perfil': {
+                'idPerfil': perfil.IdPerfilDueño if perfil else None,
+                'nom': perfil.NomDueño if perfil else nombre,
+                'apell': perfil.Apell if perfil else apellido,
+            } if perfil else None
+        }), 200
+
+    # Usuario nuevo - registrar con Google
+    try:
+        # 1️⃣ Crear PerfilDueño PRIMERO
+        nuevo_perfil = PerfilDueño(
+            NomDueño=nombre,
+            Apell=apellido,
+            Email=email,
+            NumTelf=0,
+            NumCel=0,
+            Direccion=''
+        )
+        db.session.add(nuevo_perfil)
+        db.session.flush()
+        
+        print(f"✅ Perfil Google creado con ID: {nuevo_perfil.IdPerfilDueño}")
+
+        # 2️⃣ Crear InicioSesion usando SQL directo
+        from sqlalchemy import text
+        
+        sql = text("""
+            INSERT INTO iniciosesion 
+            ("Nom", "Apell", "Email", "Contrasena", "NumTelf", "NumCel", "Direccion", "Rol", "PerfilDueño_IdPerfilDueño")
+            VALUES (:nom, :apell, :email, :contrasena, :numtelf, :numcel, :direccion, :rol, :perfil_id)
+            RETURNING "IdInicioSesion"
+        """)
+        
+        result = db.session.execute(sql, {
+            'nom': nombre,
+            'apell': apellido,
+            'email': email,
+            'contrasena': generate_password_hash(uid),  # Usar UID como contraseña hasheada
+            'numtelf': 0,
+            'numcel': 0,
+            'direccion': '',
+            'rol': 'usuario',
+            'perfil_id': nuevo_perfil.IdPerfilDueño
+        })
+        
+        id_inicio_sesion = result.fetchone()[0]
+        
+        print(f"✅ Usuario Google creado con ID: {id_inicio_sesion}")
+
+        # 3️⃣ Actualizar PerfilDueño con IdInicioSesion
+        nuevo_perfil.IdInicioSesion = id_inicio_sesion
+
+        db.session.commit()
+        
+        print("✅ Registro Google completado exitosamente")
+
+        token = generar_token()
+
+        return jsonify({
+            'success': True,
+            'message': 'Usuario registrado con Google correctamente',
+            'id': id_inicio_sesion,
+            'email': email,
+            'token': token
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        error_completo = traceback.format_exc()
+        print(f"❌ Error en registro Google:\n{error_completo}")
+        return jsonify({'success': False, 'message': f'Error al registrar con Google: {str(e)}'}), 500
+    
+ @auth_bp.route('/enviar-codigo', methods=['POST'])
+def enviar_codigo():
+    """
+    Envía un código de verificación de 6 dígitos al correo del usuario
+    """
+    data = request.get_json()
+    
+    email = data.get('email')
+    codigo = data.get('codigo')
+    nombre = data.get('nombre', 'Usuario')
+
+    if not email or not codigo:
+        return jsonify({'success': False, 'message': 'Email o código faltante'}), 400
+
+    try:
+        # Configurar el mensaje
+        msg = Message(
+            subject='Código de verificación - Dacky App',
+            sender='noreply@dackyapp.com',  # Cambiar por tu email
+            recipients=[email]
+        )
+        
+        # HTML del correo
+        msg.html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: 'Arial', sans-serif;
+                    background-color: #f4f4f4;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 50px auto;
+                    background-color: #ffffff;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }}
+                .header {{
+                    background-color: #11120D;
+                    color: #FFFBF4;
+                    text-align: center;
+                    padding: 30px;
+                }}
+                .content {{
+                    padding: 40px 30px;
+                    text-align: center;
+                }}
+                .codigo {{
+                    font-size: 36px;
+                    font-weight: bold;
+                    letter-spacing: 10px;
+                    color: #11120D;
+                    background-color: #D8CFBC;
+                    padding: 20px;
+                    border-radius: 10px;
+                    display: inline-block;
+                    margin: 20px 0;
+                }}
+                .footer {{
+                    background-color: #565449;
+                    color: #FFFBF4;
+                    text-align: center;
+                    padding: 20px;
+                    font-size: 12px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🐾 DACKY</h1>
+                    <p>Tu app GPS para mascotas</p>
+                </div>
+                <div class="content">
+                    <h2>¡Hola {nombre}!</h2>
+                    <p>Tu código de verificación es:</p>
+                    <div class="codigo">{codigo}</div>
+                    <p>Este código es válido por 10 minutos.</p>
+                    <p>Si no solicitaste este código, ignora este correo.</p>
+                </div>
+                <div class="footer">
+                    <p>© 2025 Dacky App. Todos los derechos reservados.</p>
+                    <p>Este es un correo automático, por favor no respondas.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Enviar correo
+        from app import mail  # Asegúrate de importar mail de tu app
+        mail.send(msg)
+        
+        print(f"✅ Código {codigo} enviado a {email}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Código enviado correctamente'
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        error_completo = traceback.format_exc()
+        print(f"❌ Error al enviar correo:\n{error_completo}")
+        return jsonify({
+            'success': False,
+            'message': f'Error al enviar correo: {str(e)}'
+        }), 500

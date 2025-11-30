@@ -7,7 +7,7 @@ import 'gps_screen.dart';
 import 'vacuna_screen1.dart';
 import 'pet_screen1.dart';
 import 'user_screen2.dart';
-import 'login_screen.dart'; 
+import 'login_screen.dart';
 
 class UserScreen1 extends StatefulWidget {
   @override
@@ -17,7 +17,8 @@ class UserScreen1 extends StatefulWidget {
 class _UserScreen1State extends State<UserScreen1> {
   Map<String, dynamic>? perfil;
   int? idUsuario;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); // 🆕 Key para el Drawer
+  final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>(); // 🆕 Key para el Drawer
 
   @override
   void initState() {
@@ -31,7 +32,8 @@ class _UserScreen1State extends State<UserScreen1> {
 
     if (idUsuario == null) return;
 
-    final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario");
+    final url = Uri.parse(
+        "https://proyectodackybackend.onrender.com/perfil/$idUsuario");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -95,13 +97,13 @@ class _UserScreen1State extends State<UserScreen1> {
 
     if (confirmar == true) {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // 🆕 Limpiar todos los datos de sesión
       await prefs.remove('id');
       await prefs.remove('email');
       await prefs.remove('token'); // Si usas token
       await prefs.remove('lastLoginTime'); // Para el tiempo de inactividad
-      
+
       // O limpiar todo:
       // await prefs.clear();
 
@@ -110,7 +112,7 @@ class _UserScreen1State extends State<UserScreen1> {
         '/login', // Ajusta según tu ruta de login
         (Route<dynamic> route) => false,
       );
-      
+
       // Si no usas rutas con nombre, usa esto:
       // Navigator.of(context).pushAndRemoveUntil(
       //   MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -121,6 +123,10 @@ class _UserScreen1State extends State<UserScreen1> {
 
   Widget _buildProfileAvatar() {
     final tieneImagen = perfil!['tieneImagen'] == true;
+
+    // 🆕 AGREGAR PRINTS PARA DEBUG
+    print("🖼️ tieneImagen (usuario): $tieneImagen");
+    print("🆔 idUsuario: $idUsuario");
 
     return Container(
       decoration: BoxDecoration(
@@ -145,7 +151,11 @@ class _UserScreen1State extends State<UserScreen1> {
                 "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen",
               ) as ImageProvider
             : const AssetImage('assets/perfil_user.png'),
-        child: tieneImagen ? null : null,
+        onBackgroundImageError: tieneImagen
+            ? (exception, stackTrace) {
+                print('❌ Error cargando imagen de usuario: $exception');
+              }
+            : null,
       ),
     );
   }
@@ -174,6 +184,11 @@ class _UserScreen1State extends State<UserScreen1> {
                           "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen",
                         ) as ImageProvider
                       : const AssetImage('assets/perfil_user.png'),
+                  onBackgroundImageError: perfil?['tieneImagen'] == true
+                      ? (exception, stackTrace) {
+                          print('❌ Error en drawer: $exception');
+                        }
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -230,7 +245,8 @@ class _UserScreen1State extends State<UserScreen1> {
 
           // Opción: Vacunas
           ListTile(
-            leading: const Icon(Icons.medical_services, color: Color(0xFF11120D)),
+            leading:
+                const Icon(Icons.medical_services, color: Color(0xFF11120D)),
             title: const Text(
               'Vacunas',
               style: TextStyle(fontFamily: 'Montserrat'),
@@ -296,13 +312,15 @@ class _UserScreen1State extends State<UserScreen1> {
                 children: [
                   // Encabezado
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         GestureDetector(
                           onTap: () => Navigator.pop(context),
-                          child: Image.asset('assets/atras.png', width: 28, height: 28),
+                          child: Image.asset('assets/atras.png',
+                              width: 28, height: 28),
                         ),
                         const Text(
                           'Mi Perfil',
@@ -315,7 +333,8 @@ class _UserScreen1State extends State<UserScreen1> {
                         // 🆕 Hacer funcional el botón de menú
                         GestureDetector(
                           onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                          child: Image.asset('assets/menu.png', width: 28, height: 28),
+                          child: Image.asset('assets/menu.png',
+                              width: 28, height: 28),
                         ),
                       ],
                     ),
@@ -326,7 +345,8 @@ class _UserScreen1State extends State<UserScreen1> {
                     child: SingleChildScrollView(
                       child: Container(
                         padding: const EdgeInsets.all(24),
-                        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
                         decoration: BoxDecoration(
                           color: const Color(0xFFD8CFBC),
                           borderRadius: BorderRadius.circular(20),
@@ -341,9 +361,7 @@ class _UserScreen1State extends State<UserScreen1> {
                         child: Column(
                           children: [
                             _buildProfileAvatar(),
-                            
                             const SizedBox(height: 16),
-                            
                             Text(
                               '${perfil!['NomDueño']} ${perfil!['Apell']}',
                               style: const TextStyle(
@@ -354,9 +372,7 @@ class _UserScreen1State extends State<UserScreen1> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            
                             const SizedBox(height: 8),
-                            
                             Text(
                               perfil!['Email'] ?? '',
                               style: TextStyle(
@@ -366,9 +382,7 @@ class _UserScreen1State extends State<UserScreen1> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            
                             const SizedBox(height: 30),
-                            
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -397,9 +411,7 @@ class _UserScreen1State extends State<UserScreen1> {
                                 ],
                               ),
                             ),
-                            
                             const SizedBox(height: 24),
-                            
                             ElevatedButton.icon(
                               onPressed: () {
                                 Navigator.push(

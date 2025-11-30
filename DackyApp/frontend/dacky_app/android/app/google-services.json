@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "379413198210",
+    "project_id": "dacky-90a2b",
+    "storage_bucket": "dacky-90a2b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:379413198210:android:79df0cb6f69b1cc2500b9b",
+        "android_client_info": {
+          "package_name": "com.example.dacky_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "379413198210-7hankcn1v1f4274elgv0jsk7onetqegs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dacky_app",
+            "certificate_hash": "931a17bb840764cfe47d5ad502acb571fe5f2ec0"
+          }
+        },
+        {
+          "client_id": "379413198210-eo719o2idust4h8khg1jfeumn5j2jjkv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWLjIirueooQ--pXhPyAzp3WivSt0u8-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "379413198210-eo719o2idust4h8khg1jfeumn5j2jjkv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

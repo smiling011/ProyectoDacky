@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'gps_screen.dart';
 
@@ -15,46 +17,69 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false; // 🆕 Para mostrar loading
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _verificarSesionActiva(); // 🆕 Verificar si hay sesión activa al iniciar
+    _verificarSesionActiva();
   }
 
-  // 🆕 Verificar si hay una sesión activa válida
+  // Verificar si hay una sesión activa válida
   Future<void> _verificarSesionActiva() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final lastLoginTime = prefs.getString('lastLoginTime');
     final id = prefs.getInt('id');
 
-    // Si no hay token, no hacer nada
     if (token == null || lastLoginTime == null || id == null) return;
 
-    // Calcular si han pasado más de 30 días (1 mes)
     final lastLogin = DateTime.parse(lastLoginTime);
     final now = DateTime.now();
     final diferenciaDias = now.difference(lastLogin).inDays;
 
-    // Si la sesión expiró (más de 30 días)
     if (diferenciaDias > 30) {
-      // Limpiar datos expirados
       await prefs.clear();
       return;
     }
 
-    // 🆕 Sesión válida - actualizar tiempo de última actividad
     await prefs.setString('lastLoginTime', now.toIso8601String());
 
-    // Navegar automáticamente a la pantalla principal
     if (mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const GpsScreen()),
       );
     }
+  }
+
+  // Validar formato de correo electrónico
+  bool _esEmailValido(String email) {
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    
+    final dominiosProhibidos = [
+      'tempmail.com',
+      'guerrillamail.com',
+      'mailinator.com',
+      '10minutemail.com',
+      'throwaway.email',
+      'fakeinbox.com',
+      'yopmail.com',
+      'maildrop.cc',
+    ];
+
+    if (!emailRegex.hasMatch(email)) {
+      return false;
+    }
+
+    final dominio = email.split('@').last.toLowerCase();
+    if (dominiosProhibidos.contains(dominio)) {
+      return false;
+    }
+
+    return true;
   }
 
   void _mostrarAlerta(String mensaje) {
@@ -102,13 +127,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // 🆕 Método actualizado para guardar sesión persistente
+  // Login tradicional con validaciones
   Future<void> _login() async {
     final email = _emailController.text.trim();
     final contrasena = _passwordController.text.trim();
 
     if (email.isEmpty || contrasena.isEmpty) {
       _mostrarAlerta("Por favor, completa todos los campos");
+      return;
+    }
+
+    if (!_esEmailValido(email)) {
+      _mostrarAlerta("Por favor, ingresa un correo electrónico válido");
       return;
     }
 
@@ -129,19 +159,16 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200 && data['success'] == true) {
         final prefs = await SharedPreferences.getInstance();
         
-        // 🆕 Guardar datos de sesión con tiempo
         await prefs.setString('email', email);
         await prefs.setInt('id', data['id']);
-        await prefs.setString('token', data['token']); // Token del servidor
-        await prefs.setString('lastLoginTime', DateTime.now().toIso8601String()); // Fecha de login
+        await prefs.setString('token', data['token']);
+        await prefs.setString('lastLoginTime', DateTime.now().toIso8601String());
         
-        // Opcional: guardar datos del perfil
         if (data['perfil'] != null) {
           await prefs.setString('nombre', data['perfil']['nom']);
           await prefs.setString('apellido', data['perfil']['apell']);
         }
 
-        // Navegar a la pantalla principal
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -159,6 +186,92 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  // Iniciar sesión con Google
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = 
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        await _registrarEnBackend(
+          email: user.email!,
+          nombre: user.displayName?.split(' ').first ?? 'Usuario',
+          apellido: user.displayName?.split(' ').last ?? '',
+          uid: user.uid,
+        );
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', user.email!);
+        await prefs.setString('uid', user.uid);
+        await prefs.setString('nombre', user.displayName ?? '');
+        await prefs.setString('token', 'google_auth_${user.uid}');
+        await prefs.setString('lastLoginTime', DateTime.now().toIso8601String());
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const GpsScreen()),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error al iniciar sesión con Google: $e');
+      _mostrarAlerta('Error al iniciar sesión con Google. Inténtalo de nuevo.');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  // Registrar usuario en backend Flask
+  Future<void> _registrarEnBackend({
+    required String email,
+    required String nombre,
+    required String apellido,
+    required String uid,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://proyectodackybackend.onrender.com/auth/registro-google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'nombre': nombre,
+          'apellido': apellido,
+          'uid': uid,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('id', data['id']);
+      }
+    } catch (e) {
+      print('Error al registrar en backend: $e');
     }
   }
 
@@ -217,6 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Campo correo
                     TextField(
                       controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         prefixIcon: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -267,7 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // 🆕 Botón con loading indicator
+                    // Botón iniciar sesión
                     ElevatedButton(
                       onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
@@ -297,17 +411,59 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Iconos de login alternativo (próximamente funcionales)
+                    // Divisor
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/google.png', width: 30, height: 30),
-                        const SizedBox(width: 20),
-                        Image.asset('assets/facebook.png',
-                            width: 30, height: 30),
-                        const SizedBox(width: 20),
-                        Image.asset('assets/correo.png', width: 30, height: 30),
+                      children: const [
+                        Expanded(child: Divider(color: Color(0xFFD8CFBC), thickness: 1)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'O',
+                            style: TextStyle(
+                              color: Color(0xFFFFFBF4),
+                              fontFamily: 'Montserrat',
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(color: Color(0xFFD8CFBC), thickness: 1)),
                       ],
+                    ),
+                    
+                    const SizedBox(height: 20),
+
+                    // Botón de Google Sign-In
+                    GestureDetector(
+                      onTap: _isLoading ? null : _signInWithGoogle,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _isLoading ? Colors.grey : Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/google.png', width: 24, height: 24),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Continuar con Google',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Montserrat',
+                                color: Color(0xFF11120D),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
 

@@ -21,18 +21,23 @@ dependencies:
   open_file: ^3.3.2
   path_provider: ^2.1.1
   url_launcher: ^6.2.1
-  # NO INCLUIR flutter_pdfview ni photo_view
+  
+  # 🆕 Dependencias de Firebase
+  firebase_core: ^3.8.1           # Núcleo de Firebase (obligatorio)
+  firebase_auth: ^5.3.3           # Autenticación de Firebase
+  google_sign_in: ^6.2.2          # Login con Google
+  cloud_firestore: ^5.5.0         # Opcional: para guardar datos de usuarios
 
 dev_dependencies:
   flutter_native_splash: ^2.3.6
 
 flutter:
-  uses-material-design: true   #  Aquí es donde debe ir
+  uses-material-design: true
 
   fonts:
     - family: Montserrat
       fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf # ¡Ruta Corregida!
+        - asset: assets/fonts/Montserrat-Regular.ttf
         - asset: assets/fonts/Montserrat-Bold.ttf  
 
   assets:
@@ -67,8 +72,6 @@ flutter:
     - assets/advertencia.png
     - assets/cruz.png
     - assets/importar.png
-
-
 # description: "A new Flutter project."
 # # The following line prevents the package from being accidentally published to
 # # pub.dev using `flutter pub publish`. This is preferred for private packages.

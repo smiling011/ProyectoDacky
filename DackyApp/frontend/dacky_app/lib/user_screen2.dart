@@ -47,7 +47,8 @@ class _UserScreen2State extends State<UserScreen2> {
       idUsuario = id;
     });
 
-    final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$id");
+    final url =
+        Uri.parse("https://proyectodackybackend.onrender.com/perfil/$id");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -60,7 +61,7 @@ class _UserScreen2State extends State<UserScreen2> {
         celularController.text = data["NumCel"] ?? "";
         telefonoController.text = data["NumTelf"] ?? "";
         direccionController.text = data["Direccion"] ?? "";
-        
+
         // 🆕 Cargar información de imagen existente
         tieneImagenExistente = data['tieneImagen'] == true;
       });
@@ -141,7 +142,8 @@ class _UserScreen2State extends State<UserScreen2> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         backgroundColor: const Color(0xFFD8CFBC),
-        title: const Text('Confirmar', style: TextStyle(fontFamily: 'Montserrat')),
+        title:
+            const Text('Confirmar', style: TextStyle(fontFamily: 'Montserrat')),
         content: const Text(
           '¿Deseas eliminar tu foto de perfil?',
           style: TextStyle(fontFamily: 'Montserrat'),
@@ -149,7 +151,8 @@ class _UserScreen2State extends State<UserScreen2> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(fontFamily: 'Montserrat')),
+            child: const Text('Cancelar',
+                style: TextStyle(fontFamily: 'Montserrat')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -163,7 +166,8 @@ class _UserScreen2State extends State<UserScreen2> {
     if (confirmar != true) return;
 
     try {
-      final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen");
+      final url = Uri.parse(
+          "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen");
 
       final response = await http.delete(url);
 
@@ -187,7 +191,8 @@ class _UserScreen2State extends State<UserScreen2> {
     setState(() => _loading = true);
 
     try {
-      final url = Uri.parse("https://proyectodackybackend.onrender.com/perfil/$idUsuario");
+      final url = Uri.parse(
+          "https://proyectodackybackend.onrender.com/perfil/$idUsuario");
 
       var request = http.MultipartRequest('PUT', url);
       request.fields['NomDueño'] = nombreController.text;
@@ -212,7 +217,7 @@ class _UserScreen2State extends State<UserScreen2> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _mostrarAlerta(data["message"] ?? "Perfil actualizado", exito: true);
-        
+
         // Esperar un momento y volver
         Future.delayed(const Duration(seconds: 2), () {
           Navigator.pop(context);
@@ -228,17 +233,67 @@ class _UserScreen2State extends State<UserScreen2> {
 
   // 🆕 Widget para mostrar la imagen de perfil
   Widget _buildProfileImage() {
+    final imagenProvider = _obtenerImagenPerfil();
+
     return GestureDetector(
       onTap: _seleccionarImagen,
       child: Stack(
         children: [
-          CircleAvatar(
-            radius: 65,
-            backgroundColor: Colors.grey[300],
-            backgroundImage: _obtenerImagenPerfil(),
-            child: _obtenerImagenPerfil() == null
-                ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                : null,
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF11120D),
+                width: 3,
+              ),
+            ),
+            child: imagenProvider != null
+                ? CircleAvatar(
+                    radius: 65,
+                    backgroundColor: Colors.grey[300],
+                    child: ClipOval(
+                      child: imagenSeleccionada != null
+                          ? Image.file(
+                              imagenSeleccionada!,
+                              fit: BoxFit.cover,
+                              width: 130,
+                              height: 130,
+                            )
+                          : Image.network(
+                              "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen?t=${DateTime.now().millisecondsSinceEpoch}",
+                              fit: BoxFit.cover,
+                              width: 130,
+                              height: 130,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                print(
+                                    '❌ Error cargando imagen en edición: $error');
+                                return Image.asset(
+                                  'assets/perfil_user.png',
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            ),
+                    ),
+                  )
+                : CircleAvatar(
+                    radius: 65,
+                    backgroundColor: Colors.grey[300],
+                    backgroundImage: const AssetImage('assets/perfil_user.png'),
+                  ),
           ),
           Positioned(
             bottom: 0,
@@ -250,7 +305,8 @@ class _UserScreen2State extends State<UserScreen2> {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
-              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+              child:
+                  const Icon(Icons.camera_alt, color: Colors.white, size: 20),
             ),
           ),
         ],
@@ -259,12 +315,20 @@ class _UserScreen2State extends State<UserScreen2> {
   }
 
   ImageProvider? _obtenerImagenPerfil() {
+    // Si se seleccionó una nueva imagen localmente
     if (imagenSeleccionada != null) {
       return FileImage(imagenSeleccionada!);
-    } else if (tieneImagenExistente && !imagenEliminada && idUsuario != null) {
-      return NetworkImage("https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen");
-    } else {
-      return const AssetImage('assets/perfil_user.png');
+    }
+    // Si hay imagen existente en el servidor y no se eliminó
+    else if (tieneImagenExistente && !imagenEliminada && idUsuario != null) {
+      // 🔹 IMPORTANTE: Agregar key única para forzar recarga
+      return NetworkImage(
+        "https://proyectodackybackend.onrender.com/perfil/$idUsuario/imagen?t=${DateTime.now().millisecondsSinceEpoch}",
+      );
+    }
+    // Imagen por defecto
+    else {
+      return null; // Esto hará que se muestre el ícono de persona
     }
   }
 
@@ -283,7 +347,8 @@ class _UserScreen2State extends State<UserScreen2> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Image.asset('assets/atras.png', width: 28, height: 28),
+                    child:
+                        Image.asset('assets/atras.png', width: 28, height: 28),
                   ),
                   const Text('Editar Perfil',
                       style: TextStyle(
@@ -320,18 +385,21 @@ class _UserScreen2State extends State<UserScreen2> {
                       ),
 
                       // 🆕 Botón para eliminar imagen
-                      if ((tieneImagenExistente || imagenSeleccionada != null) &&
+                      if ((tieneImagenExistente ||
+                              imagenSeleccionada != null) &&
                           !imagenEliminada)
                         TextButton.icon(
-                          onPressed: tieneImagenExistente && imagenSeleccionada == null
-                              ? _eliminarImagenExistente
-                              : () {
-                                  setState(() {
-                                    imagenSeleccionada = null;
-                                    nombreImagen = null;
-                                  });
-                                },
-                          icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                          onPressed:
+                              tieneImagenExistente && imagenSeleccionada == null
+                                  ? _eliminarImagenExistente
+                                  : () {
+                                      setState(() {
+                                        imagenSeleccionada = null;
+                                        nombreImagen = null;
+                                      });
+                                    },
+                          icon: const Icon(Icons.delete,
+                              size: 18, color: Colors.red),
                           label: const Text(
                             'Eliminar foto',
                             style: TextStyle(
@@ -362,7 +430,8 @@ class _UserScreen2State extends State<UserScreen2> {
                         ),
                         onPressed: _loading ? null : _guardarPerfil,
                         child: _loading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : const Text('Guardar',
                                 style: TextStyle(
                                     color: Colors.white,
