@@ -5,6 +5,7 @@ from app.utils.models import InicioSesion, PerfilDueño
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from datetime import datetime
+from flask import current_app
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -314,6 +315,7 @@ def enviar_codigo():
             try:
                 msg = Message(
                     subject='Código de verificación - Dacky App',
+                    sender=current_app.config['MAIL_USERNAME'],
                     recipients=[email]
                 )
                 
