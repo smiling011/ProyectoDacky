@@ -22,7 +22,7 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # 🔒 Desde .env
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # 🔒 Desde .env
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_DEFAULT_SENDER'] = ('Dacky App', os.getenv('MAIL_USERNAME'))
 
     # Inicializar Mail
     mail.init_app(app)
