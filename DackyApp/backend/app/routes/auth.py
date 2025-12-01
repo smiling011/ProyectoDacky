@@ -5,7 +5,7 @@ from app.utils.models import InicioSesion, PerfilDueño
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from datetime import datetime
-from flask import 
+from flask import current_app
 from threading import Thread
 
 auth_bp = Blueprint("auth", __name__)
