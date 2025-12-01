@@ -1,14 +1,14 @@
 from flask import Blueprint, request, jsonify
-from app import db
+from flask_mail import Message
+from app import db, mail
 from app.utils.models import InicioSesion, PerfilDueño
 from werkzeug.security import generate_password_hash, check_password_hash
-import secrets  # 🆕 Para generar tokens seguros
+import secrets
 from datetime import datetime
-from app import mail
 
 auth_bp = Blueprint("auth", __name__)
 
-# 🆕 Función para generar token único
+# Función para generar token único
 def generar_token():
     return secrets.token_urlsafe(32)
 
@@ -58,11 +58,11 @@ def registro():
             Direccion=direccion
         )
         db.session.add(nuevo_perfil)
-        db.session.flush()  # Genera el IdPerfilDueño
+        db.session.flush()
         
         print(f"✅ Perfil creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-        # 2️⃣ Crear InicioSesion usando SQL directo para incluir PerfilDueño_IdPerfilDueño
+        # 2️⃣ Crear InicioSesion usando SQL directo
         from sqlalchemy import text
         
         sql = text("""
@@ -95,7 +95,6 @@ def registro():
         
         print("✅ Registro completado exitosamente")
 
-        # Generar token
         token = generar_token()
 
         return jsonify({
@@ -113,6 +112,7 @@ def registro():
         print(f"❌ Error completo:\n{error_completo}")
         return jsonify({'success': False, 'message': f'Error al registrar: {str(e)}'}), 500
 
+
 # Login
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -129,21 +129,14 @@ def login():
         return jsonify({'success': False, 'message': 'Contraseña incorrecta'}), 401
 
     perfil = user.perfil
-
-    # 🆕 Generar nuevo token de sesión
     token = generar_token()
-
-    # 🆕 (Opcional) Guardar el token en la base de datos si quieres validarlo después
-    # user.token = token
-    # user.ultima_sesion = datetime.now()
-    # db.session.commit()
 
     return jsonify({
         'success': True,
         'message': 'Inicio de sesión exitoso',
         'id': user.IdInicioSesion,
         'email': user.Email,
-        'token': token,  # 🆕 Token único de sesión
+        'token': token,
         'perfil': {
             'idPerfil': perfil.IdPerfilDueño,
             'nom': perfil.NomDueño,
@@ -155,13 +148,9 @@ def login():
     })
 
 
-# 🆕 OPCIONAL: Endpoint para verificar token (si quieres validar en cada request)
+# Verificar sesión
 @auth_bp.route('/verificar-sesion', methods=['POST'])
 def verificar_sesion():
-    """
-    Verifica si un token de sesión es válido
-    Útil para validar sesiones desde el frontend
-    """
     data = request.get_json()
     token = data.get('token')
     user_id = data.get('id')
@@ -173,10 +162,6 @@ def verificar_sesion():
     
     if not user:
         return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
-
-    # Si guardaste el token en la DB, valídalo aquí
-    # if user.token != token:
-    #     return jsonify({'success': False, 'message': 'Token inválido'}), 401
 
     return jsonify({
         'success': True,
@@ -190,12 +175,9 @@ def verificar_sesion():
     })
 
 
-# 🆕 OPCIONAL: Endpoint para cerrar sesión (invalidar token)
+# Cerrar sesión
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    """
-    Cierra la sesión del usuario (invalida el token)
-    """
     data = request.get_json()
     user_id = data.get('id')
 
@@ -207,29 +189,21 @@ def logout():
     if not user:
         return jsonify({'success': False, 'message': 'Usuario no encontrado'}), 404
 
-    # Si guardas tokens en la DB, elimínalo aquí
-    # user.token = None
-    # db.session.commit()
-
     return jsonify({
         'success': True,
         'message': 'Sesión cerrada correctamente'
     })
-    
-# 🆕 Endpoint para registro/login con Google
-# Agregar este código AL FINAL de tu archivo auth.py (después del endpoint /logout)
 
+
+# Registro/Login con Google
 @auth_bp.route('/registro-google', methods=['POST'])
 def registro_google():
-    """
-    Registra o inicia sesión de un usuario autenticado con Google
-    """
     data = request.get_json()
     
     email = data.get('email')
     nombre = data.get('nombre', 'Usuario')
     apellido = data.get('apellido', '')
-    uid = data.get('uid')  # UID de Firebase
+    uid = data.get('uid')
 
     if not email or not uid:
         return jsonify({'success': False, 'message': 'Email o UID faltante'}), 400
@@ -238,7 +212,6 @@ def registro_google():
     user = InicioSesion.query.filter_by(Email=email).first()
 
     if user:
-        # Usuario existe - solo iniciar sesión
         perfil = user.perfil
         token = generar_token()
 
@@ -257,7 +230,6 @@ def registro_google():
 
     # Usuario nuevo - registrar con Google
     try:
-        # 1️⃣ Crear PerfilDueño PRIMERO
         nuevo_perfil = PerfilDueño(
             NomDueño=nombre,
             Apell=apellido,
@@ -271,7 +243,6 @@ def registro_google():
         
         print(f"✅ Perfil Google creado con ID: {nuevo_perfil.IdPerfilDueño}")
 
-        # 2️⃣ Crear InicioSesion usando SQL directo
         from sqlalchemy import text
         
         sql = text("""
@@ -285,7 +256,7 @@ def registro_google():
             'nom': nombre,
             'apell': apellido,
             'email': email,
-            'contrasena': generate_password_hash(uid),  # Usar UID como contraseña hasheada
+            'contrasena': generate_password_hash(uid),
             'numtelf': 0,
             'numcel': 0,
             'direccion': '',
@@ -297,9 +268,7 @@ def registro_google():
         
         print(f"✅ Usuario Google creado con ID: {id_inicio_sesion}")
 
-        # 3️⃣ Actualizar PerfilDueño con IdInicioSesion
         nuevo_perfil.IdInicioSesion = id_inicio_sesion
-
         db.session.commit()
         
         print("✅ Registro Google completado exitosamente")
@@ -320,12 +289,11 @@ def registro_google():
         error_completo = traceback.format_exc()
         print(f"❌ Error en registro Google:\n{error_completo}")
         return jsonify({'success': False, 'message': f'Error al registrar con Google: {str(e)}'}), 500
-    
- @auth_bp.route('/enviar-codigo', methods=['POST'])
+
+
+# Enviar código de verificación por correo
+@auth_bp.route('/enviar-codigo', methods=['POST'])
 def enviar_codigo():
-    """
-    Envía un código de verificación de 6 dígitos al correo del usuario
-    """
     data = request.get_json()
     
     email = data.get('email')
@@ -336,14 +304,11 @@ def enviar_codigo():
         return jsonify({'success': False, 'message': 'Email o código faltante'}), 400
 
     try:
-        # Configurar el mensaje
         msg = Message(
             subject='Código de verificación - Dacky App',
-            sender='noreply@dackyapp.com',  # Cambiar por tu email
             recipients=[email]
         )
         
-        # HTML del correo
         msg.html = f"""
         <!DOCTYPE html>
         <html>
@@ -415,8 +380,6 @@ def enviar_codigo():
         </html>
         """
         
-        # Enviar correo
-        from app import mail  # Asegúrate de importar mail de tu app
         mail.send(msg)
         
         print(f"✅ Código {codigo} enviado a {email}")
