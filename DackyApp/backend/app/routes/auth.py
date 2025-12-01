@@ -5,7 +5,8 @@ from app.utils.models import InicioSesion, PerfilDueño
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
 from datetime import datetime
-from flask import current_app
+from flask import 
+from threading import Thread
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -294,124 +295,94 @@ def registro_google():
 
 # Enviar código de verificación por correo
 # Enviar código de verificación por correo
-@auth_bp.route('/enviar-codigo', methods=['POST'])
-def enviar_codigo():
-    data = request.get_json()
-    
-    email = data.get('email')
-    codigo = data.get('codigo')
-    nombre = data.get('nombre', 'Usuario')
-
-    if not email or not codigo:
-        return jsonify({'success': False, 'message': 'Email o código faltante'}), 400
-
-    #  Responder inmediatamente ANTES de enviar el correo
-    # El correo se enviará en segundo plano
+def enviar_correo_async():
     try:
-        # Enviar el correo en un thread separado para no bloquear
-        from threading import Thread
-        
-        def enviar_correo_async():
-            try:
-                msg = Message(
-                    subject='Código de verificación - Dacky App',
-                    sender=current_app.config['MAIL_USERNAME'],
-                    recipients=[email]
-                )
-                
-                msg.html = f"""
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body {{
-                            font-family: 'Arial', sans-serif;
-                            background-color: #f4f4f4;
-                            margin: 0;
-                            padding: 0;
-                        }}
-                        .container {{
-                            max-width: 600px;
-                            margin: 50px auto;
-                            background-color: #ffffff;
-                            border-radius: 10px;
-                            overflow: hidden;
-                            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        }}
-                        .header {{
-                            background-color: #11120D;
-                            color: #FFFBF4;
-                            text-align: center;
-                            padding: 30px;
-                        }}
-                        .content {{
-                            padding: 40px 30px;
-                            text-align: center;
-                        }}
-                        .codigo {{
-                            font-size: 36px;
-                            font-weight: bold;
-                            letter-spacing: 10px;
-                            color: #11120D;
-                            background-color: #D8CFBC;
-                            padding: 20px;
-                            border-radius: 10px;
-                            display: inline-block;
-                            margin: 20px 0;
-                        }}
-                        .footer {{
-                            background-color: #565449;
-                            color: #FFFBF4;
-                            text-align: center;
-                            padding: 20px;
-                            font-size: 12px;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <div class="header">
-                            <h1>🐾 DACKY</h1>
-                            <p>Tu app GPS para mascotas</p>
-                        </div>
-                        <div class="content">
-                            <h2>¡Hola {nombre}!</h2>
-                            <p>Tu código de verificación es:</p>
-                            <div class="codigo">{codigo}</div>
-                            <p>Este código es válido por 10 minutos.</p>
-                            <p>Si no solicitaste este código, ignora este correo.</p>
-                        </div>
-                        <div class="footer">
-                            <p>© 2025 Dacky App. Todos los derechos reservados.</p>
-                            <p>Este es un correo automático, por favor no respondas.</p>
-                        </div>
+        # Crear el contexto de Flask dentro del Thread
+        with current_app.app_context():
+            msg = Message(
+                subject='Código de verificación - Dacky App',
+                sender=current_app.config['MAIL_USERNAME'],
+                recipients=[email]
+            )
+            
+            msg.html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: 'Arial', sans-serif;
+                        background-color: #f4f4f4;
+                        margin: 0;
+                        padding: 0;
+                    }}
+                    .container {{
+                        max-width: 600px;
+                        margin: 50px auto;
+                        background-color: #ffffff;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    }}
+                    .header {{
+                        background-color: #11120D;
+                        color: #FFFBF4;
+                        text-align: center;
+                        padding: 30px;
+                    }}
+                    .content {{
+                        padding: 40px 30px;
+                        text-align: center;
+                    }}
+                    .codigo {{
+                        font-size: 36px;
+                        font-weight: bold;
+                        letter-spacing: 10px;
+                        color: #11120D;
+                        background-color: #D8CFBC;
+                        padding: 20px;
+                        border-radius: 10px;
+                        display: inline-block;
+                        margin: 20px 0;
+                    }}
+                    .footer {{
+                        background-color: #565449;
+                        color: #FFFBF4;
+                        text-align: center;
+                        padding: 20px;
+                        font-size: 12px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🐾 DACKY</h1>
+                        <p>Tu app GPS para mascotas</p>
                     </div>
-                </body>
-                </html>
-                """
-                
-                mail.send(msg)
-                print(f"✅ Código {codigo} enviado a {email}")
-                
-            except Exception as e:
-                import traceback
-                print(f"❌ Error al enviar correo:\n{traceback.format_exc()}")
-        
-        # Iniciar el envío en segundo plano
-        thread = Thread(target=enviar_correo_async)
-        thread.daemon = True
-        thread.start()
-        
-        # Responder inmediatamente sin esperar
-        return jsonify({
-            'success': True,
-            'message': 'Código enviado correctamente'
-        }), 200
-        
+                    <div class="content">
+                        <h2>¡Hola {nombre}!</h2>
+                        <p>Tu código de verificación es:</p>
+                        <div class="codigo">{codigo}</div>
+                        <p>Este código es válido por 10 minutos.</p>
+                        <p>Si no solicitaste este código, ignora este correo.</p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dacky App. Todos los derechos reservados.</p>
+                        <p>Este es un correo automático, por favor no respondas.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+
+            mail.send(msg)
+            print(f"✅ Código {codigo} enviado a {email}")
+
     except Exception as e:
         import traceback
-        print(f"❌ Error:\n{traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'message': f'Error al enviar correo: {str(e)}'
-        }), 500
+        print(f"❌ Error al enviar correo:\n{traceback.format_exc()}")
+        
+    thread = Thread(target=enviar_correo_async)
+    thread.daemon = True
+    thread.start()
