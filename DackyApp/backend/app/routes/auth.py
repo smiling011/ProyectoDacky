@@ -295,6 +295,8 @@ def registro_google():
 
 
 # Enviar código de verificación por correo
+# Agregar al final de tu auth.py, REEMPLAZANDO el código que tienes actualmente
+
 @auth_bp.route('/enviar-codigo', methods=['POST'])
 def enviar_codigo():
     data = request.get_json()
@@ -310,6 +312,13 @@ def enviar_codigo():
     def enviar_correo_async(app, email_dest, codigo_verif, nombre_usuario):
         with app.app_context():
             try:
+                print(f"🔍 Intentando enviar correo...")
+                print(f"   📧 Destinatario: {email_dest}")
+                print(f"   🔑 Código: {codigo_verif}")
+                print(f"   👤 Nombre: {nombre_usuario}")
+                print(f"   📨 Servidor: {app.config.get('MAIL_SERVER')}")
+                print(f"   🔐 Usuario: {app.config.get('MAIL_USERNAME')}")
+                
                 msg = Message(
                     subject='Código de verificación - Dacky App',
                     sender=app.config['MAIL_USERNAME'],
@@ -387,12 +396,17 @@ def enviar_codigo():
                 </html>
                 """
                 
+                print(f"📤 Enviando mensaje...")
                 mail.send(msg)
-                print(f"✅ Código {codigo_verif} enviado a {email_dest}")
+                print(f"✅ Código {codigo_verif} enviado exitosamente a {email_dest}")
                 
             except Exception as e:
                 import traceback
-                print(f"❌ Error al enviar correo:\n{traceback.format_exc()}")
+                error_detail = traceback.format_exc()
+                print(f"❌ ERROR CRÍTICO al enviar correo:")
+                print(f"   Tipo de error: {type(e).__name__}")
+                print(f"   Mensaje: {str(e)}")
+                print(f"   Traceback completo:\n{error_detail}")
 
     try:
         # Iniciar el envío en segundo plano
