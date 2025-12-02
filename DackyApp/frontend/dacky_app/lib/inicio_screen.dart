@@ -23,32 +23,27 @@ class _InicioScreenState extends State<InicioScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Iniciar el flujo de autenticación de Google
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
       if (googleUser == null) {
-        // El usuario canceló el inicio de sesión
         setState(() => _isLoading = false);
         return;
       }
 
-      // Obtener los detalles de autenticación
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-      // Crear credencial para Firebase
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Iniciar sesión en Firebase
-      final UserCredential userCredential = 
+      final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
       final User? user = userCredential.user;
 
       if (user != null) {
-        // 🆕 Registrar/actualizar usuario en tu backend Flask
         await _registrarEnBackend(
           email: user.email!,
           nombre: user.displayName?.split(' ').first ?? 'Usuario',
@@ -56,7 +51,6 @@ class _InicioScreenState extends State<InicioScreen> {
           uid: user.uid,
         );
 
-        // Guardar sesión local
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('email', user.email!);
         await prefs.setString('uid', user.uid);
@@ -64,7 +58,6 @@ class _InicioScreenState extends State<InicioScreen> {
         await prefs.setString('token', 'google_auth_${user.uid}');
         await prefs.setString('lastLoginTime', DateTime.now().toIso8601String());
 
-        // Navegar a la pantalla principal
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -82,7 +75,7 @@ class _InicioScreenState extends State<InicioScreen> {
     }
   }
 
-  // 🆕 Registrar usuario en tu backend Flask
+  // registrar usuario en backend Flask
   Future<void> _registrarEnBackend({
     required String email,
     required String nombre,
@@ -102,9 +95,8 @@ class _InicioScreenState extends State<InicioScreen> {
       );
 
       final data = jsonDecode(response.body);
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Usuario registrado o ya existe
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('id', data['id']);
       }
@@ -113,7 +105,7 @@ class _InicioScreenState extends State<InicioScreen> {
     }
   }
 
-  // Método de alerta personalizada
+  // alerta personalizada
   void _mostrarAlerta(String mensaje) {
     showDialog(
       context: context,
@@ -159,158 +151,178 @@ class _InicioScreenState extends State<InicioScreen> {
     );
   }
 
-// el widget de la pantalla de inicio
+  // el widget de la pantalla de inicio
   @override
   Widget build(BuildContext context) {
-    // altura total de la pantalla
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-      body: Stack(
-        children: [
-          // fondo negro
-          Container(
-            color: const Color(0xFF11120D),
-          ),
-          // contenido centrado 
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: EdgeInsets.only(top: screenHeight * 0.1),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  //titulo DACKY cute
-                  const Text(
-                    'DACKY',
-                    style: TextStyle(
-                      fontSize: 35,
-                      color: Color(0xFFFFFBF4), 
-                      fontFamily: 'Montserrat'
+      backgroundColor: const Color(0xFF11120D),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // LOGO Y TÍTULO
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.45,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/Minilogo dacky.png',
+                      width: 200,
+                      height: 200,
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/Minilogo dacky.png',
-                    width: 190,
-                    height: 190,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Cajita gris de la mitad de la pantalla
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: screenHeight / 2,
-              decoration: const BoxDecoration(
-                color: Color(0xFF565449),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'DACKY',
+                      style: TextStyle(
+                        color: Color(0xFFFFFBF4),
+                        fontSize: 32,
+                        
+                        fontFamily: 'Montserrat',
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // texto de bienvenida
-                  const Text(
-                    'BIENVENIDO',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Color(0xFFFFFBF4),
-                      fontFamily: 'Montserrat'
-                    ),
+
+              // CAJA DE OPCIONES — Igual estilo del LOGIN
+              Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF565449),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(35),
+                    topRight: Radius.circular(35),
                   ),
-                  const SizedBox(height: 40),
-                  
-                  // botones de inicio de sesion y registro
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD8CFBC),
-                      foregroundColor: const Color(0xFF11120D),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
+
+                child: Column(
+                  children: [
+                    const Text(
+                      "BIENVENIDO",
+                      style: TextStyle(
+                        color: Color(0xFFFFFBF4),
+                        fontSize: 22,
+                        fontFamily: 'Montserrat',
+                        
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 100, vertical: 15),
                     ),
-                    onPressed: _isLoading ? null : () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: const Text('Inicio Sesión', style: TextStyle(fontFamily: 'Montserrat')),
-                  ),
-                  const SizedBox(height: 15),
-                  
-                  // boton de registro
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD8CFBC),
-                      foregroundColor: const Color(0xFF11120D),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 115, vertical: 15),
-                    ),
-                    onPressed: _isLoading ? null : () {
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    child: const Text('Registro', style: TextStyle(fontFamily: 'Montserrat')),
-                  ),
-                  const SizedBox(height: 30),
-                  
-                  // 🆕 Botón de Google Sign-In
-                  GestureDetector(
-                    onTap: _isLoading ? null : _signInWithGoogle,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: _isLoading ? Colors.grey : Colors.white,
-                        borderRadius: BorderRadius.circular(50),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 5,
-                            offset: const Offset(0, 2),
+
+                    const SizedBox(height: 35),
+
+                    // BOTÓN INICIO DE SESIÓN
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/login');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD8CFBC),
+                          foregroundColor: const Color(0xFF11120D),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                        ],
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        child: const Text(
+                          "Inicio Sesión",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset('assets/google.png', width: 24, height: 24),
-                          const SizedBox(width: 30),
-                          const Text(
-                            'Continuar con Google',
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // BOTÓN REGISTRO
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/register');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD8CFBC),
+                          foregroundColor: const Color(0xFF11120D),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        child: const Text(
+                          "Registro",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // DIVISOR
+                    Row(
+                      children: const [
+                        Expanded(child: Divider(color: Color(0xFFD8CFBC), thickness: 1)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'O',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                              color: Color(0xFFFFFBF4),
                               fontFamily: 'Montserrat',
-                              color: Color(0xFF11120D),
                             ),
                           ),
-                        ],
+                        ),
+                        Expanded(child: Divider(color: Color(0xFFD8CFBC), thickness: 1)),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // GOOGLE → Igual estilo del login
+                    GestureDetector(
+                      onTap: () {
+                        // Llamar a tu función de Google
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset('assets/google.png', width: 26, height: 26),
+                            const SizedBox(width: 12),
+                            const Text(
+                              "Continuar con Google",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF11120D),
+                                fontFamily: 'Montserrat',
+                                
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  
-                  // 🆕 Indicador de carga
-                  if (_isLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: CircularProgressIndicator(
-                        color: Color(0xFFFFFBF4),
-                      ),
-                    ),
-                ],
+
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
