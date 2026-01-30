@@ -13,13 +13,14 @@ Desarrollar una aplicación móvil con **Flutter** y un backend en **Flask** que
 - ✅ Realizar seguimiento en tiempo real mediante GPS
 - ✅ Escanear un código QR para mostrar información de contacto en caso de pérdida
 
-## 🚀 Tecnologías Utilizadas
+## **Tecnologías Utilizadas**
 
-- **Frontend:** Dart (Flutter)
-- **Backend:** Python (Flask)
-- **Base de Datos:** MySQL
-- **Control de Versiones:** GitHub
-- **Infraestructura:** Servidores en la nube (futuro)
+- **Frontend:** Dart 3.6.1 (Flutter **3.27.2** )
+- **Backend:** Python **3.11+** (Flask)
+- **Base de Datos:** PostgreSQL (migrado desde MySQL durante despliegue)
+- **Android Studio:** (con Android SDK)
+- **Control de Versiones:** Git y GitHub
+- **Docker Desktop** para Windows
 
 ## 🚧 Herramientas DevOps
 
@@ -51,9 +52,15 @@ Consulta el archivo [LICENSE](LICENSE) para más información.
 - Configuración de AVD (Android Virtual Device)
 
 ### Backend (Python)
-- Python `3.10` o superior
-- XAMPP (Apache y MySQL)
-- pip
+- Python `3.11.9` o superior
+- Flask  `3.0.3`
+- pip install (dependencias en `requirements.txt`)
+
+### Base de Datos
+- PostgreSQL 17+
+- pgAdmin 4
+- Conexión remota a PostgreSQL en Render
+- Archivo `.env` para configurar credenciales del servidor
 
 ---
 
@@ -83,16 +90,33 @@ pip install flask flask_sqlalchemy pymysql
 
 **c. Configurar base de datos**
 
-- Abrir XAMPP y arrancar MySQL
-- Ir a http://localhost/phpmyadmin
-- Crear una base de datos llamada `dacky`
-- Importar el archivo `dacky.sql` incluido en el proyecto
+- Crear archivo `.env`.
+- Render maneja automáticamente:
+    - creación de la BD
+    - conexión SSL
+    - host y puerto
 
 **d. Archivo config.py (ejemplo)**
 
 ```python
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/dacky'
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class Config:
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+    DB_NAME = os.getenv("DB_NAME")
+
+    SQLALCHEMY_DATABASE_URI = (
+        f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require&options=-csearch_path%3Ddacky"
+    )
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv("SECRET_KEY", "default-secret")
 ```
 
 **e. Ejecutar servidor Flask**
