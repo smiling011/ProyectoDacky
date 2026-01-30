@@ -162,16 +162,16 @@ flutter run
 
 ## 📝 Notas Adicionales
 
-- La app usa una base de datos MySQL alojada localmente
-- El código QR redirige a una URL que podrá conectarse a un backend online
-- Colores y tipografía personalizados según la marca Dacky
+- La app ahora usa una **base de datos PostgreSQL en Render**, no MySQL.
+- El código QR está diseñado para redirigir a URLs del backend alojado en **Render**.
+- La app utiliza colores y tipografía personalizados (paleta Dacky + fuente Montserrat).
+- Este manual documenta la ejecución, despliegue, mantenimiento y configuración de la aplicación móvil y su backend.
 
 ## 📆 Dependencias Principales
 
 ### Backend
 - Flask
 - Flask-SQLAlchemy
-- PyMySQL
 
 ### Frontend
 - Flutter SDK 3.5.0+
@@ -182,11 +182,9 @@ flutter run
 
 ## 🚧 Futuras Mejoras
 
-- Autenticación segura (JWT)
-- Subida de imagen del perro
 - Integración con GPS real y mapas
 - Portal web para dueños y veterinarias
-- Planes premium con publicidad personalizada
+- Funciones adicionales añadidas en versiones posteriores.
 
 ## 📨 Contacto
 
